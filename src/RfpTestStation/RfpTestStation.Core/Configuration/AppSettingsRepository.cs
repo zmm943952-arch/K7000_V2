@@ -62,7 +62,8 @@ namespace RfpTestStation.Core.Configuration
                 SelectedLanguage = settings.SelectedLanguage,
                 ExecutionMode = settings.ExecutionMode,
                 TestPlanPath = ToStoredPath(settings.TestPlanPath),
-                ConfigJsonPath = ToStoredPath(settings.ConfigJsonPath)
+                ConfigJsonPath = ToStoredPath(settings.ConfigJsonPath),
+                MockScenarioName = settings.MockScenarioName
             };
 
             File.WriteAllText(_path, JsonConvert.SerializeObject(normalized, Formatting.Indented));
@@ -82,7 +83,8 @@ namespace RfpTestStation.Core.Configuration
                 SelectedLanguage = "中文",
                 ExecutionMode = "Mock",
                 TestPlanPath = ToForwardSlashes(MakeRelativePath(stationPaths.RepoRoot, stationPaths.TestPlanPath)),
-                ConfigJsonPath = ToForwardSlashes(MakeRelativePath(stationPaths.RepoRoot, stationPaths.ConfigJsonPath))
+                ConfigJsonPath = ToForwardSlashes(MakeRelativePath(stationPaths.RepoRoot, stationPaths.ConfigJsonPath)),
+                MockScenarioName = "None"
             };
         }
 
@@ -97,6 +99,7 @@ namespace RfpTestStation.Core.Configuration
             if (IsLegacyDefaultTestPlanPath(settings.TestPlanPath)) settings.TestPlanPath = defaults.TestPlanPath;
             if (string.IsNullOrWhiteSpace(settings.ConfigJsonPath)) settings.ConfigJsonPath = defaults.ConfigJsonPath;
             if (IsLegacyDefaultConfigPath(settings.ConfigJsonPath)) settings.ConfigJsonPath = defaults.ConfigJsonPath;
+            if (string.IsNullOrWhiteSpace(settings.MockScenarioName)) settings.MockScenarioName = defaults.MockScenarioName;
         }
 
         private static bool IsLegacyDefaultTestPlanPath(string path)

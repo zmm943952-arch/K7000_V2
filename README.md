@@ -23,7 +23,7 @@ dotnet test .\src\RfpTestStation\RfpTestStation.sln --nologo
 当前基线验证结果：
 
 - 测试项目：`RfpTestStation.Tests`
-- 测试数量：170
+- 测试数量：174
 - 最近验证：全部通过
 
 ## 运行时资产
@@ -59,28 +59,39 @@ https://github.com/zmm943952-arch/K7000_V2.git
 当前没有硬件时，优先把 Mock 模式、失败原因、报告链路跑扎实：
 
 1. 用 Mock 模式跑完整 testplan，确认运行页、失败明细、结果统计、报告输出都能闭环。
-2. 临时给目标测试项加 `mock` 参数块，模拟 `Passed`、`Failed`、`Error`、`Stopped` 等状态。
+2. 在运行页选择 Mock 场景，模拟 `Passed`、`Failed`、`Error`、`Stopped` 等状态。
 3. 对每个关键失败场景填写具体 `reason`，确认界面和 CSV/JSON/LOG 报告都能看到同一原因。
 4. 继续压缩 testplan 重复动作，减少无意义等待和重复上电。
 5. 等硬件到位后，再按 `docs/validation/testplan-execution-map.md` 做 `UsbI2c`、`Oscilloscope`、`DaqVoltage` 半硬件验证。
 
-Mock 故障注入示例：
+Mock 场景文件放在 `Runtime/MockScenarios/*.mockscenario.json`。正式 testplan 不需要写 `mock`，运行时会按测试项 ID 临时合并场景：
 
 ```json
 {
-  "mock": {
-    "status": "Failed",
-    "reason": "Mock DAQ voltage outside limits: channel=3; expected=3.135..3.465V; actual=2.900V",
-    "value": 2.9,
-    "low": 3.135,
-    "high": 3.465,
-    "unit": "V"
+  "name": "DAQ voltage low",
+  "items": {
+    "fct.ac-input.3.hi": {
+      "status": "Failed",
+      "reason": "Mock DAQ voltage outside limits: channel=3; expected=3.135..3.465V; actual=2.900V",
+      "value": 2.9,
+      "low": 3.135,
+      "high": 3.465,
+      "unit": "V"
+    }
   }
 }
 ```
 
+当前内置场景：
+
+- `DAQ voltage low`
+- `Fixture position failed`
+- `I2C debug no response`
+- `TCON flash failed`
+
 ## 更新记录
 
+- 2026-07-02：新增运行页 Mock 场景选择；场景文件放在 `Runtime/MockScenarios`，可按测试项 ID 注入失败、错误、停止或测量值，不再需要手动修改正式 testplan。
 - 2026-07-02：增强 Mock 模式，测试项可通过 `mock.status/reason/value/low/high/unit` 注入失败、错误或停止结果；无硬件时可验证失败原因在界面和报告中的完整链路。
 - 2026-07-02：运行页“产品名称”下拉框内容改为居中显示，和语言选择框的对齐方式保持一致。
 - 2026-07-02：修复顶部当前时间不刷新的问题；主窗口增加 1 秒 `DispatcherTimer`，定时刷新 `CurrentTimeText`。

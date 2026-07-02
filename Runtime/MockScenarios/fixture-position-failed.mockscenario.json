@@ -1,0 +1,11 @@
+{
+  "name": "Fixture position failed",
+  "description": "Force fixture position safety check to fail.",
+  "items": {
+    "safety.fixture-position": {
+      "status": "Failed",
+      "reason": "Mock fixture safety input mismatch: inputChannel=2; expected=True; actual=False",
+      "value": false
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "I2C debug no response",
+  "description": "Force I2C debug mode check to error as if the USB-I2C adapter or DUT did not respond.",
+  "items": {
+    "fct.i2c.debug-mode": {
+      "status": "Error",
+      "reason": "Mock I2C no response: adapter=UsbI2c; address=0x12; operation=EnterAndCheckDebugMode",
+      "value": "NoResponse"
+    }
+  }
+}

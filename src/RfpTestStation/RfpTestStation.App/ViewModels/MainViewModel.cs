@@ -22,6 +22,7 @@ using RfpTestStation.Core;
 using RfpTestStation.Core.Abstractions;
 using RfpTestStation.Core.Configuration;
 using RfpTestStation.Core.Model;
+using RfpTestStation.Core.MockScenarios;
 using RfpTestStation.Core.Preflight;
 using RfpTestStation.Core.Reporting;
 using RfpTestStation.Core.Safety;
@@ -33,6 +34,7 @@ namespace RfpTestStation.App.ViewModels
 {
     public sealed class MainViewModel : INotifyPropertyChanged
     {
+        private const string NoMockScenarioName = "None";
         private readonly RelayCommand _startCommand;
         private readonly RelayCommand _stopCommand;
         private readonly RelayCommand _resetCommand;
@@ -52,6 +54,7 @@ namespace RfpTestStation.App.ViewModels
         private bool _isInitializing;
         private string _serialNumber = string.Empty;
         private string _executionMode = "Mock";
+        private string _selectedMockScenarioName = NoMockScenarioName;
         private string _selectedLanguage = "中文";
         private string _overallStatus = "Idle";
         private string _overallStatusReason = string.Empty;
@@ -135,6 +138,7 @@ namespace RfpTestStation.App.ViewModels
                 PlaceholderItems.Add(placeholder);
             }
 
+            LoadMockScenarioOptions();
             ApplySettings(_settingsRepository.LoadOrDefault(_stationPaths));
             LoadStationConfigEditor();
             LoadTestPlanEditor();
@@ -161,6 +165,7 @@ namespace RfpTestStation.App.ViewModels
                     OnPropertyChanged(nameof(IsHardwareMode));
                     OnPropertyChanged(nameof(HardwareModeWarningVisibility));
                     OnPropertyChanged(nameof(HardwareModeWarningText));
+                    OnPropertyChanged(nameof(MockScenarioVisibility));
                     if (!_isInitializing)
                     {
                         RunAutomaticHardwareSelfCheck();
@@ -244,6 +249,12 @@ namespace RfpTestStation.App.ViewModels
         {
             get { return _productName; }
             set { SetField(ref _productName, NormalizeProductName(value)); }
+        }
+
+        public string SelectedMockScenarioName
+        {
+            get { return _selectedMockScenarioName; }
+            set { SetField(ref _selectedMockScenarioName, NormalizeMockScenarioName(value)); }
         }
 
         public string TestPlanName
@@ -672,6 +683,8 @@ namespace RfpTestStation.App.ViewModels
 
         public ObservableCollection<string> ProductNameOptions { get; } = new ObservableCollection<string> { "K7000", "K7048", "K7049" };
 
+        public ObservableCollection<string> MockScenarioOptions { get; } = new ObservableCollection<string>();
+
         public ObservableCollection<TestPlanItemEditorViewModel> TestPlanItems { get; } = new ObservableCollection<TestPlanItemEditorViewModel>();
 
         public ObservableCollection<string> TestPlanValidationIssues { get; } = new ObservableCollection<string>();
@@ -695,6 +708,13 @@ namespace RfpTestStation.App.ViewModels
         public string ExecutionModeLabel { get { return T("运行模式", "Execution Mode"); } }
 
         public string ExecutionModeStatusText { get { return T("当前模式: ", "Mode: ") + ExecutionMode; } }
+
+        public string MockScenarioLabel { get { return T("Mock 场景", "Mock Scenario"); } }
+
+        public Visibility MockScenarioVisibility
+        {
+            get { return string.Equals(ExecutionMode, "Mock", StringComparison.OrdinalIgnoreCase) ? Visibility.Visible : Visibility.Collapsed; }
+        }
 
         public bool IsHardwareMode
         {
@@ -984,6 +1004,7 @@ namespace RfpTestStation.App.ViewModels
                 TestPlanName = testPlan.Name;
                 Logs.Add("Test plan: " + testPlan.Name + " v" + testPlan.Version);
                 var testItems = TestPlanWorkflowFactory.CreateItems(testPlan).ToList();
+                ApplySelectedMockScenario(testItems);
                 StepTree.Clear();
                 foreach (var item in testItems)
                 {
@@ -1164,6 +1185,7 @@ namespace RfpTestStation.App.ViewModels
             ProductName = settings.ProductName;
             SelectedLanguage = settings.SelectedLanguage;
             ExecutionMode = settings.ExecutionMode;
+            SelectedMockScenarioName = settings.MockScenarioName;
             TestPlanPath = settings.TestPlanPath;
             ConfigJsonPath = settings.ConfigJsonPath;
             RefreshConfiguredFileNames();
@@ -1178,7 +1200,8 @@ namespace RfpTestStation.App.ViewModels
                 SelectedLanguage = SelectedLanguage,
                 ExecutionMode = ExecutionMode,
                 TestPlanPath = TestPlanPath,
-                ConfigJsonPath = ConfigJsonPath
+                ConfigJsonPath = ConfigJsonPath,
+                MockScenarioName = SelectedMockScenarioName
             });
 
             SettingsStatusText = T("配置已保存", "Settings saved");
@@ -1191,6 +1214,51 @@ namespace RfpTestStation.App.ViewModels
             return ProductNameOptions.Contains(productName ?? string.Empty)
                 ? productName!
                 : "K7000";
+        }
+
+        private string NormalizeMockScenarioName(string? scenarioName)
+        {
+            var name = string.IsNullOrWhiteSpace(scenarioName) ? NoMockScenarioName : scenarioName!.Trim();
+            if (!MockScenarioOptions.Contains(name))
+            {
+                MockScenarioOptions.Add(name);
+            }
+
+            return name;
+        }
+
+        private void LoadMockScenarioOptions()
+        {
+            MockScenarioOptions.Clear();
+            MockScenarioOptions.Add(NoMockScenarioName);
+            foreach (var scenario in new MockScenarioRepository(_stationPaths.MockScenariosDirectory).LoadAvailable())
+            {
+                if (!MockScenarioOptions.Contains(scenario.Name))
+                {
+                    MockScenarioOptions.Add(scenario.Name);
+                }
+            }
+        }
+
+        private void ApplySelectedMockScenario(IList<TestItem> testItems)
+        {
+            if (!string.Equals(ExecutionMode, "Mock", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(SelectedMockScenarioName, NoMockScenarioName, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            var repository = new MockScenarioRepository(_stationPaths.MockScenariosDirectory);
+            var scenario = repository.LoadAvailable()
+                .FirstOrDefault(x => string.Equals(x.Name, SelectedMockScenarioName, StringComparison.OrdinalIgnoreCase));
+            if (scenario == null)
+            {
+                Logs.Add("Mock scenario not found: " + SelectedMockScenarioName);
+                return;
+            }
+
+            var appliedCount = repository.Apply(scenario.Path, testItems);
+            Logs.Add("Mock scenario applied: " + SelectedMockScenarioName + "; items=" + appliedCount.ToString(CultureInfo.InvariantCulture));
         }
 
         private void LoadTestPlanEditor()
@@ -2134,6 +2202,8 @@ namespace RfpTestStation.App.ViewModels
             OnPropertyChanged(nameof(ConfigLabel));
             OnPropertyChanged(nameof(ExecutionModeLabel));
             OnPropertyChanged(nameof(ExecutionModeStatusText));
+            OnPropertyChanged(nameof(MockScenarioLabel));
+            OnPropertyChanged(nameof(MockScenarioVisibility));
             OnPropertyChanged(nameof(IsHardwareMode));
             OnPropertyChanged(nameof(HardwareModeWarningText));
             OnPropertyChanged(nameof(HardwareModeWarningVisibility));

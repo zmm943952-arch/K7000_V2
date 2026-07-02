@@ -25,6 +25,7 @@ namespace RfpTestStation.Tests.App
                 Assert.Equal("Mock", settings.ExecutionMode);
                 Assert.Equal("Runtime/TestPlans/Rfp7000V2.testplan.json", settings.TestPlanPath);
                 Assert.Equal("Runtime/Config/Config.json", settings.ConfigJsonPath);
+                Assert.Equal("None", settings.MockScenarioName);
             }
             finally
             {
@@ -47,7 +48,8 @@ namespace RfpTestStation.Tests.App
                     SelectedLanguage = "English",
                     ExecutionMode = "Hardware",
                     TestPlanPath = "Runtime/TestPlans/Alt.testplan.json",
-                    ConfigJsonPath = "Runtime/Config/AltConfig.json"
+                    ConfigJsonPath = "Runtime/Config/AltConfig.json",
+                    MockScenarioName = "DAQ voltage low"
                 });
 
                 var loaded = repository.LoadOrDefault(stationPaths);
@@ -58,6 +60,7 @@ namespace RfpTestStation.Tests.App
                 Assert.Equal("Hardware", loaded.ExecutionMode);
                 Assert.Equal("Runtime/TestPlans/Alt.testplan.json", loaded.TestPlanPath);
                 Assert.Equal("Runtime/Config/AltConfig.json", loaded.ConfigJsonPath);
+                Assert.Equal("DAQ voltage low", loaded.MockScenarioName);
             }
             finally
             {

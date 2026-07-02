@@ -1,0 +1,12 @@
+{
+  "name": "TCON flash failed",
+  "description": "Force TCON flash step to fail with a process-style reason.",
+  "items": {
+    "flash.tcon": {
+      "status": "Error",
+      "reason": "Mock TCON flash failed: script=Runtime/Flash/RedCase_Auto/Debug/FlashUpdate_Run.bat; exitCode=4; stderr=Firmware file not found",
+      "value": "ExitCode=4",
+      "externalLogPath": "Reports/Mock/tcon_flash_failed.log"
+    }
+  }
+}

@@ -268,6 +268,52 @@ namespace RfpTestStation.Tests.App
         }
 
         [Fact]
+        public void RunPageBindsMockScenarioSelector()
+        {
+            var xaml = File.ReadAllText(Path.Combine(
+                TestPaths.RepoRoot(),
+                "src",
+                "RfpTestStation",
+                "RfpTestStation.App",
+                "MainWindow.xaml"));
+
+            Assert.Contains("Text=\"{Binding MockScenarioLabel}\"", xaml);
+            Assert.Contains("ItemsSource=\"{Binding MockScenarioOptions}\"", xaml);
+            Assert.Contains("SelectedItem=\"{Binding SelectedMockScenarioName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}\"", xaml);
+            Assert.Contains("Visibility=\"{Binding MockScenarioVisibility}\"", xaml);
+        }
+
+        [Fact]
+        public void StartsWithMockScenarioOptionsLoadedFromRuntimeDirectory()
+        {
+            var repoRoot = CreateTempRepoRoot();
+            try
+            {
+                Directory.CreateDirectory(Path.Combine(repoRoot, "Runtime", "MockScenarios"));
+                File.WriteAllText(
+                    Path.Combine(repoRoot, "Runtime", "MockScenarios", "daq-low.mockscenario.json"),
+                    @"{
+  ""name"": ""DAQ voltage low"",
+  ""items"": {
+    ""fixture.prepare"": {
+      ""status"": ""Failed"",
+      ""reason"": ""Mock fixture prepare failed""
+    }
+  }
+}");
+
+                var viewModel = new MainViewModel(repoRoot);
+
+                Assert.Equal("None", viewModel.SelectedMockScenarioName);
+                Assert.Equal(new[] { "None", "DAQ voltage low" }, viewModel.MockScenarioOptions.ToArray());
+            }
+            finally
+            {
+                Directory.Delete(repoRoot, true);
+            }
+        }
+
+        [Fact]
         public void StartsWithSavedStartupSettingsWhenSettingsFileExists()
         {
             var repoRoot = CreateTempRepoRoot();
@@ -281,7 +327,8 @@ namespace RfpTestStation.Tests.App
                     SelectedLanguage = "English",
                     ExecutionMode = "Hardware",
                     TestPlanPath = "Runtime/TestPlans/Alt.testplan.json",
-                    ConfigJsonPath = "Runtime/Config/AltConfig.json"
+                    ConfigJsonPath = "Runtime/Config/AltConfig.json",
+                    MockScenarioName = "DAQ voltage low"
                 });
 
                 var viewModel = new MainViewModel(repoRoot);
@@ -292,6 +339,7 @@ namespace RfpTestStation.Tests.App
                 Assert.Equal("Hardware", viewModel.ExecutionMode);
                 Assert.Equal("Runtime/TestPlans/Alt.testplan.json", viewModel.TestPlanPath);
                 Assert.Equal("Runtime/Config/AltConfig.json", viewModel.ConfigJsonPath);
+                Assert.Equal("DAQ voltage low", viewModel.SelectedMockScenarioName);
                 Assert.Equal("Alt Test Plan", viewModel.TestPlanName);
                 Assert.Equal("AltConfig.json", viewModel.ConfigName);
             }
@@ -342,7 +390,8 @@ namespace RfpTestStation.Tests.App
                     SelectedLanguage = "English",
                     ExecutionMode = "Hardware",
                     TestPlanPath = "Runtime/TestPlans/Alt.testplan.json",
-                    ConfigJsonPath = "Runtime/Config/AltConfig.json"
+                    ConfigJsonPath = "Runtime/Config/AltConfig.json",
+                    SelectedMockScenarioName = "DAQ voltage low"
                 };
 
                 viewModel.SaveSettingsCommand.Execute(null);
@@ -354,6 +403,7 @@ namespace RfpTestStation.Tests.App
                 Assert.Equal("Hardware", loaded.ExecutionMode);
                 Assert.Equal("Runtime/TestPlans/Alt.testplan.json", loaded.TestPlanPath);
                 Assert.Equal("Runtime/Config/AltConfig.json", loaded.ConfigJsonPath);
+                Assert.Equal("DAQ voltage low", loaded.MockScenarioName);
                 Assert.Contains(viewModel.Logs, x => x.Contains("Saved startup settings"));
             }
             finally

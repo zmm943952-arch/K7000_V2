@@ -13,5 +13,7 @@ namespace RfpTestStation.Core.Configuration
         public string TestPlanPath { get; set; } = "Runtime/TestPlans/Rfp7000V2.testplan.json";
 
         public string ConfigJsonPath { get; set; } = "Runtime/Config/Config.json";
+
+        public string MockScenarioName { get; set; } = "None";
     }
 }

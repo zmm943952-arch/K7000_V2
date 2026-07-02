@@ -36,6 +36,11 @@ namespace RfpTestStation.Core
             get { return Path.Combine(RepoRoot, "Runtime", "TestPlans", "Rfp7000V2.testplan.json"); }
         }
 
+        public string MockScenariosDirectory
+        {
+            get { return Path.Combine(RepoRoot, "Runtime", "MockScenarios"); }
+        }
+
         public string ReportsDirectory
         {
             get { return Path.Combine(RepoRoot, "Reports"); }
