@@ -91,6 +91,7 @@ Mock 场景文件放在 `Runtime/MockScenarios/*.mockscenario.json`。正式 tes
 
 ## 更新记录
 
+- 2026-07-02：Mock 场景选择从主运行页移到设置页启动配置，运行页只保留当前运行模式，避免操作员在主测试界面误切故障场景。
 - 2026-07-02：失败明细和报告增加 `ExpectedValue`、`CompareType`、`Target` 诊断字段；Mock 场景和安全检查失败不再只显示实际值，可同时显示期望值、比较方式和对象/通道。
 - 2026-07-02：新增运行页 Mock 场景选择；场景文件放在 `Runtime/MockScenarios`，可按测试项 ID 注入失败、错误、停止或测量值，不再需要手动修改正式 testplan。
 - 2026-07-02：增强 Mock 模式，测试项可通过 `mock.status/reason/value/low/high/unit` 注入失败、错误或停止结果；无硬件时可验证失败原因在界面和报告中的完整链路。

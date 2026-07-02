@@ -293,7 +293,7 @@ namespace RfpTestStation.Tests.App
         }
 
         [Fact]
-        public void RunPageBindsMockScenarioSelector()
+        public void SettingsPageBindsMockScenarioSelector()
         {
             var xaml = File.ReadAllText(Path.Combine(
                 TestPaths.RepoRoot(),
@@ -301,11 +301,13 @@ namespace RfpTestStation.Tests.App
                 "RfpTestStation",
                 "RfpTestStation.App",
                 "MainWindow.xaml"));
+            var runPage = xaml.Substring(xaml.IndexOf("Visibility=\"{Binding RunPageVisibility}\"", StringComparison.Ordinal));
+            runPage = runPage.Substring(0, runPage.IndexOf("Visibility=\"{Binding TestPlanPageVisibility}\"", StringComparison.Ordinal));
 
             Assert.Contains("Text=\"{Binding MockScenarioLabel}\"", xaml);
             Assert.Contains("ItemsSource=\"{Binding MockScenarioOptions}\"", xaml);
             Assert.Contains("SelectedItem=\"{Binding SelectedMockScenarioName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}\"", xaml);
-            Assert.Contains("Visibility=\"{Binding MockScenarioVisibility}\"", xaml);
+            Assert.DoesNotContain("SelectedMockScenarioName", runPage);
         }
 
         [Fact]

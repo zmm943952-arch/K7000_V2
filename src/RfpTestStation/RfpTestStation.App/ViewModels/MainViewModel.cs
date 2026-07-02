@@ -165,7 +165,6 @@ namespace RfpTestStation.App.ViewModels
                     OnPropertyChanged(nameof(IsHardwareMode));
                     OnPropertyChanged(nameof(HardwareModeWarningVisibility));
                     OnPropertyChanged(nameof(HardwareModeWarningText));
-                    OnPropertyChanged(nameof(MockScenarioVisibility));
                     if (!_isInitializing)
                     {
                         RunAutomaticHardwareSelfCheck();
@@ -710,11 +709,6 @@ namespace RfpTestStation.App.ViewModels
         public string ExecutionModeStatusText { get { return T("当前模式: ", "Mode: ") + ExecutionMode; } }
 
         public string MockScenarioLabel { get { return T("Mock 场景", "Mock Scenario"); } }
-
-        public Visibility MockScenarioVisibility
-        {
-            get { return string.Equals(ExecutionMode, "Mock", StringComparison.OrdinalIgnoreCase) ? Visibility.Visible : Visibility.Collapsed; }
-        }
 
         public bool IsHardwareMode
         {
@@ -2210,7 +2204,6 @@ namespace RfpTestStation.App.ViewModels
             OnPropertyChanged(nameof(ExecutionModeLabel));
             OnPropertyChanged(nameof(ExecutionModeStatusText));
             OnPropertyChanged(nameof(MockScenarioLabel));
-            OnPropertyChanged(nameof(MockScenarioVisibility));
             OnPropertyChanged(nameof(IsHardwareMode));
             OnPropertyChanged(nameof(HardwareModeWarningText));
             OnPropertyChanged(nameof(HardwareModeWarningVisibility));
