@@ -530,6 +530,108 @@ namespace RfpTestStation.Tests.TestPlans
             Assert.All(oscilloscope.StepNames, name => Assert.Contains("ReadVavg(3)", name));
         }
 
+        [Fact]
+        public async Task HardwareModeExecutesI2cFunctionalGroupWithSharedPowerSetup()
+        {
+            var io = new FakeStationIo();
+            var power = new FakeStepAdapter("PowerSupply");
+            var usbI2c = new QueuedStepAdapter("UsbI2c");
+            usbI2c.Results.Enqueue(new StepResult { Status = StepStatus.Passed, Value = "88,88,08,00,3F" });
+            usbI2c.Results.Enqueue(new StepResult { Status = StepStatus.Passed, Value = "88,8A,08,02,06" });
+            usbI2c.Results.Enqueue(new StepResult { Status = StepStatus.Passed, Value = "88,88,08,00,3F" });
+            usbI2c.Results.Enqueue(new StepResult { Status = StepStatus.Passed, Value = "88,8A,08,02,06" });
+            var executor = new TestPlanItemExecutor(new FakeRegistry(
+                new FakeFlashAdapter(),
+                io,
+                usbI2c: usbI2c,
+                powerSupply: power));
+            var item = new TestItem("fct.hvac-sw.group", "HVAC Switch Group", TestItemKind.FunctionalCheck)
+            {
+                Parameters = JObject.Parse(@"{
+  ""template"": ""I2cFunctionalGroup"",
+  ""powerOnBefore"": [ { ""channel"": 1, ""voltage"": 12.2 } ],
+  ""settleMs"": 0,
+  ""address"": ""0x12"",
+  ""readRegister"": ""0xD4"",
+  ""readLength"": 5,
+  ""items"": [
+    {
+      ""name"": ""DEF_FRT_SW"",
+      ""template"": ""I2cByteSequence"",
+      ""relayOutputChannel"": 31,
+      ""checks"": [
+        { ""name"": ""LO"", ""expectedBytes"": ""88 88 08"" },
+        { ""name"": ""HI"", ""expectedBytes"": ""88 8A 08"" }
+      ]
+    },
+    {
+      ""name"": ""DFG_RR_SW"",
+      ""template"": ""I2cByteSequence"",
+      ""relayOutputChannel"": 32,
+      ""checks"": [
+        { ""name"": ""LO"", ""expectedBytes"": ""88 88 08"" },
+        { ""name"": ""HI"", ""expectedBytes"": ""88 8A 08"" }
+      ]
+    }
+  ]
+}")
+            };
+
+            var result = await executor.ExecuteAsync(
+                item,
+                new WorkflowRunContext { Mode = "Hardware" },
+                CancellationToken.None);
+
+            Assert.Equal(StepStatus.Passed, result.Status);
+            Assert.Contains("DEF_FRT_SW", result.Message);
+            Assert.Contains("DFG_RR_SW", result.Message);
+            Assert.Equal(new[] { "Write 31=True", "Write 31=False", "Write 32=True", "Write 32=False" }, io.Calls);
+            Assert.Single(power.StepNames, name => name.Contains("PowerOn-Channel1-12.2V"));
+            Assert.Equal(4, usbI2c.StepNames.Count);
+        }
+
+        [Fact]
+        public async Task HardwareModeI2cFunctionalGroupReturnsChildFailureReason()
+        {
+            var usbI2c = new QueuedStepAdapter("UsbI2c");
+            var daq = new QueuedStepAdapter("DaqVoltage");
+            daq.Results.Enqueue(new StepResult { Status = StepStatus.Passed, Value = 2.0 });
+            var executor = new TestPlanItemExecutor(new FakeRegistry(
+                new FakeFlashAdapter(),
+                usbI2c: usbI2c,
+                daqVoltage: daq));
+            var item = new TestItem("fct.hvac-ind.group", "HVAC Indicator Group", TestItemKind.FunctionalCheck)
+            {
+                Parameters = JObject.Parse(@"{
+  ""template"": ""I2cFunctionalGroup"",
+  ""address"": ""0x12"",
+  ""register"": ""0x15"",
+  ""settleMs"": 0,
+  ""items"": [
+    {
+      ""name"": ""AUTO_IND"",
+      ""template"": ""I2cWriteDaqVoltage"",
+      ""daqChannel"": 4,
+      ""checks"": [
+        { ""name"": ""HI"", ""writeData"": ""01"", ""low"": 3.135, ""high"": 3.465 }
+      ]
+    }
+  ]
+}")
+            };
+
+            var result = await executor.ExecuteAsync(
+                item,
+                new WorkflowRunContext { Mode = "Hardware" },
+                CancellationToken.None);
+
+            Assert.Equal(StepStatus.Failed, result.Status);
+            Assert.Contains("AUTO_IND", result.Message);
+            Assert.Contains("HI voltage outside limits", result.Message);
+            Assert.Equal(2.0, result.Value);
+            Assert.Equal("V", result.Unit);
+        }
+
         private static TestItem FlashItem()
         {
             return new TestItem("flash.mcu.simple", "MCU Simple Flash", TestItemKind.Flash)

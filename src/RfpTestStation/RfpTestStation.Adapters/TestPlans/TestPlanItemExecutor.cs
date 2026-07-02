@@ -259,9 +259,82 @@ namespace RfpTestStation.Adapters.TestPlans
                 return await ExecuteI2cWriteOscilloscopeVavgAsync(item, cancellationToken).ConfigureAwait(false);
             }
 
+            if (string.Equals(template, "I2cFunctionalGroup", StringComparison.OrdinalIgnoreCase))
+            {
+                return await ExecuteI2cFunctionalGroupAsync(item, cancellationToken).ConfigureAwait(false);
+            }
+
             return TestItemResult.FromError(
                 item,
                 new NotSupportedException("FunctionalCheck template is not wired: " + template));
+        }
+
+        private async Task<TestItemResult> ExecuteI2cFunctionalGroupAsync(TestItem item, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await ExecutePowerListAsync(item, "powerOnBefore", cancellationToken).ConfigureAwait(false);
+                await ExecutePowerListAsync(item, "powerOffBefore", cancellationToken).ConfigureAwait(false);
+
+                var groupParameters = item.Parameters;
+                var childDefinitions = ReadRequiredArrayParameter(item, "items");
+                var passedNames = new List<string>();
+                TestItemResult? lastChildResult = null;
+
+                foreach (var token in childDefinitions)
+                {
+                    if (token.Type != JTokenType.Object)
+                    {
+                        return TestItemResult.FromError(item, new JsonException("Functional group child item must be an object."));
+                    }
+
+                    var childObject = (JObject)token;
+                    var childName = ReadRequiredString(childObject, "name");
+                    var childParameters = BuildFunctionalGroupChildParameters(groupParameters, childObject);
+                    var childTemplate = childParameters["template"] == null ? null : childParameters["template"]!.ToString();
+                    if (string.IsNullOrWhiteSpace(childTemplate))
+                    {
+                        return TestItemResult.FromError(
+                            item,
+                            new JsonException("Functional group child template is missing: " + childName));
+                    }
+
+                    var childItem = new TestItem(item.Id + "." + NormalizeChildId(childName), childName, TestItemKind.FunctionalCheck)
+                    {
+                        IsRequired = item.IsRequired,
+                        StopOnFailure = item.StopOnFailure,
+                        Timeout = item.Timeout,
+                        SourceReference = item.SourceReference,
+                        Parameters = childParameters
+                    };
+                    lastChildResult = await ExecuteFunctionalCheckAsync(childItem, cancellationToken).ConfigureAwait(false);
+                    if (lastChildResult.Status != StepStatus.Passed)
+                    {
+                        return FromFunctionalGroupChildResult(item, childName, lastChildResult);
+                    }
+
+                    passedNames.Add(childName);
+                }
+
+                var passed = TestItemResult.Passed(item, "Functional group passed: " + string.Join(", ", passedNames));
+                if (lastChildResult != null)
+                {
+                    passed.Value = lastChildResult.Value;
+                    passed.Unit = lastChildResult.Unit;
+                    passed.LowLimit = lastChildResult.LowLimit;
+                    passed.HighLimit = lastChildResult.HighLimit;
+                }
+
+                return passed;
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                return TestItemResult.FromError(item, ex);
+            }
         }
 
         private async Task<TestItemResult> ExecuteI2cByteSequenceAsync(TestItem item, CancellationToken cancellationToken)
@@ -936,6 +1009,72 @@ namespace RfpTestStation.Adapters.TestPlans
         {
             var token = item.Parameters[name];
             return token == null ? null : token.ToString();
+        }
+
+        private static JObject BuildFunctionalGroupChildParameters(JObject groupParameters, JObject childDefinition)
+        {
+            var merged = new JObject();
+            var groupOnlyParameters = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "template",
+                "items",
+                "powerOnBefore",
+                "powerOffBefore"
+            };
+            var childMetadata = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "id",
+                "name"
+            };
+
+            foreach (var property in groupParameters.Properties())
+            {
+                if (!groupOnlyParameters.Contains(property.Name))
+                {
+                    merged[property.Name] = property.Value.DeepClone();
+                }
+            }
+
+            foreach (var property in childDefinition.Properties())
+            {
+                if (!childMetadata.Contains(property.Name))
+                {
+                    merged[property.Name] = property.Value.DeepClone();
+                }
+            }
+
+            return merged;
+        }
+
+        private static TestItemResult FromFunctionalGroupChildResult(TestItem groupItem, string childName, TestItemResult childResult)
+        {
+            return new TestItemResult
+            {
+                ItemId = groupItem.Id,
+                ItemName = groupItem.Name,
+                Kind = groupItem.Kind,
+                SourceReference = groupItem.SourceReference,
+                Status = childResult.Status,
+                Value = childResult.Value,
+                Unit = childResult.Unit,
+                LowLimit = childResult.LowLimit,
+                HighLimit = childResult.HighLimit,
+                Message = childName + ": " + childResult.Message,
+                ExternalLogPath = childResult.ExternalLogPath,
+                StartTime = childResult.StartTime,
+                EndTime = childResult.EndTime,
+                Error = childResult.Error
+            };
+        }
+
+        private static string NormalizeChildId(string value)
+        {
+            var chars = value
+                .Trim()
+                .Select(x => char.IsLetterOrDigit(x) ? char.ToLowerInvariant(x) : '-')
+                .ToArray();
+            var normalized = new string(chars).Trim('-');
+            return string.IsNullOrWhiteSpace(normalized) ? "child" : normalized;
         }
 
         private static int ReadRequiredHexParameter(TestItem item, string name)

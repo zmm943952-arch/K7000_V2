@@ -19,13 +19,12 @@ namespace RfpTestStation.Tests.TestPlans
             Assert.Equal("RFP7000V2", plan.Product);
             Assert.NotEmpty(plan.Items);
             Assert.Contains(plan.Items, x => x.Id == "flash.mcu.simple" && x.Kind == TestItemKind.Flash);
-            Assert.Contains(plan.Items, x => x.Id == "fct.hvac-position.tmp1-phsa" && x.Kind == TestItemKind.FunctionalCheck);
-            Assert.Contains(plan.Items, x => x.Id == "fct.hvac-sw.def-frt" && x.Kind == TestItemKind.FunctionalCheck);
-            Assert.Contains(plan.Items, x => x.Id == "fct.hvac-ind.auto" && x.Kind == TestItemKind.FunctionalCheck);
-            Assert.Contains(plan.Items, x => x.Id == "fct.button.s1" && x.Kind == TestItemKind.FunctionalCheck);
-            Assert.Contains(plan.Items, x => x.Id == "fct.wakesp" && x.Kind == TestItemKind.FunctionalCheck);
-            Assert.Contains(plan.Items, x => x.Id == "fct.swpack-pwm.pwm1" && x.Kind == TestItemKind.FunctionalCheck);
-            Assert.Contains(plan.Items, x => x.Id == "fct.hvac-bklt.wh" && x.Kind == TestItemKind.FunctionalCheck);
+            AssertFunctionalGroup(plan, "fct.hvac-position.group", 6);
+            AssertFunctionalGroup(plan, "fct.hvac-sw.group", 5);
+            AssertFunctionalGroup(plan, "fct.hvac-ind.group", 6);
+            AssertFunctionalGroup(plan, "fct.button.group", 7);
+            AssertFunctionalGroup(plan, "fct.swpack-pwm.group", 4);
+            AssertFunctionalGroup(plan, "fct.hvac-bklt.group", 5);
             Assert.Contains(plan.Items, x => x.Id == "cleanup.fixture" && x.Kind == TestItemKind.Cleanup);
 
             var fixturePositionIndex = plan.Items.Select((x, i) => new { Item = x, Index = i }).Single(x => x.Item.Id == "safety.fixture-position").Index;
@@ -198,6 +197,14 @@ namespace RfpTestStation.Tests.TestPlans
         private static string ProjectTestPlanPath()
         {
             return Path.Combine(TestPaths.RepoRoot(), "src", "RfpTestStation", "Rfp7000V2.testplan.json");
+        }
+
+        private static void AssertFunctionalGroup(TestPlanDefinition plan, string id, int childCount)
+        {
+            var item = plan.Items.Single(x => x.Id == id);
+            Assert.Equal(TestItemKind.FunctionalCheck, item.Kind);
+            Assert.Equal("I2cFunctionalGroup", (string)item.Parameters["template"]!);
+            Assert.Equal(childCount, item.Parameters["items"]!.Count());
         }
     }
 }

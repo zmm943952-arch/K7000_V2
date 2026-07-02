@@ -11,9 +11,23 @@
       "stopOnFailure": true,
       "timeoutSeconds": 60,
       "parameters": {
+        "clearOutputStartChannel": 10,
+        "clearOutputEndChannel": 43,
         "fixtureUpOutputChannel": 1,
         "fixtureDownOutputChannel": 2,
         "note": "Initialize station IO and instruments."
+      }
+    },
+    {
+      "id": "safety.fixture-position",
+      "name": "Fixture Position Safety Wait",
+      "kind": "SafetyCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "inputChannel": 2,
+        "expected": true
       }
     },
     {
@@ -65,18 +79,6 @@
       }
     },
     {
-      "id": "safety.fixture-position",
-      "name": "Fixture Position Safety Wait",
-      "kind": "SafetyCheck",
-      "required": true,
-      "stopOnFailure": true,
-      "timeoutSeconds": 30,
-      "parameters": {
-        "inputChannel": 2,
-        "expected": true
-      }
-    },
-    {
       "id": "fct.i2c.debug-mode",
       "name": "I2C Debug Mode Check",
       "kind": "Measurement",
@@ -87,6 +89,959 @@
         "adapter": "UsbI2c",
         "address": "0x12",
         "operation": "EnterAndCheckDebugMode"
+      }
+    },
+    {
+      "id": "fct.hvac-position.group",
+      "name": "HVAC Position Group",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 180,
+      "parameters": {
+        "template": "I2cFunctionalGroup",
+        "address": "0x12",
+        "readLength": 7,
+        "wordHighIndex": 5,
+        "wordLowIndex": 4,
+        "items": [
+          {
+            "id": "fct.hvac-position.tmp1-phsa",
+            "name": "TMP1_PHSA",
+            "template": "I2cWriteReadWordRange",
+            "relayOutputChannel": 27,
+            "checks": [
+              {
+                "name": "0V",
+                "writeData": "FF 10 20 D1",
+                "settleMs": 2000,
+                "low": "0x0000",
+                "high": "0x00BA"
+              },
+              {
+                "name": "3.3V",
+                "powerOn": [
+                  {
+                    "channel": 3,
+                    "voltage": 3.3
+                  }
+                ],
+                "writeData": "FF 10 20 D1",
+                "settleMs": 2000,
+                "low": "0x0D16",
+                "high": "0x0FFF"
+              }
+            ]
+          },
+          {
+            "id": "fct.hvac-position.tmp1-phsb",
+            "name": "TMP1_PHSB",
+            "template": "I2cWriteReadWordRange",
+            "relayOutputChannel": 28,
+            "checks": [
+              {
+                "name": "0V",
+                "writeData": "FF 10 21 D0",
+                "settleMs": 2000,
+                "low": "0x0000",
+                "high": "0x00BA"
+              },
+              {
+                "name": "3.3V",
+                "powerOn": [
+                  {
+                    "channel": 3,
+                    "voltage": 3.3
+                  }
+                ],
+                "writeData": "FF 10 21 D0",
+                "settleMs": 2000,
+                "low": "0x0D16",
+                "high": "0x0FFF"
+              }
+            ]
+          },
+          {
+            "id": "fct.hvac-position.tmp2-phsa",
+            "name": "TMP2_PHSA",
+            "template": "I2cWriteReadWordRange",
+            "relayOutputChannel": 29,
+            "checks": [
+              {
+                "name": "0V",
+                "writeData": "FF 10 22 CF",
+                "settleMs": 2000,
+                "low": "0x0000",
+                "high": "0x00BA"
+              },
+              {
+                "name": "3.3V",
+                "powerOn": [
+                  {
+                    "channel": 3,
+                    "voltage": 3.3
+                  }
+                ],
+                "writeData": "FF 10 22 CF",
+                "settleMs": 2000,
+                "low": "0x0D16",
+                "high": "0x0FFF"
+              }
+            ]
+          },
+          {
+            "id": "fct.hvac-position.tmp2-phsb",
+            "name": "TMP2_PHSB",
+            "template": "I2cWriteReadWordRange",
+            "relayOutputChannel": 30,
+            "checks": [
+              {
+                "name": "0V",
+                "writeData": "FF 10 23 CE",
+                "settleMs": 2000,
+                "low": "0x0000",
+                "high": "0x00BA"
+              },
+              {
+                "name": "3.3V",
+                "powerOn": [
+                  {
+                    "channel": 3,
+                    "voltage": 3.3
+                  }
+                ],
+                "writeData": "FF 10 23 CE",
+                "settleMs": 2000,
+                "low": "0x0D16",
+                "high": "0x0FFF"
+              }
+            ]
+          },
+          {
+            "id": "fct.hvac-position.fan-up-sw",
+            "name": "FAN_UP_SW",
+            "template": "I2cWriteReadWordRange",
+            "relayOutputChannel": 33,
+            "checks": [
+              {
+                "name": "0V",
+                "writeData": "FF 10 26 CB",
+                "settleMs": 2000,
+                "low": "0x0000",
+                "high": "0x00BA"
+              },
+              {
+                "name": "3.3V",
+                "powerOn": [
+                  {
+                    "channel": 3,
+                    "voltage": 3.3
+                  }
+                ],
+                "writeData": "FF 10 26 CB",
+                "settleMs": 2000,
+                "low": "0x0D16",
+                "high": "0x0FFF"
+              }
+            ]
+          },
+          {
+            "id": "fct.hvac-position.fan-dn-sw",
+            "name": "FAN_DN_SW",
+            "template": "I2cWriteReadWordRange",
+            "relayOutputChannel": 34,
+            "checks": [
+              {
+                "name": "0V",
+                "writeData": "FF 10 27 CA",
+                "settleMs": 2000,
+                "low": "0x0000",
+                "high": "0x00BA"
+              },
+              {
+                "name": "3.3V",
+                "powerOn": [
+                  {
+                    "channel": 3,
+                    "voltage": 3.3
+                  }
+                ],
+                "writeData": "FF 10 27 CA",
+                "settleMs": 2000,
+                "low": "0x0D16",
+                "high": "0x0FFF"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "fct.hvac-sw.group",
+      "name": "HVAC Switch Group",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 150,
+      "parameters": {
+        "template": "I2cFunctionalGroup",
+        "address": "0x12",
+        "readRegister": "0xD4",
+        "readLength": 5,
+        "powerOnBefore": [
+          {
+            "channel": 1,
+            "voltage": 12.2
+          }
+        ],
+        "items": [
+          {
+            "id": "fct.hvac-sw.def-frt",
+            "name": "DEF_FRT_SW",
+            "template": "I2cByteSequence",
+            "relayOutputChannel": 31,
+            "checks": [
+              {
+                "name": "LO",
+                "expectedBytes": "88 88 08"
+              },
+              {
+                "name": "HI",
+                "powerOn": [
+                  {
+                    "channel": 3,
+                    "voltage": 3.3
+                  }
+                ],
+                "settleMs": 2000,
+                "expectedBytes": "88 8A 08"
+              }
+            ]
+          },
+          {
+            "id": "fct.hvac-sw.dfg-rr",
+            "name": "DFG_RR_SW",
+            "template": "I2cByteSequence",
+            "relayOutputChannel": 32,
+            "checks": [
+              {
+                "name": "LO",
+                "expectedBytes": "88 88 08"
+              },
+              {
+                "name": "HI",
+                "powerOn": [
+                  {
+                    "channel": 3,
+                    "voltage": 3.3
+                  }
+                ],
+                "settleMs": 2000,
+                "expectedBytes": "A8 88 08"
+              }
+            ]
+          },
+          {
+            "id": "fct.hvac-sw.auto",
+            "name": "AUTO_SW",
+            "template": "I2cByteSequence",
+            "relayOutputChannel": 35,
+            "checks": [
+              {
+                "name": "LO",
+                "expectedBytes": "88 88 08"
+              },
+              {
+                "name": "HI",
+                "powerOn": [
+                  {
+                    "channel": 3,
+                    "voltage": 3.3
+                  }
+                ],
+                "settleMs": 2000,
+                "expectedBytes": "8A 88 08"
+              }
+            ]
+          },
+          {
+            "id": "fct.hvac-sw.ac-req",
+            "name": "AC_REQ_SW",
+            "template": "I2cByteSequence",
+            "relayOutputChannel": 36,
+            "checks": [
+              {
+                "name": "LO",
+                "expectedBytes": "88 88 08"
+              },
+              {
+                "name": "HI",
+                "powerOn": [
+                  {
+                    "channel": 3,
+                    "voltage": 3.3
+                  }
+                ],
+                "settleMs": 2000,
+                "expectedBytes": "88 88 0A"
+              }
+            ]
+          },
+          {
+            "id": "fct.hvac-sw.recir",
+            "name": "RECIR_SW",
+            "template": "I2cByteSequence",
+            "relayOutputChannel": 37,
+            "checks": [
+              {
+                "name": "LO",
+                "expectedBytes": "88 88 08"
+              },
+              {
+                "name": "HI",
+                "powerOn": [
+                  {
+                    "channel": 3,
+                    "voltage": 3.3
+                  }
+                ],
+                "settleMs": 2000,
+                "expectedBytes": "88 A8 08"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "fct.hvac-ind.group",
+      "name": "HVAC Indicator Group",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 180,
+      "parameters": {
+        "template": "I2cFunctionalGroup",
+        "address": "0x12",
+        "register": "0x15",
+        "daqChannel": 4,
+        "powerOnBefore": [
+          {
+            "channel": 1,
+            "voltage": 12.2
+          }
+        ],
+        "items": [
+          {
+            "id": "fct.hvac-ind.auto",
+            "name": "AUTO_IND",
+            "template": "I2cWriteDaqVoltage",
+            "checks": [
+              {
+                "name": "HI",
+                "writeData": "01",
+                "low": 3.135,
+                "high": 3.465
+              },
+              {
+                "name": "LO",
+                "writeData": "00",
+                "low": -1.0,
+                "high": 1.0
+              }
+            ]
+          },
+          {
+            "id": "fct.hvac-ind.hvac-en",
+            "name": "HVAC_EN_IND",
+            "template": "I2cWriteDaqVoltage",
+            "checks": [
+              {
+                "name": "HI",
+                "writeData": "02",
+                "low": 3.135,
+                "high": 3.465
+              },
+              {
+                "name": "LO",
+                "writeData": "00",
+                "low": -1.0,
+                "high": 1.0
+              }
+            ]
+          },
+          {
+            "id": "fct.hvac-ind.def-frt",
+            "name": "DEF_FRT_IND",
+            "template": "I2cWriteDaqVoltage",
+            "checks": [
+              {
+                "name": "HI",
+                "writeData": "04",
+                "low": 3.135,
+                "high": 3.465
+              },
+              {
+                "name": "LO",
+                "writeData": "00",
+                "low": -1.0,
+                "high": 1.0
+              }
+            ]
+          },
+          {
+            "id": "fct.hvac-ind.dfg-rr",
+            "name": "DFG_RR_IND",
+            "template": "I2cWriteDaqVoltage",
+            "checks": [
+              {
+                "name": "HI",
+                "writeData": "08",
+                "low": 3.135,
+                "high": 3.465
+              },
+              {
+                "name": "LO",
+                "writeData": "00",
+                "low": -1.0,
+                "high": 1.0
+              }
+            ]
+          },
+          {
+            "id": "fct.hvac-ind.ac-req",
+            "name": "AC_REQ_IND",
+            "template": "I2cWriteDaqVoltage",
+            "checks": [
+              {
+                "name": "HI",
+                "writeData": "10",
+                "low": 3.135,
+                "high": 3.465
+              },
+              {
+                "name": "LO",
+                "writeData": "00",
+                "low": -1.0,
+                "high": 1.0
+              }
+            ]
+          },
+          {
+            "id": "fct.hvac-ind.recir-sw",
+            "name": "RECIR_SW_IND",
+            "template": "I2cWriteDaqVoltage",
+            "checks": [
+              {
+                "name": "HI",
+                "writeData": "40",
+                "low": 3.135,
+                "high": 3.465
+              },
+              {
+                "name": "LO",
+                "writeData": "00",
+                "low": -1.0,
+                "high": 1.0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "fct.button.group",
+      "name": "Button Switch Group",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 210,
+      "parameters": {
+        "template": "I2cFunctionalGroup",
+        "address": "0x12",
+        "readRegister": "0x0A",
+        "items": [
+          {
+            "id": "fct.button.s1",
+            "name": "Button_S1",
+            "template": "I2cSingleByteSwitch",
+            "relayOutputChannel": 16,
+            "checks": [
+              {
+                "name": "Open",
+                "settleMs": 1000,
+                "expected": "00"
+              },
+              {
+                "name": "HiToLow",
+                "powerOn": [
+                  {
+                    "channel": 1,
+                    "voltage": 12.2
+                  },
+                  {
+                    "channel": 3,
+                    "voltage": 3.3
+                  }
+                ],
+                "powerOff": [
+                  {
+                    "channel": 3,
+                    "voltage": 3.3
+                  }
+                ],
+                "settleMs": 2000,
+                "expected": "01"
+              }
+            ]
+          },
+          {
+            "id": "fct.button.s2",
+            "name": "Button_S2",
+            "template": "I2cSingleByteSwitch",
+            "relayOutputChannel": 17,
+            "checks": [
+              {
+                "name": "Open",
+                "settleMs": 1000,
+                "expected": "00"
+              },
+              {
+                "name": "HiToLow",
+                "powerOn": [
+                  {
+                    "channel": 1,
+                    "voltage": 12.2
+                  },
+                  {
+                    "channel": 3,
+                    "voltage": 3.3
+                  }
+                ],
+                "powerOff": [
+                  {
+                    "channel": 3,
+                    "voltage": 3.3
+                  }
+                ],
+                "settleMs": 1000,
+                "expected": "02"
+              }
+            ]
+          },
+          {
+            "id": "fct.button.s3",
+            "name": "Button_S3",
+            "template": "I2cSingleByteSwitch",
+            "relayOutputChannel": 18,
+            "checks": [
+              {
+                "name": "Open",
+                "settleMs": 1000,
+                "expected": "00"
+              },
+              {
+                "name": "HiToLow",
+                "powerOn": [
+                  {
+                    "channel": 1,
+                    "voltage": 12.2
+                  },
+                  {
+                    "channel": 3,
+                    "voltage": 3.3
+                  }
+                ],
+                "powerOff": [
+                  {
+                    "channel": 3,
+                    "voltage": 3.3
+                  }
+                ],
+                "settleMs": 3000,
+                "expected": "04"
+              }
+            ]
+          },
+          {
+            "id": "fct.button.s4",
+            "name": "Button_S4",
+            "template": "I2cSingleByteSwitch",
+            "relayOutputChannel": 19,
+            "checks": [
+              {
+                "name": "Open",
+                "settleMs": 1000,
+                "expected": "00"
+              },
+              {
+                "name": "HiToLow",
+                "powerOn": [
+                  {
+                    "channel": 1,
+                    "voltage": 12.2
+                  },
+                  {
+                    "channel": 3,
+                    "voltage": 3.3
+                  }
+                ],
+                "powerOff": [
+                  {
+                    "channel": 3,
+                    "voltage": 3.3
+                  }
+                ],
+                "settleMs": 1000,
+                "expected": "08"
+              }
+            ]
+          },
+          {
+            "id": "fct.button.s5",
+            "name": "Button_S5",
+            "template": "I2cSingleByteSwitch",
+            "relayOutputChannel": 20,
+            "checks": [
+              {
+                "name": "Open",
+                "settleMs": 1000,
+                "expected": "00"
+              },
+              {
+                "name": "HiToLow",
+                "powerOn": [
+                  {
+                    "channel": 1,
+                    "voltage": 12.2
+                  },
+                  {
+                    "channel": 3,
+                    "voltage": 3.3
+                  }
+                ],
+                "powerOff": [
+                  {
+                    "channel": 3,
+                    "voltage": 3.3
+                  }
+                ],
+                "settleMs": 1000,
+                "expected": "10"
+              }
+            ]
+          },
+          {
+            "id": "fct.button.s6",
+            "name": "Button_S6",
+            "template": "I2cSingleByteSwitch",
+            "relayOutputChannel": 21,
+            "checks": [
+              {
+                "name": "Open",
+                "powerOn": [
+                  {
+                    "channel": 1,
+                    "voltage": 12.2
+                  },
+                  {
+                    "channel": 3,
+                    "voltage": 3.3
+                  }
+                ],
+                "settleMs": 1000,
+                "expected": "00"
+              },
+              {
+                "name": "HiToLow",
+                "powerOff": [
+                  {
+                    "channel": 3,
+                    "voltage": 3.3
+                  }
+                ],
+                "settleMs": 3000,
+                "expected": "20"
+              }
+            ]
+          },
+          {
+            "id": "fct.wakesp",
+            "name": "WakeSP",
+            "template": "I2cSingleByteSwitch",
+            "relayOutputChannel": 15,
+            "checks": [
+              {
+                "name": "Open",
+                "settleMs": 500,
+                "expected": "00"
+              },
+              {
+                "name": "HiToLow",
+                "powerOn": [
+                  {
+                    "channel": 1,
+                    "voltage": 12.2
+                  },
+                  {
+                    "channel": 3,
+                    "voltage": 3.3
+                  }
+                ],
+                "powerOff": [
+                  {
+                    "channel": 3,
+                    "voltage": 3.3
+                  }
+                ],
+                "settleMs": 2000,
+                "expected": "01"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "fct.swpack-pwm.group",
+      "name": "SW-Pack PWM Group",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 180,
+      "parameters": {
+        "template": "I2cFunctionalGroup",
+        "address": "0x12",
+        "register": "0x25",
+        "scopeChannel": 3,
+        "powerOnBefore": [
+          {
+            "channel": 1,
+            "voltage": 12.2
+          }
+        ],
+        "items": [
+          {
+            "id": "fct.swpack-pwm.pwm1",
+            "name": "SW-Pack PWM1",
+            "template": "I2cWriteOscilloscopeVavg",
+            "relayOutputChannel": 22,
+            "checks": [
+              {
+                "name": "HI",
+                "writeData": "FF FF",
+                "settleMs": 5000,
+                "low": 1.0,
+                "high": 4.5
+              },
+              {
+                "name": "LO",
+                "writeData": "00 00",
+                "settleMs": 2000,
+                "low": -1.0,
+                "high": 1.0
+              }
+            ]
+          },
+          {
+            "id": "fct.swpack-pwm.pwm2",
+            "name": "SW-Pack PWM2",
+            "template": "I2cWriteOscilloscopeVavg",
+            "relayOutputChannel": 23,
+            "checks": [
+              {
+                "name": "HI",
+                "writeData": "FF FF",
+                "settleMs": 5000,
+                "low": 1.0,
+                "high": 4.5
+              },
+              {
+                "name": "LO",
+                "writeData": "00 00",
+                "settleMs": 2000,
+                "low": -1.0,
+                "high": 1.0
+              }
+            ]
+          },
+          {
+            "id": "fct.swpack-pwm.pwm3",
+            "name": "SW-Pack PWM3",
+            "template": "I2cWriteOscilloscopeVavg",
+            "relayOutputChannel": 24,
+            "checks": [
+              {
+                "name": "HI",
+                "writeData": "FF FF",
+                "settleMs": 5000,
+                "low": 1.0,
+                "high": 4.5
+              },
+              {
+                "name": "LO",
+                "writeData": "00 00",
+                "settleMs": 2000,
+                "low": -1.0,
+                "high": 1.0
+              }
+            ]
+          },
+          {
+            "id": "fct.swpack-pwm.pwm4",
+            "name": "SW-Pack PWM4",
+            "template": "I2cWriteOscilloscopeVavg",
+            "relayOutputChannel": 25,
+            "checks": [
+              {
+                "name": "HI",
+                "writeData": "FF FF",
+                "settleMs": 5000,
+                "low": 1.0,
+                "high": 4.5
+              },
+              {
+                "name": "LO",
+                "writeData": "00 00",
+                "settleMs": 2000,
+                "low": -1.0,
+                "high": 1.0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "fct.hvac-bklt.group",
+      "name": "HVAC Backlight Group",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 180,
+      "parameters": {
+        "template": "I2cFunctionalGroup",
+        "address": "0x12",
+        "register": "0x0C",
+        "scopeChannel": 3,
+        "powerOnBefore": [
+          {
+            "channel": 1,
+            "voltage": 12.2
+          }
+        ],
+        "items": [
+          {
+            "id": "fct.hvac-bklt.wh",
+            "name": "WH_BKLT",
+            "template": "I2cWriteOscilloscopeVavg",
+            "relayOutputChannel": 39,
+            "checks": [
+              {
+                "name": "HI",
+                "writeData": "FF FF",
+                "settleMs": 5000,
+                "low": 3.5,
+                "high": 5.3
+              },
+              {
+                "name": "LO",
+                "writeData": "00 00",
+                "settleMs": 2000,
+                "low": -1.0,
+                "high": 1.0
+              }
+            ]
+          },
+          {
+            "id": "fct.hvac-bklt.rd",
+            "name": "RD_BKLT",
+            "template": "I2cWriteOscilloscopeVavg",
+            "relayOutputChannel": 40,
+            "checks": [
+              {
+                "name": "HI",
+                "writeData": "FF FF",
+                "settleMs": 5000,
+                "low": 3.5,
+                "high": 5.3
+              },
+              {
+                "name": "LO",
+                "writeData": "00 00",
+                "settleMs": 2000,
+                "low": -1.0,
+                "high": 1.0
+              }
+            ]
+          },
+          {
+            "id": "fct.hvac-bklt.bu",
+            "name": "BU_BKLT",
+            "template": "I2cWriteOscilloscopeVavg",
+            "relayOutputChannel": 41,
+            "checks": [
+              {
+                "name": "HI",
+                "writeData": "FF FF",
+                "settleMs": 5000,
+                "low": 3.5,
+                "high": 5.3
+              },
+              {
+                "name": "LO",
+                "writeData": "00 00",
+                "settleMs": 2000,
+                "low": -1.0,
+                "high": 1.0
+              }
+            ]
+          },
+          {
+            "id": "fct.hvac-bklt.amb",
+            "name": "AMB_BKLT",
+            "template": "I2cWriteOscilloscopeVavg",
+            "relayOutputChannel": 42,
+            "checks": [
+              {
+                "name": "HI",
+                "writeData": "FF FF",
+                "settleMs": 5000,
+                "low": 3.5,
+                "high": 5.3
+              },
+              {
+                "name": "LO",
+                "writeData": "00 00",
+                "settleMs": 2000,
+                "low": -1.0,
+                "high": 1.0
+              }
+            ]
+          },
+          {
+            "id": "fct.hvac-bklt.wh-fan",
+            "name": "WH_FAN_BKLT",
+            "template": "I2cWriteOscilloscopeVavg",
+            "relayOutputChannel": 43,
+            "checks": [
+              {
+                "name": "HI",
+                "writeData": "FF FF",
+                "settleMs": 5000,
+                "low": 3.5,
+                "high": 5.3
+              },
+              {
+                "name": "LO",
+                "writeData": "00 00",
+                "settleMs": 2000,
+                "low": -1.0,
+                "high": 1.0
+              }
+            ]
+          }
+        ]
       }
     },
     {
