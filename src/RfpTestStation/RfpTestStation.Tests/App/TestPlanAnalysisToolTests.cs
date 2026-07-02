@@ -12,17 +12,37 @@ namespace RfpTestStation.Tests.App
         {
             var repoRoot = TestPaths.RepoRoot();
             var scriptPath = Path.Combine(repoRoot, "Tools", "analyze-testplan.ps1");
-            var result = RunPowerShell(repoRoot, "-NoProfile -ExecutionPolicy Bypass -File \"" + scriptPath + "\"");
+            var reportPath = Path.Combine(Path.GetTempPath(), "RfpTestStation_TestPlanAnalysis_" + Guid.NewGuid().ToString("N") + ".md");
 
-            Assert.Equal(0, result.ExitCode);
-            Assert.Contains("TESTPLAN ANALYSIS", result.Output);
-            Assert.Contains("Plan: RFP 7000 V2", result.Output);
-            Assert.Contains("Timeout total:", result.Output);
-            Assert.Contains("KIND SUMMARY", result.Output);
-            Assert.Contains("POWER-ON REUSE", result.Output);
-            Assert.Contains("SETTLE TIME", result.Output);
-            Assert.Contains("I2C REUSE", result.Output);
-            Assert.Contains("OPTIMIZATION SUGGESTIONS", result.Output);
+            try
+            {
+                var result = RunPowerShell(
+                    repoRoot,
+                    "-NoProfile -ExecutionPolicy Bypass -File \"" + scriptPath + "\" -MarkdownPath \"" + reportPath + "\"");
+
+                Assert.Equal(0, result.ExitCode);
+                Assert.Contains("TESTPLAN ANALYSIS", result.Output);
+                Assert.Contains("Plan: RFP 7000 V2", result.Output);
+                Assert.Contains("Timeout total:", result.Output);
+                Assert.Contains("KIND SUMMARY", result.Output);
+                Assert.Contains("POWER-ON REUSE", result.Output);
+                Assert.Contains("SETTLE TIME", result.Output);
+                Assert.Contains("I2C REUSE", result.Output);
+                Assert.Contains("OPTIMIZATION SUGGESTIONS", result.Output);
+
+                var report = File.ReadAllText(reportPath);
+                Assert.Contains("# Testplan Optimization Report", report);
+                Assert.Contains("## Summary", report);
+                Assert.Contains("## Kind Summary", report);
+                Assert.Contains("## Optimization Suggestions", report);
+            }
+            finally
+            {
+                if (File.Exists(reportPath))
+                {
+                    File.Delete(reportPath);
+                }
+            }
         }
 
         private static ProcessResult RunPowerShell(string workingDirectory, string arguments)

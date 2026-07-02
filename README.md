@@ -104,6 +104,11 @@ Mock 场景文件放在 `Runtime/MockScenarios/*.mockscenario.json`。正式 tes
 ```
 
 该脚本会输出 timeout 总和、按类型统计、最耗时步骤、重复 `powerOnBefore`、显式 `settleMs`、重复 I2C 签名，以及下一步 testplan 优化建议。
+如需生成 Markdown 报告：
+
+```powershell
+.\Tools\analyze-testplan.ps1 -MarkdownPath docs\validation\testplan-optimization-report.md
+```
 
 ## 报告格式
 
@@ -117,6 +122,7 @@ CSV 报告文件名使用生产格式：
 
 ## 更新记录
 
+- 2026-07-02：`Tools/analyze-testplan.ps1` 支持 `-MarkdownPath`，已生成 `docs/validation/testplan-optimization-report.md`，用于保存当前 testplan 时间与重复动作分析基线。
 - 2026-07-02：新增 testplan 静态分析脚本 `Tools/analyze-testplan.ps1`，无硬件时可直接统计 timeout、重复上电、settleMs、I2C 重复签名和 stopOnFailure 风险点，作为测试时间优化清单。
 - 2026-07-02：新增 Mock 自动验收脚本 `Tools/run-mock-validation.ps1` 和对应自动化测试；无硬件时可自动跑完整 Passed 流程、烧录失败、I2C 无回复、电压超限，并审核 CSV 追溯字段。
 - 2026-07-02：主运行界面移除“运行模式/当前模式”显示；运行模式仍在设置页配置，避免操作员主界面信息过多。

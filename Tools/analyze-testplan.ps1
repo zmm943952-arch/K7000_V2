@@ -1,6 +1,7 @@
 param(
     [string]$TestPlanPath = "Runtime\TestPlans\Rfp7000V2.testplan.json",
-    [int]$Top = 8
+    [int]$Top = 8,
+    [string]$MarkdownPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -240,3 +241,121 @@ Write-Host "- Keep shared 3.3V power at group level where child checks use the s
 Write-Host "- Merge repeated I2C reads with the same address/readLength/register when the product state is unchanged."
 Write-Host "- Confirm each explicit settleMs is required by signal settling; reduce or move it to group level when safe."
 Write-Host "- Keep stopOnFailure=true for steps whose failure makes later results meaningless."
+
+if (-not [string]::IsNullOrWhiteSpace($MarkdownPath)) {
+    if (-not [System.IO.Path]::IsPathRooted($MarkdownPath)) {
+        $MarkdownPath = Join-Path $repoRoot $MarkdownPath
+    }
+
+    $markdownDirectory = Split-Path -Parent $MarkdownPath
+    if (-not [string]::IsNullOrWhiteSpace($markdownDirectory)) {
+        New-Item -ItemType Directory -Force -Path $markdownDirectory | Out-Null
+    }
+
+    $markdown = New-Object System.Collections.Generic.List[string]
+    $displayTestPlanPath = $TestPlanPath
+    if ($TestPlanPath.StartsWith($repoRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
+        $displayTestPlanPath = $TestPlanPath.Substring($repoRoot.Length).TrimStart('\', '/')
+    }
+    $displayTestPlanPath = $displayTestPlanPath.Replace('\', '/')
+
+    $markdown.Add("# Testplan Optimization Report")
+    $markdown.Add("")
+    $markdown.Add("Generated from ``$displayTestPlanPath``.")
+    $markdown.Add("")
+    $markdown.Add("## Summary")
+    $markdown.Add("")
+    $markdown.Add("- Plan: $($plan.name) v$($plan.version)")
+    $markdown.Add("- Top-level items: $($topItems.Count)")
+    $markdown.Add("- Timeout total: $timeoutTotal seconds ($([string]::Format('{0:n1}', $timeoutTotal / 60.0)) minutes)")
+    $markdown.Add("- Explicit settleMs total: $settleTotal ms ($([string]::Format('{0:n1}', $settleTotal / 1000.0)) seconds)")
+    $markdown.Add("")
+
+    $markdown.Add("## Kind Summary")
+    $markdown.Add("")
+    $markdown.Add("| Kind | Count | Timeout Seconds |")
+    $markdown.Add("| --- | ---: | ---: |")
+    $topItems |
+        Group-Object Kind |
+        Sort-Object Name |
+        ForEach-Object {
+            $sum = ($_.Group | Measure-Object -Property TimeoutSeconds -Sum).Sum
+            if ($null -eq $sum) { $sum = 0 }
+            $markdown.Add("| $($_.Name) | $($_.Count) | $sum |")
+        }
+    $markdown.Add("")
+
+    $markdown.Add("## Slowest Items")
+    $markdown.Add("")
+    $markdown.Add("| ID | Timeout Seconds | Kind | Stop On Failure |")
+    $markdown.Add("| --- | ---: | --- | --- |")
+    $topItems |
+        Sort-Object TimeoutSeconds -Descending |
+        Select-Object -First $Top |
+        ForEach-Object {
+            $markdown.Add("| $($_.Id) | $($_.TimeoutSeconds) | $($_.Kind) | $($_.StopOnFailure) |")
+        }
+    $markdown.Add("")
+
+    $markdown.Add("## Power-On Reuse")
+    $markdown.Add("")
+    if ($powerGroups.Count -eq 0) {
+        $markdown.Add("- No powerOnBefore entries found.")
+    } else {
+        foreach ($group in $powerGroups) {
+            $markdown.Add("- $($group.Name): $($group.Count) occurrence(s)")
+            $group.Group | Select-Object -First 6 | ForEach-Object {
+                $markdown.Add("  - $($_.Scope)")
+            }
+        }
+    }
+    $markdown.Add("")
+
+    $markdown.Add("## Settle Time")
+    $markdown.Add("")
+    $markdown.Add("- Explicit settleMs total: $settleTotal ms")
+    $settleEvents |
+        Sort-Object SettleMs -Descending |
+        Select-Object -First $Top |
+        ForEach-Object {
+            $markdown.Add("- $($_.Scope): $($_.SettleMs) ms")
+        }
+    $markdown.Add("")
+
+    $markdown.Add("## I2C Reuse")
+    $markdown.Add("")
+    if ($i2cGroups.Count -eq 0) {
+        $markdown.Add("- No repeated I2C signatures found.")
+    } else {
+        foreach ($group in ($i2cGroups | Select-Object -First $Top)) {
+            $markdown.Add("- ``$($group.Name)``: $($group.Count) occurrence(s)")
+            $group.Group | Select-Object -First 5 | ForEach-Object {
+                $markdown.Add("  - $($_.Scope)")
+            }
+        }
+    }
+    $markdown.Add("")
+
+    $markdown.Add("## Stop-On-Failure Review")
+    $markdown.Add("")
+    if ($riskItems.Count -eq 0) {
+        $markdown.Add("- All top-level items use stopOnFailure=true.")
+    } else {
+        foreach ($risk in $riskItems) {
+            $markdown.Add("- $($risk.Id): $($risk.Reason)")
+        }
+    }
+    $markdown.Add("")
+
+    $markdown.Add("## Optimization Suggestions")
+    $markdown.Add("")
+    $markdown.Add("- Review flash item timeouts first; they dominate worst-case station time.")
+    $markdown.Add("- Keep shared 3.3V power at group level where child checks use the same rail.")
+    $markdown.Add("- Merge repeated I2C reads with the same address/readLength/register when the product state is unchanged.")
+    $markdown.Add("- Confirm each explicit settleMs is required by signal settling; reduce or move it to group level when safe.")
+    $markdown.Add("- Keep stopOnFailure=true for steps whose failure makes later results meaningless.")
+
+    Set-Content -Path $MarkdownPath -Value $markdown -Encoding UTF8
+    Write-Host ""
+    Write-Host "Markdown report: $MarkdownPath"
+}
