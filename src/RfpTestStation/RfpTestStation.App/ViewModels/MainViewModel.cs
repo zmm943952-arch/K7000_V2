@@ -1420,8 +1420,25 @@ namespace RfpTestStation.App.ViewModels
 
             builder.AppendLine();
             builder.AppendLine("Parameters:");
-            builder.AppendLine(item.ParametersJson);
+            builder.AppendLine(FormatParametersForDisplay(item.ParametersJson));
             return builder.ToString().TrimEnd();
+        }
+
+        private static string FormatParametersForDisplay(string parametersJson)
+        {
+            if (string.IsNullOrWhiteSpace(parametersJson))
+            {
+                return "{}";
+            }
+
+            try
+            {
+                return JToken.Parse(parametersJson).ToString(Formatting.Indented);
+            }
+            catch (JsonException)
+            {
+                return parametersJson;
+            }
         }
 
         private static void AddDetailLine(StringBuilder builder, string label, string value)

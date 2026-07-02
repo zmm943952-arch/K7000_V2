@@ -621,6 +621,8 @@ namespace RfpTestStation.Tests.App
                 Assert.Contains("HVAC Switch Group", viewModel.SelectedTestPlanDetailText);
                 Assert.Contains("DEF_FRT_SW", viewModel.SelectedTestPlanDetailText);
                 Assert.Contains("0x12", viewModel.SelectedTestPlanDetailText);
+                Assert.Contains(Environment.NewLine + "  \"template\": \"I2cFunctionalGroup\"", viewModel.SelectedTestPlanDetailText);
+                Assert.DoesNotContain(@"{""template"":""I2cFunctionalGroup"",""address"":""0x12""", viewModel.SelectedTestPlanDetailText);
             }
             finally
             {
