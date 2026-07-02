@@ -969,8 +969,50 @@ namespace RfpTestStation.Adapters.TestPlans
 
         private static TestItemResult MockResult(TestItem item)
         {
+            var injected = item.Parameters["mock"] as JObject;
+            if (injected != null)
+            {
+                return InjectedMockResult(item, injected);
+            }
+
             var result = TestItemResult.Passed(item, "Mock " + item.Kind);
             ApplyMockValue(item, result);
+            return result;
+        }
+
+        private static TestItemResult InjectedMockResult(TestItem item, JObject mock)
+        {
+            StepStatus status;
+            var statusText = ReadString(mock, "status") ?? StepStatus.Passed.ToString();
+            if (!Enum.TryParse(statusText, ignoreCase: true, result: out status))
+            {
+                status = StepStatus.Error;
+            }
+
+            var reason = ReadString(mock, "reason") ?? ReadString(mock, "message");
+            var result = new TestItemResult
+            {
+                ItemId = item.Id,
+                ItemName = item.Name,
+                Kind = item.Kind,
+                SourceReference = item.SourceReference,
+                Status = status,
+                Message = reason ?? "Mock " + status
+            };
+
+            var value = mock["value"];
+            result.Value = value == null || value.Type == JTokenType.Null ? null : value.ToObject<object>();
+            result.LowLimit = ReadNullableDouble(mock, "low") ?? ReadNullableDoubleParameter(item, "low");
+            result.HighLimit = ReadNullableDouble(mock, "high") ?? ReadNullableDoubleParameter(item, "high");
+            result.Unit = ReadString(mock, "unit") ?? ReadStringParameter(item, "unit");
+            result.ExternalLogPath = ReadString(mock, "externalLogPath");
+
+            if (!Enum.IsDefined(typeof(StepStatus), status))
+            {
+                result.Status = StepStatus.Error;
+                result.Message = "Mock status is not supported: " + statusText;
+            }
+
             return result;
         }
 

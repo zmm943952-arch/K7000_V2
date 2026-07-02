@@ -31,6 +31,41 @@ namespace RfpTestStation.Tests.TestPlans
         }
 
         [Fact]
+        public async Task MockModeCanInjectFailedResultWithDetailedReason()
+        {
+            var executor = new TestPlanItemExecutor(new FakeRegistry(new FakeFlashAdapter()));
+            var item = new TestItem("fct.ac-input.3.hi", "AC Input 3 High Limit", TestItemKind.LimitCheck)
+            {
+                Parameters = JObject.Parse(@"
+                {
+                  ""low"": 3.135,
+                  ""high"": 3.465,
+                  ""unit"": ""V"",
+                  ""mock"": {
+                    ""status"": ""Failed"",
+                    ""reason"": ""Mock DAQ voltage outside limits: channel=3; expected=3.135..3.465V; actual=2.900V"",
+                    ""value"": 2.9,
+                    ""low"": 3.135,
+                    ""high"": 3.465,
+                    ""unit"": ""V""
+                  }
+                }")
+            };
+
+            var result = await executor.ExecuteAsync(
+                item,
+                new WorkflowRunContext { Mode = "Mock" },
+                CancellationToken.None);
+
+            Assert.Equal(StepStatus.Failed, result.Status);
+            Assert.Equal(2.9, result.Value);
+            Assert.Equal(3.135, result.LowLimit);
+            Assert.Equal(3.465, result.HighLimit);
+            Assert.Equal("V", result.Unit);
+            Assert.Equal("Mock DAQ voltage outside limits: channel=3; expected=3.135..3.465V; actual=2.900V", result.Message);
+        }
+
+        [Fact]
         public async Task HardwareModeRunsFlashAdapterFromTestPlanParameters()
         {
             var flash = new FakeFlashAdapter

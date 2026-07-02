@@ -47,6 +47,33 @@ namespace RfpTestStation.Tests.Reporting
         }
 
         [Fact]
+        public void CsvWriterPreservesDetailedFailureReason()
+        {
+            using (var temp = new TempDirectory())
+            {
+                var report = SampleReport(passed: false);
+                report.StepResults.Clear();
+                report.StepResults.Add(new StepResult
+                {
+                    StepName = "AC Input 3 High Limit",
+                    Status = StepStatus.Failed,
+                    Value = 2.9,
+                    LowLimit = 3.135,
+                    HighLimit = 3.465,
+                    Unit = "V",
+                    Message = "Mock DAQ voltage outside limits: channel=3; expected=3.135..3.465V; actual=2.900V"
+                });
+                var writer = new CsvResultWriter();
+
+                var path = writer.Write(temp.Path, report);
+
+                var csv = File.ReadAllText(path);
+                Assert.Contains("Failed,2.9,3.135,3.465,V", csv);
+                Assert.Contains("Mock DAQ voltage outside limits: channel=3; expected=3.135..3.465V; actual=2.900V", csv);
+            }
+        }
+
+        [Fact]
         public void RunLogWriterWritesReadableRunAndStepTimeline()
         {
             using (var temp = new TempDirectory())
