@@ -259,7 +259,13 @@ namespace RfpTestStation.App.ViewModels
         public string TestPlanName
         {
             get { return _testPlanName; }
-            private set { SetField(ref _testPlanName, value); }
+            private set
+            {
+                if (SetField(ref _testPlanName, value))
+                {
+                    OnPropertyChanged(nameof(ActiveTestPlanText));
+                }
+            }
         }
 
         public string ConfigName
@@ -276,6 +282,7 @@ namespace RfpTestStation.App.ViewModels
                 if (SetField(ref _testPlanPath, value))
                 {
                     RefreshConfiguredFileNames();
+                    OnPropertyChanged(nameof(ActiveTestPlanText));
                 }
             }
         }
@@ -701,6 +708,8 @@ namespace RfpTestStation.App.ViewModels
         public string LanguageLabel { get { return T("当前语言", "Current Language"); } }
 
         public string TestPlanLabel { get { return T("测试序列", "Test Plan"); } }
+
+        public string ActiveTestPlanText { get { return TestPlanName + " | " + TestPlanPath; } }
 
         public string ConfigLabel { get { return T("测试配置", "Test Config"); } }
 

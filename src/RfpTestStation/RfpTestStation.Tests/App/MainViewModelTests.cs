@@ -26,6 +26,7 @@ namespace RfpTestStation.Tests.App
             Assert.Equal("Operator", viewModel.CurrentUser);
             Assert.Equal("K7000", viewModel.ProductName);
             Assert.Equal("RFP 7000 V2", viewModel.TestPlanName);
+            Assert.Equal("RFP 7000 V2 | Runtime/TestPlans/Rfp7000V2.testplan.json", viewModel.ActiveTestPlanText);
             Assert.Equal("Config.json", viewModel.ConfigName);
             Assert.Equal("Runtime/Config/Config.json", viewModel.ConfigJsonPath);
             Assert.Equal("当前模式: Mock", viewModel.ExecutionModeStatusText);
@@ -39,6 +40,45 @@ namespace RfpTestStation.Tests.App
             Assert.False(viewModel.IsRunning);
             Assert.DoesNotContain(viewModel.PlaceholderItems, x => x.Contains("PowerControl.vi"));
             Assert.Contains(viewModel.PlaceholderItems, x => x.Contains("ReadSN.vi"));
+        }
+
+        [Fact]
+        public void ActiveTestPlanTextCombinesLoadedNameAndConfiguredPath()
+        {
+            var repoRoot = CreateTempRepoRoot();
+            try
+            {
+                var stationPaths = new StationPaths(repoRoot);
+                new AppSettingsRepository(stationPaths.AppSettingsPath, repoRoot).Save(new AppSettings
+                {
+                    TestPlanPath = "Runtime/TestPlans/Alt.testplan.json"
+                });
+
+                var viewModel = new MainViewModel(repoRoot);
+
+                Assert.Equal("Alt Test Plan | Runtime/TestPlans/Alt.testplan.json", viewModel.ActiveTestPlanText);
+            }
+            finally
+            {
+                Directory.Delete(repoRoot, true);
+            }
+        }
+
+        [Fact]
+        public void RunPageDisplaysActiveTestPlanWithWrapping()
+        {
+            var xaml = File.ReadAllText(Path.Combine(
+                TestPaths.RepoRoot(),
+                "src",
+                "RfpTestStation",
+                "RfpTestStation.App",
+                "MainWindow.xaml"));
+            var runPage = xaml.Substring(xaml.IndexOf("Visibility=\"{Binding RunPageVisibility}\"", StringComparison.Ordinal));
+            runPage = runPage.Substring(0, runPage.IndexOf("Visibility=\"{Binding TestPlanPageVisibility}\"", StringComparison.Ordinal));
+
+            Assert.Contains("Text=\"{Binding TestPlanLabel}\"", runPage);
+            Assert.Contains("Text=\"{Binding ActiveTestPlanText}\"", runPage);
+            Assert.Contains("TextWrapping=\"Wrap\"", runPage);
         }
 
         [Fact]

@@ -255,6 +255,20 @@
 
               <TextBlock Text="{Binding ExecutionModeLabel}" Style="{StaticResource LabelText}" />
               <TextBox Text="{Binding ExecutionModeStatusText, Mode=OneWay}" IsReadOnly="True" Style="{StaticResource ValueBox}" />
+
+              <TextBlock Text="{Binding TestPlanLabel}" Style="{StaticResource LabelText}" />
+              <Border BorderBrush="{StaticResource LineBlue}"
+                      BorderThickness="1.5"
+                      MinHeight="42"
+                      Padding="10,7"
+                      Margin="0,8,0,0">
+                <TextBlock Text="{Binding ActiveTestPlanText}"
+                           Foreground="{StaticResource TextBlue}"
+                           FontSize="14"
+                           FontWeight="Bold"
+                           TextWrapping="Wrap" />
+              </Border>
+
               <Border Visibility="{Binding HardwareModeWarningVisibility}"
                       Margin="0,10,0,0"
                       Padding="10"

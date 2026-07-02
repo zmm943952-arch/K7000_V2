@@ -23,7 +23,7 @@ dotnet test .\src\RfpTestStation\RfpTestStation.sln --nologo
 当前基线验证结果：
 
 - 测试项目：`RfpTestStation.Tests`
-- 测试数量：175
+- 测试数量：177
 - 最近验证：全部通过
 
 ## 运行时资产
@@ -101,6 +101,7 @@ CSV 报告文件名使用生产格式：
 
 ## 更新记录
 
+- 2026-07-02：运行页左侧新增当前调用 testplan 显示，内容包含计划名称和 `Runtime/TestPlans/*.testplan.json` 路径；长路径自动换行，便于操作员确认本次测试实际使用的测试序列。
 - 2026-07-02：CSV/JSON/LOG 报告文件名改为 `<SN>_<yyyyMMddHHmmss>_<Passed|Failed>`，时间戳使用结束时间；CSV 增加生产格式头信息，并在每个测试项记录 `Sent` 和 `Reply`。
 - 2026-07-02：Mock 场景选择从主运行页移到设置页启动配置，运行页只保留当前运行模式，避免操作员在主测试界面误切故障场景。
 - 2026-07-02：失败明细和报告增加 `ExpectedValue`、`CompareType`、`Target` 诊断字段；Mock 场景和安全检查失败不再只显示实际值，可同时显示期望值、比较方式和对象/通道。
