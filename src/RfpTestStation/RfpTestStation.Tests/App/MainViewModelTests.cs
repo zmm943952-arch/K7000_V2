@@ -182,6 +182,20 @@ namespace RfpTestStation.Tests.App
         }
 
         [Fact]
+        public void TestPlanEditorUsesOneWayBindingsForReadOnlyDisplayProperties()
+        {
+            var xaml = File.ReadAllText(Path.Combine(
+                TestPaths.RepoRoot(),
+                "src",
+                "RfpTestStation",
+                "RfpTestStation.App",
+                "MainWindow.xaml"));
+
+            Assert.Contains("Binding=\"{Binding SummaryText, Mode=OneWay}\"", xaml);
+            Assert.Contains("Text=\"{Binding SelectedTestPlanDetailText, Mode=OneWay}\"", xaml);
+        }
+
+        [Fact]
         public void LanguageSwitchUpdatesVisibleLabels()
         {
             var viewModel = new MainViewModel();

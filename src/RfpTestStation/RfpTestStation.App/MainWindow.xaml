@@ -550,7 +550,7 @@
                   <DataGridCheckBoxColumn x:Name="PlanRequiredColumn" Header="Required" Binding="{Binding IsRequired, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="78" />
                   <DataGridCheckBoxColumn x:Name="PlanStopOnFailureColumn" Header="Stop On Failure" Binding="{Binding StopOnFailure, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="110" />
                   <DataGridTextColumn x:Name="PlanTimeoutColumn" Header="Timeout" Binding="{Binding TimeoutSeconds, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="80" />
-                  <DataGridTextColumn x:Name="PlanSummaryColumn" Header="Summary" Binding="{Binding SummaryText}" IsReadOnly="True" Width="260" />
+                  <DataGridTextColumn x:Name="PlanSummaryColumn" Header="Summary" Binding="{Binding SummaryText, Mode=OneWay}" IsReadOnly="True" Width="260" />
                   <DataGridTextColumn x:Name="PlanScriptColumn" Header="Script" Binding="{Binding Script, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="240" Visibility="Collapsed" />
                   <DataGridTextColumn x:Name="PlanAdapterColumn" Header="Adapter" Binding="{Binding Adapter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="130" Visibility="Collapsed" />
                   <DataGridTextColumn x:Name="PlanOperationColumn" Header="Operation" Binding="{Binding Operation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="180" Visibility="Collapsed" />
@@ -570,7 +570,7 @@
                   </Grid.RowDefinitions>
                   <TextBlock Text="测试项详情" Foreground="{StaticResource TextBlue}" FontSize="18" FontWeight="Bold" Margin="0,0,0,10" />
                   <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <TextBox Text="{Binding SelectedTestPlanDetailText}" IsReadOnly="True" TextWrapping="Wrap" BorderThickness="0" Background="Transparent" FontSize="13" FontFamily="Consolas" />
+                    <TextBox Text="{Binding SelectedTestPlanDetailText, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" BorderThickness="0" Background="Transparent" FontSize="13" FontFamily="Consolas" />
                   </ScrollViewer>
                 </Grid>
               </Border>

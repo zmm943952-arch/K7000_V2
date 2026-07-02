@@ -23,7 +23,7 @@ dotnet test .\src\RfpTestStation\RfpTestStation.sln --nologo
 当前基线验证结果：
 
 - 测试项目：`RfpTestStation.Tests`
-- 测试数量：161
+- 测试数量：162
 - 最近验证：全部通过
 
 ## 运行时资产
@@ -66,6 +66,7 @@ https://github.com/zmm943952-arch/K7000_V2.git
 
 ## 更新记录
 
+- 2026-07-02：修复测试计划维护页新增只读显示字段后 exe 启动崩溃的问题；`SummaryText` 与 `SelectedTestPlanDetailText` 改为 OneWay 绑定，并新增 XAML 防回归测试。已重新生成 `Deploy/RfpTestStation_devtest` 发布包。
 - 2026-07-02：优化测试计划维护页：测试项表格新增摘要列并隐藏长路径/限制字段，选中行后在右侧显示完整参数详情和功能组子项；保存前增加聚合校验原因列表，能一次显示重复 ID、超时、脚本路径、limit、group 子项等具体问题。
 - 2026-07-02：优化 `Rfp7000V2.testplan.json`，将 33 个重复 FunctionalCheck 折成 6 个 `I2cFunctionalGroup` 分组（位置、HVAC 开关、指示灯、按钮、PWM、背光）。分组级共享供电动作，子项继续保留独立 relay/channel/check/limit，失败时仍显示具体子项和检查原因；`Runtime/TestPlans/Rfp7000V2.testplan.json` 已同步。
 - 2026-07-02：运行页错误状态不再只显示“错误/失败”，会在顶部状态后追加当前具体原因；运行前置检查失败时也会写入失败明细表，并在失败明细中新增 `Reason` 列显示步骤原因。
