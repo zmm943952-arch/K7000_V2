@@ -230,7 +230,15 @@
               <TextBox Text="{Binding CurrentUser}" Style="{StaticResource ValueBox}" />
 
               <TextBlock Text="{Binding ProductNameLabel}" Style="{StaticResource LabelText}" />
-              <TextBox Text="{Binding ProductName}" Style="{StaticResource ValueBox}" />
+              <ComboBox Height="34"
+                        ItemsSource="{Binding ProductNameOptions}"
+                        SelectedItem="{Binding ProductName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        BorderBrush="{StaticResource LineBlue}"
+                        Foreground="{StaticResource TextBlue}"
+                        FontSize="14"
+                        FontWeight="Bold"
+                        Margin="0,8,0,16"
+                        Padding="8,2" />
 
               <TextBlock Text="{Binding LanguageLabel}" Style="{StaticResource LabelText}" />
               <ComboBox Height="34"

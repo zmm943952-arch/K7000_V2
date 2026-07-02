@@ -23,7 +23,7 @@ dotnet test .\src\RfpTestStation\RfpTestStation.sln --nologo
 当前基线验证结果：
 
 - 测试项目：`RfpTestStation.Tests`
-- 测试数量：162
+- 测试数量：165
 - 最近验证：全部通过
 
 ## 运行时资产
@@ -66,6 +66,7 @@ https://github.com/zmm943952-arch/K7000_V2.git
 
 ## 更新记录
 
+- 2026-07-02：运行页“产品名称”改为固定下拉选择，仅支持 `K7000`、`K7048`、`K7049`；旧配置中的非法产品名会回退为 `K7000`。
 - 2026-07-02：测试计划维护页右侧详情中的 `Parameters` 改为缩进格式化显示，长 JSON 不再压缩成一整行；无效 JSON 仍保留原文便于排查。
 - 2026-07-02：修复测试计划维护页新增只读显示字段后 exe 启动崩溃的问题；`SummaryText` 与 `SelectedTestPlanDetailText` 改为 OneWay 绑定，并新增 XAML 防回归测试。已重新生成 `Deploy/RfpTestStation_devtest` 发布包。
 - 2026-07-02：优化测试计划维护页：测试项表格新增摘要列并隐藏长路径/限制字段，选中行后在右侧显示完整参数详情和功能组子项；保存前增加聚合校验原因列表，能一次显示重复 ID、超时、脚本路径、limit、group 子项等具体问题。

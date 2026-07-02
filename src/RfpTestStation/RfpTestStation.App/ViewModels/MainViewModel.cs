@@ -243,7 +243,7 @@ namespace RfpTestStation.App.ViewModels
         public string ProductName
         {
             get { return _productName; }
-            set { SetField(ref _productName, value); }
+            set { SetField(ref _productName, NormalizeProductName(value)); }
         }
 
         public string TestPlanName
@@ -664,6 +664,8 @@ namespace RfpTestStation.App.ViewModels
         public ObservableCollection<string> PlaceholderItems { get; } = new ObservableCollection<string>();
 
         public ObservableCollection<string> LanguageOptions { get; } = new ObservableCollection<string> { "中文", "English" };
+
+        public ObservableCollection<string> ProductNameOptions { get; } = new ObservableCollection<string> { "K7000", "K7048", "K7049" };
 
         public ObservableCollection<TestPlanItemEditorViewModel> TestPlanItems { get; } = new ObservableCollection<TestPlanItemEditorViewModel>();
 
@@ -1177,6 +1179,13 @@ namespace RfpTestStation.App.ViewModels
             SettingsStatusText = T("配置已保存", "Settings saved");
             Logs.Add("Saved startup settings: " + _stationPaths.AppSettingsPath);
             RunAutomaticHardwareSelfCheck();
+        }
+
+        private string NormalizeProductName(string? productName)
+        {
+            return ProductNameOptions.Contains(productName ?? string.Empty)
+                ? productName!
+                : "K7000";
         }
 
         private void LoadTestPlanEditor()

@@ -218,7 +218,64 @@ namespace RfpTestStation.Tests.App
         }
 
         [Fact]
+        public void RunPageProductNameUsesSupportedProductOptions()
+        {
+            var viewModel = new MainViewModel();
+
+            Assert.Equal(new[] { "K7000", "K7048", "K7049" }, viewModel.ProductNameOptions.ToArray());
+        }
+
+        [Fact]
+        public void RunPageBindsProductNameToSupportedProductComboBox()
+        {
+            var xaml = File.ReadAllText(Path.Combine(
+                TestPaths.RepoRoot(),
+                "src",
+                "RfpTestStation",
+                "RfpTestStation.App",
+                "MainWindow.xaml"));
+
+            Assert.Contains("ItemsSource=\"{Binding ProductNameOptions}\"", xaml);
+            Assert.Contains("SelectedItem=\"{Binding ProductName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}\"", xaml);
+            Assert.DoesNotContain("<TextBox Text=\"{Binding ProductName}\"", xaml);
+        }
+
+        [Fact]
         public void StartsWithSavedStartupSettingsWhenSettingsFileExists()
+        {
+            var repoRoot = CreateTempRepoRoot();
+            try
+            {
+                var stationPaths = new StationPaths(repoRoot);
+                new AppSettingsRepository(stationPaths.AppSettingsPath, repoRoot).Save(new AppSettings
+                {
+                    CurrentUser = "Engineer",
+                    ProductName = "K7048",
+                    SelectedLanguage = "English",
+                    ExecutionMode = "Hardware",
+                    TestPlanPath = "Runtime/TestPlans/Alt.testplan.json",
+                    ConfigJsonPath = "Runtime/Config/AltConfig.json"
+                });
+
+                var viewModel = new MainViewModel(repoRoot);
+
+                Assert.Equal("Engineer", viewModel.CurrentUser);
+                Assert.Equal("K7048", viewModel.ProductName);
+                Assert.Equal("English", viewModel.SelectedLanguage);
+                Assert.Equal("Hardware", viewModel.ExecutionMode);
+                Assert.Equal("Runtime/TestPlans/Alt.testplan.json", viewModel.TestPlanPath);
+                Assert.Equal("Runtime/Config/AltConfig.json", viewModel.ConfigJsonPath);
+                Assert.Equal("Alt Test Plan", viewModel.TestPlanName);
+                Assert.Equal("AltConfig.json", viewModel.ConfigName);
+            }
+            finally
+            {
+                Directory.Delete(repoRoot, true);
+            }
+        }
+
+        [Fact]
+        public void StartsWithDefaultProductWhenSavedProductIsNotSupported()
         {
             var repoRoot = CreateTempRepoRoot();
             try
@@ -229,21 +286,14 @@ namespace RfpTestStation.Tests.App
                     CurrentUser = "Engineer",
                     ProductName = "K7000-ALT",
                     SelectedLanguage = "English",
-                    ExecutionMode = "Hardware",
+                    ExecutionMode = "Mock",
                     TestPlanPath = "Runtime/TestPlans/Alt.testplan.json",
                     ConfigJsonPath = "Runtime/Config/AltConfig.json"
                 });
 
                 var viewModel = new MainViewModel(repoRoot);
 
-                Assert.Equal("Engineer", viewModel.CurrentUser);
-                Assert.Equal("K7000-ALT", viewModel.ProductName);
-                Assert.Equal("English", viewModel.SelectedLanguage);
-                Assert.Equal("Hardware", viewModel.ExecutionMode);
-                Assert.Equal("Runtime/TestPlans/Alt.testplan.json", viewModel.TestPlanPath);
-                Assert.Equal("Runtime/Config/AltConfig.json", viewModel.ConfigJsonPath);
-                Assert.Equal("Alt Test Plan", viewModel.TestPlanName);
-                Assert.Equal("AltConfig.json", viewModel.ConfigName);
+                Assert.Equal("K7000", viewModel.ProductName);
             }
             finally
             {
@@ -261,7 +311,7 @@ namespace RfpTestStation.Tests.App
                 var viewModel = new MainViewModel(repoRoot)
                 {
                     CurrentUser = "Operator2",
-                    ProductName = "K7000-PROD",
+                    ProductName = "K7049",
                     SelectedLanguage = "English",
                     ExecutionMode = "Hardware",
                     TestPlanPath = "Runtime/TestPlans/Alt.testplan.json",
@@ -272,7 +322,7 @@ namespace RfpTestStation.Tests.App
 
                 var loaded = new AppSettingsRepository(stationPaths.AppSettingsPath, repoRoot).LoadOrDefault(stationPaths);
                 Assert.Equal("Operator2", loaded.CurrentUser);
-                Assert.Equal("K7000-PROD", loaded.ProductName);
+                Assert.Equal("K7049", loaded.ProductName);
                 Assert.Equal("English", loaded.SelectedLanguage);
                 Assert.Equal("Hardware", loaded.ExecutionMode);
                 Assert.Equal("Runtime/TestPlans/Alt.testplan.json", loaded.TestPlanPath);
