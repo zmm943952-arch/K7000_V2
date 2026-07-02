@@ -253,9 +253,6 @@
                         HorizontalContentAlignment="Center"
                         VerticalContentAlignment="Center" />
 
-              <TextBlock Text="{Binding ExecutionModeLabel}" Style="{StaticResource LabelText}" />
-              <TextBox Text="{Binding ExecutionModeStatusText, Mode=OneWay}" IsReadOnly="True" Style="{StaticResource ValueBox}" />
-
               <TextBlock Text="{Binding TestPlanLabel}" Style="{StaticResource LabelText}" />
               <Border BorderBrush="{StaticResource LineBlue}"
                       BorderThickness="1.5"

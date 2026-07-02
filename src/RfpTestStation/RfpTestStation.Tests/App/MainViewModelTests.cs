@@ -333,6 +333,22 @@ namespace RfpTestStation.Tests.App
         }
 
         [Fact]
+        public void RunPageDoesNotDisplayExecutionMode()
+        {
+            var xaml = File.ReadAllText(Path.Combine(
+                TestPaths.RepoRoot(),
+                "src",
+                "RfpTestStation",
+                "RfpTestStation.App",
+                "MainWindow.xaml"));
+            var runPage = xaml.Substring(xaml.IndexOf("Visibility=\"{Binding RunPageVisibility}\"", StringComparison.Ordinal));
+            runPage = runPage.Substring(0, runPage.IndexOf("Visibility=\"{Binding TestPlanPageVisibility}\"", StringComparison.Ordinal));
+
+            Assert.DoesNotContain("ExecutionModeLabel", runPage);
+            Assert.DoesNotContain("ExecutionModeStatusText", runPage);
+        }
+
+        [Fact]
         public void SettingsPageBindsMockScenarioSelector()
         {
             var xaml = File.ReadAllText(Path.Combine(
