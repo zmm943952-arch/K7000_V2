@@ -597,6 +597,11 @@ namespace RfpTestStation.App.ViewModels
             private set { SetField(ref _runElapsedSecondsText, value); }
         }
 
+        public void RefreshCurrentTime(DateTime now)
+        {
+            CurrentTimeText = now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+        }
+
         public int GoodCount
         {
             get { return _goodCount; }

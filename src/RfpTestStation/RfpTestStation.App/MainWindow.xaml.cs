@@ -1,5 +1,7 @@
+using System;
 using System.Windows;
 using System.ComponentModel;
+using System.Windows.Threading;
 using RfpTestStation.App.ViewModels;
 
 namespace RfpTestStation.App
@@ -7,11 +9,18 @@ namespace RfpTestStation.App
     public partial class MainWindow : Window
     {
         private MainViewModel? _viewModel;
+        private readonly DispatcherTimer _clockTimer;
 
         public MainWindow()
         {
             InitializeComponent();
+            _clockTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(1)
+            };
+            _clockTimer.Tick += (_, __) => _viewModel?.RefreshCurrentTime(DateTime.Now);
             AttachViewModel(new MainViewModel());
+            StartClockTimer();
         }
 
         protected override void OnClosed(System.EventArgs e)
@@ -21,6 +30,7 @@ namespace RfpTestStation.App
                 _viewModel.PropertyChanged -= ViewModelPropertyChanged;
             }
 
+            _clockTimer.Stop();
             base.OnClosed(e);
         }
 
@@ -30,6 +40,12 @@ namespace RfpTestStation.App
             DataContext = viewModel;
             viewModel.PropertyChanged += ViewModelPropertyChanged;
             ApplyLocalizedHeaders(viewModel);
+        }
+
+        private void StartClockTimer()
+        {
+            _viewModel?.RefreshCurrentTime(DateTime.Now);
+            _clockTimer.Start();
         }
 
         private void ViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)

@@ -23,7 +23,7 @@ dotnet test .\src\RfpTestStation\RfpTestStation.sln --nologo
 当前基线验证结果：
 
 - 测试项目：`RfpTestStation.Tests`
-- 测试数量：166
+- 测试数量：168
 - 最近验证：全部通过
 
 ## 运行时资产
@@ -66,6 +66,7 @@ https://github.com/zmm943952-arch/K7000_V2.git
 
 ## 更新记录
 
+- 2026-07-02：修复顶部当前时间不刷新的问题；主窗口增加 1 秒 `DispatcherTimer`，定时刷新 `CurrentTimeText`。
 - 2026-07-02：进一步优化 testplan 供电流程：`HVAC Position Group` 与 `HVAC Switch Group` 的 3.3V 改为组级共享上电，删除子项 check 内重复 3.3V 上电动作；`Button Group` 的 3.3V 开关逻辑暂时保留，避免影响按键状态测试。
 - 2026-07-02：运行页“产品名称”改为固定下拉选择，仅支持 `K7000`、`K7048`、`K7049`；旧配置中的非法产品名会回退为 `K7000`。
 - 2026-07-02：测试计划维护页右侧详情中的 `Parameters` 改为缩进格式化显示，长 JSON 不再压缩成一整行；无效 JSON 仍保留原文便于排查。

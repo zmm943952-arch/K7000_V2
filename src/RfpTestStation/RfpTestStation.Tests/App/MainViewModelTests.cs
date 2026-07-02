@@ -42,6 +42,31 @@ namespace RfpTestStation.Tests.App
         }
 
         [Fact]
+        public void RefreshCurrentTimeUpdatesDisplayedClockText()
+        {
+            var viewModel = new MainViewModel();
+
+            viewModel.RefreshCurrentTime(new DateTime(2026, 7, 2, 10, 42, 12));
+
+            Assert.Equal("2026-07-02 10:42:12", viewModel.CurrentTimeText);
+        }
+
+        [Fact]
+        public void MainWindowStartsTimerForDisplayedClock()
+        {
+            var code = File.ReadAllText(Path.Combine(
+                TestPaths.RepoRoot(),
+                "src",
+                "RfpTestStation",
+                "RfpTestStation.App",
+                "MainWindow.xaml.cs"));
+
+            Assert.Contains("DispatcherTimer", code);
+            Assert.Contains("RefreshCurrentTime(DateTime.Now)", code);
+            Assert.Contains("TimeSpan.FromSeconds(1)", code);
+        }
+
+        [Fact]
         public void HardwareModeShowsStrongRunPageWarning()
         {
             var viewModel = new MainViewModel
