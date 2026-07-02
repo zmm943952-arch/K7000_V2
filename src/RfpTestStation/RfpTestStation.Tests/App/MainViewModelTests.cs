@@ -167,7 +167,7 @@ namespace RfpTestStation.Tests.App
         }
 
         [Fact]
-        public void RunPageDetailGridBindsToFailureResultsOnly()
+        public void RunPageDetailGridBindsToFailureResultsAndReason()
         {
             var xaml = File.ReadAllText(Path.Combine(
                 TestPaths.RepoRoot(),
@@ -177,6 +177,8 @@ namespace RfpTestStation.Tests.App
                 "MainWindow.xaml"));
 
             Assert.Contains("ItemsSource=\"{Binding FailureResults}\"", xaml);
+            Assert.Contains("DetailReasonColumn", xaml);
+            Assert.Contains("Binding=\"{Binding Message, Mode=OneWay}\"", xaml);
         }
 
         [Fact]
@@ -588,6 +590,10 @@ namespace RfpTestStation.Tests.App
 
             Assert.Empty(viewModel.Results);
             Assert.Equal("Error", viewModel.OverallStatus);
+            Assert.Contains("Serial number is required", viewModel.OverallStatusText);
+            var failure = Assert.Single(viewModel.FailureResults);
+            Assert.Equal("Run Start", failure.StepName);
+            Assert.Contains("Serial number is required", failure.Message);
             Assert.Contains(viewModel.Logs, x => x.Contains("Serial number is required"));
         }
 
@@ -607,6 +613,10 @@ namespace RfpTestStation.Tests.App
 
                 Assert.Empty(viewModel.Results);
                 Assert.Equal("Error", viewModel.OverallStatus);
+                Assert.Contains(@"..\Flash\RFP_Auto\Scripts\Flash_once.bat", viewModel.OverallStatusText);
+                Assert.Contains(viewModel.FailureResults, x =>
+                    x.StepName.Contains("Preflight")
+                    && x.Message.Contains(@"..\Flash\RFP_Auto\Scripts\Flash_once.bat"));
                 Assert.Contains(viewModel.Logs, x => x.Contains("Preflight failed"));
                 Assert.Contains(viewModel.Logs, x => x.Contains(@"..\Flash\RFP_Auto\Scripts\Flash_once.bat"));
             }

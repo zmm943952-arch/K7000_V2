@@ -63,3 +63,7 @@ https://github.com/zmm943952-arch/K7000_V2.git
 3. 单独做 `DaqVoltage` 半硬件验证。
 4. 在安全工装上做 Hardware dry run，重点验证长时间烧录时的停止/取消行为。
 5. 基本闭环稳定后，再接入 `PowerSupply`、`SerialNumber`、`MES`、`PLC`。
+
+## 更新记录
+
+- 2026-07-02：运行页错误状态不再只显示“错误/失败”，会在顶部状态后追加当前具体原因；运行前置检查失败时也会写入失败明细表，并在失败明细中新增 `Reason` 列显示步骤原因。

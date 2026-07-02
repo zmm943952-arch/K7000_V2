@@ -51,6 +51,7 @@ namespace RfpTestStation.App.ViewModels
         private string _executionMode = "Mock";
         private string _selectedLanguage = "中文";
         private string _overallStatus = "Idle";
+        private string _overallStatusReason = string.Empty;
         private string _currentStep = "-";
         private string _progressText = "0 / 0";
         private double _progressPercent;
@@ -187,9 +188,27 @@ namespace RfpTestStation.App.ViewModels
             }
         }
 
+        private string OverallStatusReason
+        {
+            get { return _overallStatusReason; }
+            set
+            {
+                if (SetField(ref _overallStatusReason, value))
+                {
+                    OnPropertyChanged(nameof(OverallStatusText));
+                }
+            }
+        }
+
         public string OverallStatusText
         {
-            get { return TranslateStatus(OverallStatus); }
+            get
+            {
+                var statusText = TranslateStatus(OverallStatus);
+                return string.IsNullOrWhiteSpace(OverallStatusReason)
+                    ? statusText
+                    : statusText + ": " + OverallStatusReason.Trim();
+            }
         }
 
         public string CurrentStep
@@ -851,6 +870,7 @@ namespace RfpTestStation.App.ViewModels
             RunAutomaticHardwareSelfCheck();
             IsRunning = true;
             OverallStatus = "Running";
+            OverallStatusReason = string.Empty;
             _runCancellation = new CancellationTokenSource();
             CancellationTokenSource? safetyMonitorCancellation = null;
             Task? safetyTask = null;
@@ -862,6 +882,8 @@ namespace RfpTestStation.App.ViewModels
                 if (serialNumberError != null)
                 {
                     OverallStatus = "Error";
+                    OverallStatusReason = serialNumberError;
+                    AddRunBlockerFailure("Run Start", serialNumberError);
                     Logs.Add(serialNumberError);
                     return;
                 }
@@ -876,7 +898,15 @@ namespace RfpTestStation.App.ViewModels
 
                 if (preflightResults.Any(x => !x.Passed))
                 {
+                    var failedPreflightResults = preflightResults.Where(x => !x.Passed).ToList();
+                    var firstFailure = failedPreflightResults.First();
                     OverallStatus = "Error";
+                    OverallStatusReason = firstFailure.Name + ": " + firstFailure.Message;
+                    foreach (var failedPreflight in failedPreflightResults)
+                    {
+                        AddRunBlockerFailure("Preflight: " + failedPreflight.Name, failedPreflight.Message);
+                    }
+
                     Logs.Add("Preflight failed. Run blocked.");
                     return;
                 }
@@ -940,6 +970,7 @@ namespace RfpTestStation.App.ViewModels
                     : workflowResult.Status == StepStatus.Stopped
                     ? "Stopped"
                     : workflowResult.Passed ? "Pass" : "Fail";
+                OverallStatusReason = BuildWorkflowStatusReason(workflowResult);
                 UpdateProductionStatistics(OverallStatus);
                 WriteReports(
                     _stationPaths.ReportsDirectory,
@@ -960,12 +991,21 @@ namespace RfpTestStation.App.ViewModels
             catch (OperationCanceledException)
             {
                 OverallStatus = safetySupervisor != null && safetySupervisor.LastTrigger != null ? "SafetyStop" : "Stopped";
+                OverallStatusReason = safetySupervisor != null && safetySupervisor.LastTrigger != null
+                    ? safetySupervisor.LastTrigger.Message
+                    : T("用户停止运行", "Run stopped by operator");
                 UpdateProductionStatistics(OverallStatus);
                 Logs.Add(OverallStatus == "SafetyStop" ? "Run stopped by safety monitor." : "Run stopped.");
             }
             catch (Exception ex)
             {
                 OverallStatus = "Error";
+                OverallStatusReason = ex.Message;
+                if (FailureResults.Count == 0)
+                {
+                    AddRunBlockerFailure("Runtime Error", ex.Message);
+                }
+
                 UpdateProductionStatistics(OverallStatus);
                 Logs.Add(ex.Message);
             }
@@ -1447,6 +1487,7 @@ namespace RfpTestStation.App.ViewModels
             Logs.Clear();
             StepTree.Clear();
             OverallStatus = "Idle";
+            OverallStatusReason = string.Empty;
             CurrentStep = "-";
             ProgressText = "0 / 0";
             ProgressPercent = 0.0;
@@ -1565,6 +1606,41 @@ namespace RfpTestStation.App.ViewModels
             {
                 FailureResults.Remove(row);
             }
+        }
+
+        private void AddRunBlockerFailure(string stepName, string message)
+        {
+            FailureResults.Add(StepResultViewModel.FromResult(new StepResult
+            {
+                StepName = stepName,
+                Status = StepStatus.Error,
+                Message = message,
+                StartTime = DateTimeOffset.Now,
+                EndTime = DateTimeOffset.Now
+            }));
+        }
+
+        private static string BuildWorkflowStatusReason(WorkflowResult workflowResult)
+        {
+            if (workflowResult.Passed)
+            {
+                return string.Empty;
+            }
+
+            var failedResult = workflowResult.Results.FirstOrDefault(x =>
+                x.Status == StepStatus.Failed
+                || x.Status == StepStatus.Error
+                || x.Status == StepStatus.Stopped
+                || x.Status == StepStatus.Terminated);
+            if (failedResult == null)
+            {
+                return string.Empty;
+            }
+
+            var message = failedResult.Message ?? failedResult.Error?.Message ?? string.Empty;
+            return string.IsNullOrWhiteSpace(message)
+                ? failedResult.ItemName + " " + failedResult.Status
+                : failedResult.ItemName + ": " + message;
         }
 
         private StepResultViewModel? FindResultRow(string itemId, string itemName)

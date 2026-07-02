@@ -291,10 +291,14 @@
           <TextBlock Grid.Row="0"
                      Text="{Binding OverallStatusText}"
                      Foreground="{StaticResource TextBlue}"
-                     FontSize="26"
+                     FontSize="24"
                      FontWeight="Bold"
                      HorizontalAlignment="Center"
-                     VerticalAlignment="Center" />
+                     VerticalAlignment="Center"
+                     TextAlignment="Center"
+                     TextWrapping="Wrap"
+                     TextTrimming="CharacterEllipsis"
+                     MaxHeight="64" />
 
           <DataGrid Grid.Row="1" ItemsSource="{Binding Results}" Margin="10,0">
             <DataGrid.RowStyle>
@@ -377,6 +381,7 @@
                   </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>
               </DataGridTemplateColumn>
+              <DataGridTextColumn x:Name="DetailReasonColumn" Header="Reason" Binding="{Binding Message, Mode=OneWay}" Width="2.5*" />
               <DataGridTextColumn x:Name="DetailMeasurementColumn" Header="Measurement" Binding="{Binding Value, Mode=OneWay}" Width="120" />
               <DataGridTextColumn x:Name="DetailUnitsColumn" Header="Units" Binding="{Binding Unit, Mode=OneWay}" Width="72" />
               <DataGridTextColumn x:Name="DetailLowLimitColumn" Header="Low Limit" Binding="{Binding LowLimit, Mode=OneWay}" Width="110" />
