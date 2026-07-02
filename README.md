@@ -23,7 +23,7 @@ dotnet test .\src\RfpTestStation\RfpTestStation.sln --nologo
 当前基线验证结果：
 
 - 测试项目：`RfpTestStation.Tests`
-- 测试数量：180
+- 测试数量：181
 - 最近验证：全部通过
 
 ## 运行时资产
@@ -97,6 +97,14 @@ Mock 场景文件放在 `Runtime/MockScenarios/*.mockscenario.json`。正式 tes
 
 该脚本会自动跑完整通过流程，以及 `TCON flash failed`、`I2C debug no response`、`DAQ voltage low` 三个典型失败场景，并检查 CSV 中的 `Expected Value`、`Comparison Type`、`Sent`、`Reply`、`Reason` 等关键追溯字段。
 
+也可以一键分析 testplan 的时间和重复动作：
+
+```powershell
+.\Tools\analyze-testplan.ps1
+```
+
+该脚本会输出 timeout 总和、按类型统计、最耗时步骤、重复 `powerOnBefore`、显式 `settleMs`、重复 I2C 签名，以及下一步 testplan 优化建议。
+
 ## 报告格式
 
 CSV 报告文件名使用生产格式：
@@ -109,6 +117,7 @@ CSV 报告文件名使用生产格式：
 
 ## 更新记录
 
+- 2026-07-02：新增 testplan 静态分析脚本 `Tools/analyze-testplan.ps1`，无硬件时可直接统计 timeout、重复上电、settleMs、I2C 重复签名和 stopOnFailure 风险点，作为测试时间优化清单。
 - 2026-07-02：新增 Mock 自动验收脚本 `Tools/run-mock-validation.ps1` 和对应自动化测试；无硬件时可自动跑完整 Passed 流程、烧录失败、I2C 无回复、电压超限，并审核 CSV 追溯字段。
 - 2026-07-02：主运行界面移除“运行模式/当前模式”显示；运行模式仍在设置页配置，避免操作员主界面信息过多。
 - 2026-07-02：运行页左侧新增当前调用 testplan 显示，内容包含计划名称和 `Runtime/TestPlans/*.testplan.json` 路径；长路径自动换行，便于操作员确认本次测试实际使用的测试序列。
