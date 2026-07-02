@@ -120,12 +120,6 @@
               },
               {
                 "name": "3.3V",
-                "powerOn": [
-                  {
-                    "channel": 3,
-                    "voltage": 3.3
-                  }
-                ],
                 "writeData": "FF 10 20 D1",
                 "settleMs": 2000,
                 "low": "0x0D16",
@@ -148,12 +142,6 @@
               },
               {
                 "name": "3.3V",
-                "powerOn": [
-                  {
-                    "channel": 3,
-                    "voltage": 3.3
-                  }
-                ],
                 "writeData": "FF 10 21 D0",
                 "settleMs": 2000,
                 "low": "0x0D16",
@@ -176,12 +164,6 @@
               },
               {
                 "name": "3.3V",
-                "powerOn": [
-                  {
-                    "channel": 3,
-                    "voltage": 3.3
-                  }
-                ],
                 "writeData": "FF 10 22 CF",
                 "settleMs": 2000,
                 "low": "0x0D16",
@@ -204,12 +186,6 @@
               },
               {
                 "name": "3.3V",
-                "powerOn": [
-                  {
-                    "channel": 3,
-                    "voltage": 3.3
-                  }
-                ],
                 "writeData": "FF 10 23 CE",
                 "settleMs": 2000,
                 "low": "0x0D16",
@@ -232,12 +208,6 @@
               },
               {
                 "name": "3.3V",
-                "powerOn": [
-                  {
-                    "channel": 3,
-                    "voltage": 3.3
-                  }
-                ],
                 "writeData": "FF 10 26 CB",
                 "settleMs": 2000,
                 "low": "0x0D16",
@@ -260,18 +230,18 @@
               },
               {
                 "name": "3.3V",
-                "powerOn": [
-                  {
-                    "channel": 3,
-                    "voltage": 3.3
-                  }
-                ],
                 "writeData": "FF 10 27 CA",
                 "settleMs": 2000,
                 "low": "0x0D16",
                 "high": "0x0FFF"
               }
             ]
+          }
+        ],
+        "powerOnBefore": [
+          {
+            "channel": 3,
+            "voltage": 3.3
           }
         ]
       }
@@ -292,6 +262,10 @@
           {
             "channel": 1,
             "voltage": 12.2
+          },
+          {
+            "channel": 3,
+            "voltage": 3.3
           }
         ],
         "items": [
@@ -307,12 +281,6 @@
               },
               {
                 "name": "HI",
-                "powerOn": [
-                  {
-                    "channel": 3,
-                    "voltage": 3.3
-                  }
-                ],
                 "settleMs": 2000,
                 "expectedBytes": "88 8A 08"
               }
@@ -330,12 +298,6 @@
               },
               {
                 "name": "HI",
-                "powerOn": [
-                  {
-                    "channel": 3,
-                    "voltage": 3.3
-                  }
-                ],
                 "settleMs": 2000,
                 "expectedBytes": "A8 88 08"
               }
@@ -353,12 +315,6 @@
               },
               {
                 "name": "HI",
-                "powerOn": [
-                  {
-                    "channel": 3,
-                    "voltage": 3.3
-                  }
-                ],
                 "settleMs": 2000,
                 "expectedBytes": "8A 88 08"
               }
@@ -376,12 +332,6 @@
               },
               {
                 "name": "HI",
-                "powerOn": [
-                  {
-                    "channel": 3,
-                    "voltage": 3.3
-                  }
-                ],
                 "settleMs": 2000,
                 "expectedBytes": "88 88 0A"
               }
@@ -399,12 +349,6 @@
               },
               {
                 "name": "HI",
-                "powerOn": [
-                  {
-                    "channel": 3,
-                    "voltage": 3.3
-                  }
-                ],
                 "settleMs": 2000,
                 "expectedBytes": "88 A8 08"
               }

@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json.Linq;
 using RfpTestStation.Core.TestPlans;
 using RfpTestStation.Core.Workflow;
 using Xunit;
@@ -30,6 +32,18 @@ namespace RfpTestStation.Tests.TestPlans
             var fixturePositionIndex = plan.Items.Select((x, i) => new { Item = x, Index = i }).Single(x => x.Item.Id == "safety.fixture-position").Index;
             var firstFlashIndex = plan.Items.Select((x, i) => new { Item = x, Index = i }).First(x => x.Item.Kind == TestItemKind.Flash).Index;
             Assert.True(fixturePositionIndex < firstFlashIndex);
+        }
+
+        [Fact]
+        public void FunctionalGroupsShareStableThreePointThreeVoltRailsWhereSafe()
+        {
+            var plan = TestPlanRepository.Load(ProjectTestPlanPath());
+
+            AssertGroupPowerChannel(plan, "fct.hvac-position.group", 3, 3.3);
+            AssertGroupPowerChannel(plan, "fct.hvac-sw.group", 3, 3.3);
+            AssertNoChildCheckPowerChannel(plan, "fct.hvac-position.group", 3);
+            AssertNoChildCheckPowerChannel(plan, "fct.hvac-sw.group", 3);
+            AssertChildCheckUsesPowerChannel(plan, "fct.button.group", 3);
         }
 
         [Fact]
@@ -205,6 +219,44 @@ namespace RfpTestStation.Tests.TestPlans
             Assert.Equal(TestItemKind.FunctionalCheck, item.Kind);
             Assert.Equal("I2cFunctionalGroup", (string)item.Parameters["template"]!);
             Assert.Equal(childCount, item.Parameters["items"]!.Count());
+        }
+
+        private static void AssertGroupPowerChannel(TestPlanDefinition plan, string id, int channel, double voltage)
+        {
+            var item = plan.Items.Single(x => x.Id == id);
+            var powerItems = (JArray)item.Parameters["powerOnBefore"]!;
+            Assert.Contains(powerItems.OfType<JObject>(), x =>
+                (int)x["channel"]! == channel
+                && (double)x["voltage"]! == voltage);
+        }
+
+        private static void AssertNoChildCheckPowerChannel(TestPlanDefinition plan, string id, int channel)
+        {
+            Assert.DoesNotContain(ChildChecks(plan, id), check => CheckUsesPowerChannel(check, channel));
+        }
+
+        private static void AssertChildCheckUsesPowerChannel(TestPlanDefinition plan, string id, int channel)
+        {
+            Assert.Contains(ChildChecks(plan, id), check => CheckUsesPowerChannel(check, channel));
+        }
+
+        private static IEnumerable<JObject> ChildChecks(TestPlanDefinition plan, string id)
+        {
+            var item = plan.Items.Single(x => x.Id == id);
+            return ((JArray)item.Parameters["items"]!)
+                .OfType<JObject>()
+                .SelectMany(child => ((JArray)child["checks"]!).OfType<JObject>());
+        }
+
+        private static bool CheckUsesPowerChannel(JObject check, int channel)
+        {
+            return UsesPowerChannel(check["powerOn"] as JArray, channel)
+                || UsesPowerChannel(check["powerOff"] as JArray, channel);
+        }
+
+        private static bool UsesPowerChannel(JArray? powerItems, int channel)
+        {
+            return powerItems != null && powerItems.OfType<JObject>().Any(x => (int)x["channel"]! == channel);
         }
     }
 }
