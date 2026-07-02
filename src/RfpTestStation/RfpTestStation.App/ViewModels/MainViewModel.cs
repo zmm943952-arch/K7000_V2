@@ -2060,6 +2060,8 @@ namespace RfpTestStation.App.ViewModels
                 ExpectedValue = result.ExpectedValue,
                 CompareType = result.CompareType,
                 Target = result.Target,
+                Sent = result.Sent,
+                Reply = result.Reply,
                 Message = result.Message,
                 ExternalLogPath = result.ExternalLogPath,
                 StartTime = result.StartTime,
@@ -2109,6 +2111,7 @@ namespace RfpTestStation.App.ViewModels
                 ConfigPath = configPath,
                 ExecutionMode = ExecutionMode,
                 Operator = CurrentUser,
+                Station = ProductName,
                 StartedAt = startedAt,
                 FinishedAt = finishedAt,
                 Passed = resultList.All(x => x.Status == StepStatus.Passed)

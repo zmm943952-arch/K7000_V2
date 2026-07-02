@@ -19,6 +19,8 @@ namespace RfpTestStation.Core.Reporting
 
         public string Operator { get; set; } = string.Empty;
 
+        public string Station { get; set; } = string.Empty;
+
         public DateTimeOffset StartedAt { get; set; }
 
         public DateTimeOffset FinishedAt { get; set; }

@@ -8,7 +8,9 @@
       "value": false,
       "expected": true,
       "compareType": "Equal",
-      "target": "DI2"
+      "target": "DI2",
+      "sent": "ReadInput(2)",
+      "reply": "False"
     }
   }
 }

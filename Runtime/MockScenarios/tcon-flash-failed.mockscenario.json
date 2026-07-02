@@ -9,6 +9,8 @@
       "expected": "ExitCode=0",
       "compareType": "ProcessExit",
       "target": "Runtime/Flash/RedCase_Auto/Debug/FlashUpdate_Run.bat",
+      "sent": "Runtime/Flash/RedCase_Auto/Debug/FlashUpdate_Run.bat",
+      "reply": "ExitCode=4; StdErr=Firmware file not found",
       "externalLogPath": "Reports/Mock/tcon_flash_failed.log"
     }
   }

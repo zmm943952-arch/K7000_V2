@@ -49,6 +49,8 @@ namespace RfpTestStation.Tests.Adapters
             Assert.EndsWith("Runtime\\Flash\\RFP_Auto\\Scripts\\Flash_once.bat", runner.LastStartInfo!.FileName);
             Assert.Equal(Path.GetDirectoryName(runner.LastStartInfo.FileName), runner.LastStartInfo.WorkingDirectory);
             Assert.Contains("ExitCode=0", result.Message);
+            Assert.Contains("Flash_once.bat", result.Sent);
+            Assert.Contains("programming complete PASS", result.Reply);
             Assert.Equal("C:\\Logs\\SN001_pass.log", result.ExternalLogPath);
         }
 
@@ -70,6 +72,8 @@ namespace RfpTestStation.Tests.Adapters
             Assert.Equal(StepStatus.Failed, result.Status);
             Assert.Contains("ExitCode=2", result.Message);
             Assert.Contains("flash failed", result.Message);
+            Assert.Contains("FlashUpdate_Run.bat", result.Sent);
+            Assert.Contains("StdErr=flash failed", result.Reply);
         }
 
         [Fact]

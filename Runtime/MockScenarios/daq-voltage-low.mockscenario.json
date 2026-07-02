@@ -9,6 +9,8 @@
       "expected": "3.135..3.465",
       "compareType": "Range",
       "target": "DAQ CH3",
+      "sent": "ReadVoltage(3)",
+      "reply": "2.900V",
       "low": 3.135,
       "high": 3.465,
       "unit": "V"

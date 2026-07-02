@@ -96,6 +96,8 @@ namespace RfpTestStation.Adapters.TestPlans
                 ExpectedValue = stepResult.ExpectedValue,
                 CompareType = stepResult.CompareType,
                 Target = stepResult.Target,
+                Sent = stepResult.Sent,
+                Reply = stepResult.Reply,
                 Unit = stepResult.Unit,
                 LowLimit = stepResult.LowLimit,
                 HighLimit = stepResult.HighLimit,
@@ -190,6 +192,8 @@ namespace RfpTestStation.Adapters.TestPlans
             result.ExpectedValue = expected;
             result.CompareType = "Equal";
             result.Target = "DI" + inputChannel.ToString(CultureInfo.InvariantCulture);
+            result.Sent = "ReadInput(" + inputChannel.ToString(CultureInfo.InvariantCulture) + ")";
+            result.Reply = actual.ToString(CultureInfo.InvariantCulture);
             return result;
         }
 
@@ -1012,6 +1016,8 @@ namespace RfpTestStation.Adapters.TestPlans
             result.ExpectedValue = expected == null || expected.Type == JTokenType.Null ? null : expected.ToObject<object>();
             result.CompareType = ReadString(mock, "compareType");
             result.Target = ReadString(mock, "target");
+            result.Sent = ReadString(mock, "sent");
+            result.Reply = ReadString(mock, "reply");
             result.LowLimit = ReadNullableDouble(mock, "low") ?? ReadNullableDoubleParameter(item, "low");
             result.HighLimit = ReadNullableDouble(mock, "high") ?? ReadNullableDoubleParameter(item, "high");
             if (result.ExpectedValue == null && (result.LowLimit != null || result.HighLimit != null))
@@ -1121,6 +1127,8 @@ namespace RfpTestStation.Adapters.TestPlans
                 ExpectedValue = childResult.ExpectedValue,
                 CompareType = childResult.CompareType,
                 Target = childResult.Target,
+                Sent = childResult.Sent,
+                Reply = childResult.Reply,
                 Unit = childResult.Unit,
                 LowLimit = childResult.LowLimit,
                 HighLimit = childResult.HighLimit,

@@ -919,7 +919,7 @@ namespace RfpTestStation.Tests.App
                 var logPath = Assert.Single(Directory.GetFiles(reportDirectory, serialNumber + "_*.log"));
 
                 Assert.Contains(serialNumber, File.ReadAllText(jsonPath));
-                Assert.Contains("StepName,Status,Value,ExpectedValue,CompareType,Target,LowLimit,HighLimit,Unit,StartTime,EndTime,Message", File.ReadAllText(csvPath));
+                Assert.Contains("Step,Status,Measurement,Expected Value,Units,Low Limit,High Limit,Comparison Type,Target,Sent,Reply,Reason,StartTime,EndTime", File.ReadAllText(csvPath));
                 var log = File.ReadAllText(logPath);
                 Assert.Contains("RUN START", log);
                 Assert.Contains("SerialNumber: " + serialNumber, log);

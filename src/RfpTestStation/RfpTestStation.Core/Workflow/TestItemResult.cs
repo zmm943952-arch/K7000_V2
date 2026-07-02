@@ -23,6 +23,10 @@ namespace RfpTestStation.Core.Workflow
 
         public string? Target { get; set; }
 
+        public string? Sent { get; set; }
+
+        public string? Reply { get; set; }
+
         public string? Unit { get; set; }
 
         public double? LowLimit { get; set; }

@@ -51,6 +51,8 @@ namespace RfpTestStation.Adapters.Mock
                 StepName = step.Name,
                 Status = FailingStepNames.Contains(step.Name) ? StepStatus.Failed : StepStatus.Passed,
                 Message = AdapterName,
+                Sent = AdapterStepParser.Text(step),
+                Reply = value == null ? AdapterName : value.ToString(),
                 Value = value
             });
         }

@@ -54,7 +54,12 @@ namespace RfpTestStation.Adapters.Flashing
                     StepName = stepName,
                     Status = StepStatus.Error,
                     Message = "Flash script does not exist: " + script.ScriptPath,
-                    Value = -1
+                    Value = -1,
+                    ExpectedValue = "ExitCode=0",
+                    CompareType = "ProcessExit",
+                    Target = script.ScriptPath,
+                    Sent = FormatCommand(script),
+                    Reply = "Script file missing"
                 };
             }
 
@@ -74,6 +79,11 @@ namespace RfpTestStation.Adapters.Flashing
                 Status = MapStatus(processResult),
                 Message = FormatMessage(script, processResult),
                 Value = processResult.ExitCode,
+                ExpectedValue = "ExitCode=0",
+                CompareType = "ProcessExit",
+                Target = script.ScriptPath,
+                Sent = FormatCommand(script),
+                Reply = FormatReply(processResult),
                 ExternalLogPath = ExtractExternalLogPath(processResult)
             };
         }
@@ -112,6 +122,22 @@ namespace RfpTestStation.Adapters.Flashing
                 + "; Arguments=" + script.Arguments
                 + "; WorkingDirectory=" + script.WorkingDirectory
                 + "; ExitCode=" + result.ExitCode
+                + "; TimedOut=" + result.TimedOut
+                + "; Cancelled=" + result.Cancelled
+                + "; StdOut=" + (result.StandardOutput ?? string.Empty)
+                + "; StdErr=" + (result.StandardError ?? string.Empty);
+        }
+
+        private static string FormatCommand(FlashScriptDefinition script)
+        {
+            return script.ScriptPath
+                + (string.IsNullOrWhiteSpace(script.Arguments) ? string.Empty : " " + script.Arguments)
+                + "; WorkingDirectory=" + script.WorkingDirectory;
+        }
+
+        private static string FormatReply(ExternalProcessResult result)
+        {
+            return "ExitCode=" + result.ExitCode
                 + "; TimedOut=" + result.TimedOut
                 + "; Cancelled=" + result.Cancelled
                 + "; StdOut=" + (result.StandardOutput ?? string.Empty)

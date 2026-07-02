@@ -34,6 +34,7 @@ namespace RfpTestStation.Core.Reporting
             builder.AppendLine("========== RUN START ==========");
             builder.AppendLine("SerialNumber: " + EmptyIfNull(report.SerialNumber));
             builder.AppendLine("Operator: " + EmptyIfNull(report.Operator));
+            builder.AppendLine("Station: " + EmptyIfNull(report.Station));
             builder.AppendLine("ExecutionMode: " + EmptyIfNull(report.ExecutionMode));
             builder.AppendLine("TestPlan: " + EmptyIfNull(report.TestPlanName));
             builder.AppendLine("TestPlanPath: " + EmptyIfNull(report.TestPlanPath));
@@ -76,6 +77,8 @@ namespace RfpTestStation.Core.Reporting
                 builder.AppendLine("ExpectedValue: " + FormatValue(result.ExpectedValue));
                 builder.AppendLine("CompareType: " + EmptyIfNull(result.CompareType));
                 builder.AppendLine("Target: " + EmptyIfNull(result.Target));
+                builder.AppendLine("Sent: " + EmptyIfNull(result.Sent));
+                builder.AppendLine("Reply: " + EmptyIfNull(result.Reply));
                 builder.AppendLine("Unit: " + EmptyIfNull(result.Unit));
                 builder.AppendLine("LowLimit: " + FormatNullable(result.LowLimit));
                 builder.AppendLine("HighLimit: " + FormatNullable(result.HighLimit));

@@ -89,8 +89,19 @@ Mock 场景文件放在 `Runtime/MockScenarios/*.mockscenario.json`。正式 tes
 - `I2C debug no response`
 - `TCON flash failed`
 
+## 报告格式
+
+CSV 报告文件名使用生产格式：
+
+```text
+<SN>_<yyyyMMddHHmmss>_<Passed|Failed>.csv
+```
+
+时间戳取本次测试结束时间。CSV 内容会先写入 `[SN]`、`[Result]`、`[Start Time]`、`[End Time]`、`[Test Time]`、`[UserName]`、`[Authority]`、`[Station]`，随后逐项记录 `Sent` 和 `Reply`，用于追溯每一步发了什么、设备/脚本回复了什么。
+
 ## 更新记录
 
+- 2026-07-02：CSV/JSON/LOG 报告文件名改为 `<SN>_<yyyyMMddHHmmss>_<Passed|Failed>`，时间戳使用结束时间；CSV 增加生产格式头信息，并在每个测试项记录 `Sent` 和 `Reply`。
 - 2026-07-02：Mock 场景选择从主运行页移到设置页启动配置，运行页只保留当前运行模式，避免操作员在主测试界面误切故障场景。
 - 2026-07-02：失败明细和报告增加 `ExpectedValue`、`CompareType`、`Target` 诊断字段；Mock 场景和安全检查失败不再只显示实际值，可同时显示期望值、比较方式和对象/通道。
 - 2026-07-02：新增运行页 Mock 场景选择；场景文件放在 `Runtime/MockScenarios`，可按测试项 ID 注入失败、错误、停止或测量值，不再需要手动修改正式 testplan。

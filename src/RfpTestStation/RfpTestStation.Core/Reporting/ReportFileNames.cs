@@ -16,11 +16,11 @@ namespace RfpTestStation.Core.Reporting
             Directory.CreateDirectory(directory);
 
             var serialNumber = SanitizeFileName(string.IsNullOrWhiteSpace(report.SerialNumber) ? "UNKNOWN" : report.SerialNumber);
-            var result = report.Passed ? "Pass" : "Fail";
+            var result = report.Passed ? "Passed" : "Failed";
             var fileName = string.Format(
-                "{0}_{1:yyyyMMdd_HHmmss}_{2}.{3}",
+                "{0}_{1:yyyyMMddHHmmss}_{2}.{3}",
                 serialNumber,
-                report.StartedAt,
+                report.FinishedAt == default(DateTimeOffset) ? report.StartedAt : report.FinishedAt,
                 result,
                 extension.TrimStart('.'));
 

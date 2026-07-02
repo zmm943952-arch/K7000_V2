@@ -8,7 +8,9 @@
       "value": "NoResponse",
       "expected": "DebugMode=True",
       "compareType": "I2cResponse",
-      "target": "I2C 0x12"
+      "target": "I2C 0x12",
+      "sent": "EnterAndCheckDebugMode(0x12)",
+      "reply": "NoResponse"
     }
   }
 }

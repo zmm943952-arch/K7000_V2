@@ -20,7 +20,7 @@ namespace RfpTestStation.Tests.Reporting
 
                 var path = writer.Write(temp.Path, report);
 
-                Assert.Equal(Path.Combine(temp.Path, "SN001_20260630_083015_Pass.json"), path);
+                Assert.Equal(Path.Combine(temp.Path, "SN001_20260630083115_Passed.json"), path);
                 var json = JObject.Parse(File.ReadAllText(path));
                 Assert.Equal("SN001", (string)json["SerialNumber"]!);
                 Assert.Equal("Measure, One", (string)json["StepResults"]![0]!["StepName"]!);
@@ -38,10 +38,17 @@ namespace RfpTestStation.Tests.Reporting
 
                 var path = writer.Write(temp.Path, report);
 
-                Assert.Equal(Path.Combine(temp.Path, "SN001_20260630_083015_Fail.csv"), path);
+                Assert.Equal(Path.Combine(temp.Path, "SN001_20260630083115_Failed.csv"), path);
                 var csv = File.ReadAllText(path);
-                Assert.Contains("StepName,Status,Value,ExpectedValue,CompareType,Target,LowLimit,HighLimit,Unit,StartTime,EndTime,Message", csv);
-                Assert.Contains("\"Measure, One\",Passed,12.34,,,,10,15,V", csv);
+                Assert.Contains("[SN],SN001", csv);
+                Assert.Contains("[Result],Failed", csv);
+                Assert.Contains("[Start Time],2026_06_30  08:30:15", csv);
+                Assert.Contains("[End Time],2026_06_30  08:31:15", csv);
+                Assert.Contains("[Test Time],60.0", csv);
+                Assert.Contains("[UserName],OperatorA", csv);
+                Assert.Contains("[Station],K7048", csv);
+                Assert.Contains("Step,Status,Measurement,Expected Value,Units,Low Limit,High Limit,Comparison Type,Target,Sent,Reply,Reason,StartTime,EndTime", csv);
+                Assert.Contains("\"Measure, One\",Passed,12.34,,V,10,15", csv);
                 Assert.Contains("\"contains \"\"quote\"\"\"", csv);
             }
         }
@@ -61,6 +68,8 @@ namespace RfpTestStation.Tests.Reporting
                     ExpectedValue = "3.135..3.465",
                     CompareType = "Range",
                     Target = "DAQ CH3",
+                    Sent = "ReadVoltage(3)",
+                    Reply = "2.900V",
                     LowLimit = 3.135,
                     HighLimit = 3.465,
                     Unit = "V",
@@ -71,7 +80,7 @@ namespace RfpTestStation.Tests.Reporting
                 var path = writer.Write(temp.Path, report);
 
                 var csv = File.ReadAllText(path);
-                Assert.Contains("Failed,2.9,3.135..3.465,Range,DAQ CH3,3.135,3.465,V", csv);
+                Assert.Contains("Failed,2.9,3.135..3.465,V,3.135,3.465,Range,DAQ CH3,ReadVoltage(3),2.900V", csv);
                 Assert.Contains("Mock DAQ voltage outside limits: channel=3; expected=3.135..3.465V; actual=2.900V", csv);
             }
         }
@@ -108,6 +117,8 @@ namespace RfpTestStation.Tests.Reporting
                     ExpectedValue = "ExitCode=0",
                     CompareType = "ProcessExit",
                     Target = @"Runtime\Flash\RedCase_Auto\Debug\FlashUpdate_Run.bat",
+                    Sent = @"cmd.exe /c Runtime\Flash\RedCase_Auto\Debug\FlashUpdate_Run.bat",
+                    Reply = "ExitCode=4; StdErr=Bin file not found",
                     ExternalLogPath = @"C:\Logs\SN001_tcon_fail.log",
                     StartTime = DateTimeOffset.Parse("2026-06-30T08:30:20+08:00"),
                     EndTime = DateTimeOffset.Parse("2026-06-30T08:30:25+08:00"),
@@ -118,7 +129,7 @@ namespace RfpTestStation.Tests.Reporting
 
                 var path = writer.Write(temp.Path, report);
 
-                Assert.Equal(Path.Combine(temp.Path, "SN001_20260630_083015_Fail.log"), path);
+                Assert.Equal(Path.Combine(temp.Path, "SN001_20260630083115_Failed.log"), path);
                 var text = File.ReadAllText(path);
                 Assert.Contains("RUN START", text);
                 Assert.Contains("SerialNumber: SN001", text);
@@ -137,6 +148,8 @@ namespace RfpTestStation.Tests.Reporting
                 Assert.Contains("ExpectedValue: ExitCode=0", text);
                 Assert.Contains("CompareType: ProcessExit", text);
                 Assert.Contains(@"Target: Runtime\Flash\RedCase_Auto\Debug\FlashUpdate_Run.bat", text);
+                Assert.Contains(@"Sent: cmd.exe /c Runtime\Flash\RedCase_Auto\Debug\FlashUpdate_Run.bat", text);
+                Assert.Contains("Reply: ExitCode=4; StdErr=Bin file not found", text);
                 Assert.Contains("ExternalLogPath: C:\\Logs\\SN001_tcon_fail.log", text);
                 Assert.Contains("DurationMs: 5000", text);
                 Assert.Contains("Message: FlashUpdate.exe exited with code 4", text);
@@ -150,6 +163,8 @@ namespace RfpTestStation.Tests.Reporting
             return new RunReport
             {
                 SerialNumber = "SN001",
+                Operator = "OperatorA",
+                Station = "K7048",
                 StartedAt = DateTimeOffset.Parse("2026-06-30T08:30:15+08:00"),
                 FinishedAt = DateTimeOffset.Parse("2026-06-30T08:31:15+08:00"),
                 Passed = passed,

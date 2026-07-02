@@ -13,7 +13,8 @@ namespace RfpTestStation.Core.Reporting
         {
             var path = ReportFileNames.Build(directory, report, "csv");
             var builder = new StringBuilder();
-            builder.AppendLine("StepName,Status,Value,ExpectedValue,CompareType,Target,LowLimit,HighLimit,Unit,StartTime,EndTime,Message");
+            AppendRunHeader(builder, report);
+            builder.AppendLine("Step,Status,Measurement,Expected Value,Units,Low Limit,High Limit,Comparison Type,Target,Sent,Reply,Reason,StartTime,EndTime");
 
             foreach (var result in report.StepResults)
             {
@@ -23,19 +24,33 @@ namespace RfpTestStation.Core.Reporting
                     Escape(result.Status.ToString()),
                     Escape(FormatValue(result.Value)),
                     Escape(FormatValue(result.ExpectedValue)),
-                    Escape(result.CompareType),
-                    Escape(result.Target),
+                    Escape(result.Unit),
                     Escape(FormatNullable(result.LowLimit)),
                     Escape(FormatNullable(result.HighLimit)),
-                    Escape(result.Unit),
+                    Escape(result.CompareType),
+                    Escape(result.Target),
+                    Escape(result.Sent),
+                    Escape(result.Reply),
+                    Escape(result.Message),
                     Escape(FormatTime(result.StartTime)),
-                    Escape(FormatTime(result.EndTime)),
-                    Escape(result.Message)
+                    Escape(FormatTime(result.EndTime))
                 }));
             }
 
             File.WriteAllText(path, builder.ToString(), Encoding.UTF8);
             return path;
+        }
+
+        private static void AppendRunHeader(StringBuilder builder, RunReport report)
+        {
+            builder.AppendLine("[SN]," + Escape(report.SerialNumber));
+            builder.AppendLine("[Result]," + (report.Passed ? "Passed" : "Failed"));
+            builder.AppendLine("[Start Time]," + Escape(FormatStationTime(report.StartedAt)));
+            builder.AppendLine("[End Time]," + Escape(FormatStationTime(report.FinishedAt)));
+            builder.AppendLine("[Test Time]," + FormatDurationSeconds(report.StartedAt, report.FinishedAt));
+            builder.AppendLine("[UserName]," + Escape(report.Operator));
+            builder.AppendLine("[Authority]," + Escape(string.IsNullOrWhiteSpace(report.Operator) ? string.Empty : "Operator"));
+            builder.AppendLine("[Station]," + Escape(report.Station));
         }
 
         private static string FormatValue(object? value)
@@ -66,6 +81,21 @@ namespace RfpTestStation.Core.Reporting
         private static string FormatTime(DateTimeOffset value)
         {
             return value == default ? string.Empty : value.ToString("o", CultureInfo.InvariantCulture);
+        }
+
+        private static string FormatStationTime(DateTimeOffset value)
+        {
+            return value == default ? string.Empty : value.ToString("yyyy_MM_dd  HH:mm:ss", CultureInfo.InvariantCulture);
+        }
+
+        private static string FormatDurationSeconds(DateTimeOffset startTime, DateTimeOffset endTime)
+        {
+            if (startTime == default || endTime == default)
+            {
+                return string.Empty;
+            }
+
+            return (endTime - startTime).TotalSeconds.ToString("0.0", CultureInfo.InvariantCulture);
         }
 
         private static string Escape(string? value)

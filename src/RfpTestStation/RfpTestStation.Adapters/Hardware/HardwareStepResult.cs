@@ -12,6 +12,8 @@ namespace RfpTestStation.Adapters.Hardware
                 StepName = step.Name,
                 Status = StepStatus.Passed,
                 Value = value,
+                Sent = SentText(step),
+                Reply = ReplyText(value, message ?? adapterName),
                 Message = message ?? adapterName
             };
         }
@@ -23,6 +25,8 @@ namespace RfpTestStation.Adapters.Hardware
                 StepName = step.Name,
                 Status = StepStatus.Failed,
                 Value = value,
+                Sent = SentText(step),
+                Reply = ReplyText(value, message ?? adapterName),
                 Message = message ?? adapterName
             };
         }
@@ -33,9 +37,21 @@ namespace RfpTestStation.Adapters.Hardware
             {
                 StepName = step.Name,
                 Status = StepStatus.Error,
+                Sent = SentText(step),
+                Reply = exception.Message,
                 Message = adapterName + ": " + exception.Message,
                 Error = exception
             };
+        }
+
+        private static string SentText(StepDefinition step)
+        {
+            return step.DescriptionRaw ?? step.SettingsRaw ?? step.Name;
+        }
+
+        private static string ReplyText(object? value, string message)
+        {
+            return "Value=" + (value ?? string.Empty) + "; Message=" + message;
         }
     }
 }
