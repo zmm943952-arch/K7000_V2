@@ -6,6 +6,9 @@
       "status": "Failed",
       "reason": "Mock DAQ voltage outside limits: item=fct.ac-input.3.hi; channel=3; expected=3.135..3.465V; actual=2.900V",
       "value": 2.9,
+      "expected": "3.135..3.465",
+      "compareType": "Range",
+      "target": "DAQ CH3",
       "low": 3.135,
       "high": 3.465,
       "unit": "V"

@@ -178,6 +178,26 @@ namespace RfpTestStation.Tests.App
         }
 
         [Fact]
+        public void StepResultViewModelShowsFailureDiagnosticFields()
+        {
+            var result = StepResultViewModel.FromResult(new StepResult
+            {
+                StepName = "Fixture Position Safety Wait",
+                Status = StepStatus.Failed,
+                Value = false,
+                ExpectedValue = true,
+                CompareType = "Equal",
+                Target = "DI2",
+                Message = "Fixture input mismatch"
+            });
+
+            Assert.Equal("False", result.Value);
+            Assert.Equal("True", result.ExpectedValue);
+            Assert.Equal("Equal", result.CompareType);
+            Assert.Equal("DI2", result.Target);
+        }
+
+        [Fact]
         public void RunPageBindsResultRowsToRowBackground()
         {
             var xaml = File.ReadAllText(Path.Combine(
@@ -204,6 +224,11 @@ namespace RfpTestStation.Tests.App
             Assert.Contains("ItemsSource=\"{Binding FailureResults}\"", xaml);
             Assert.Contains("DetailReasonColumn", xaml);
             Assert.Contains("Binding=\"{Binding Message, Mode=OneWay}\"", xaml);
+            Assert.Contains("DetailExpectedValueColumn", xaml);
+            Assert.Contains("Binding=\"{Binding ExpectedValue, Mode=OneWay}\"", xaml);
+            Assert.Contains("DetailTargetColumn", xaml);
+            Assert.Contains("Binding=\"{Binding Target, Mode=OneWay}\"", xaml);
+            Assert.Contains("Binding=\"{Binding CompareType, Mode=OneWay}\"", xaml);
         }
 
         [Fact]
@@ -892,7 +917,7 @@ namespace RfpTestStation.Tests.App
                 var logPath = Assert.Single(Directory.GetFiles(reportDirectory, serialNumber + "_*.log"));
 
                 Assert.Contains(serialNumber, File.ReadAllText(jsonPath));
-                Assert.Contains("StepName,Status,Value,LowLimit,HighLimit,Unit,StartTime,EndTime,Message", File.ReadAllText(csvPath));
+                Assert.Contains("StepName,Status,Value,ExpectedValue,CompareType,Target,LowLimit,HighLimit,Unit,StartTime,EndTime,Message", File.ReadAllText(csvPath));
                 var log = File.ReadAllText(logPath);
                 Assert.Contains("RUN START", log);
                 Assert.Contains("SerialNumber: " + serialNumber, log);

@@ -45,6 +45,9 @@ namespace RfpTestStation.Tests.TestPlans
                     ""status"": ""Failed"",
                     ""reason"": ""Mock DAQ voltage outside limits: channel=3; expected=3.135..3.465V; actual=2.900V"",
                     ""value"": 2.9,
+                    ""expected"": ""3.135..3.465"",
+                    ""compareType"": ""Range"",
+                    ""target"": ""DAQ CH3"",
                     ""low"": 3.135,
                     ""high"": 3.465,
                     ""unit"": ""V""
@@ -59,6 +62,9 @@ namespace RfpTestStation.Tests.TestPlans
 
             Assert.Equal(StepStatus.Failed, result.Status);
             Assert.Equal(2.9, result.Value);
+            Assert.Equal("3.135..3.465", result.ExpectedValue);
+            Assert.Equal("Range", result.CompareType);
+            Assert.Equal("DAQ CH3", result.Target);
             Assert.Equal(3.135, result.LowLimit);
             Assert.Equal(3.465, result.HighLimit);
             Assert.Equal("V", result.Unit);

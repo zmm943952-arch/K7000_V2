@@ -875,6 +875,10 @@ namespace RfpTestStation.App.ViewModels
 
         public string MeasurementHeaderText { get { return T("测量值", "Measurement"); } }
 
+        public string ExpectedValueHeaderText { get { return T("期望值", "Expected"); } }
+
+        public string TargetHeaderText { get { return T("对象/通道", "Target"); } }
+
         public string UnitsHeaderText { get { return T("单位", "Units"); } }
 
         public string LowLimitHeaderText { get { return T("下限", "Low Limit"); } }
@@ -2059,6 +2063,9 @@ namespace RfpTestStation.App.ViewModels
                 Unit = result.Unit,
                 LowLimit = result.LowLimit,
                 HighLimit = result.HighLimit,
+                ExpectedValue = result.ExpectedValue,
+                CompareType = result.CompareType,
+                Target = result.Target,
                 Message = result.Message,
                 ExternalLogPath = result.ExternalLogPath,
                 StartTime = result.StartTime,
@@ -2279,6 +2286,8 @@ namespace RfpTestStation.App.ViewModels
             OnPropertyChanged(nameof(DescriptionHeaderText));
             OnPropertyChanged(nameof(StatusHeaderText));
             OnPropertyChanged(nameof(MeasurementHeaderText));
+            OnPropertyChanged(nameof(ExpectedValueHeaderText));
+            OnPropertyChanged(nameof(TargetHeaderText));
             OnPropertyChanged(nameof(UnitsHeaderText));
             OnPropertyChanged(nameof(LowLimitHeaderText));
             OnPropertyChanged(nameof(HighLimitHeaderText));

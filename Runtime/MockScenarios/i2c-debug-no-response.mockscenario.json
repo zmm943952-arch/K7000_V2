@@ -5,7 +5,10 @@
     "fct.i2c.debug-mode": {
       "status": "Error",
       "reason": "Mock I2C no response: adapter=UsbI2c; address=0x12; operation=EnterAndCheckDebugMode",
-      "value": "NoResponse"
+      "value": "NoResponse",
+      "expected": "DebugMode=True",
+      "compareType": "I2cResponse",
+      "target": "I2C 0x12"
     }
   }
 }

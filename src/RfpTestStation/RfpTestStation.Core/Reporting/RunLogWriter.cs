@@ -73,6 +73,9 @@ namespace RfpTestStation.Core.Reporting
             {
                 builder.AppendLine("Status: " + result.Status);
                 builder.AppendLine("Value: " + FormatValue(result.Value));
+                builder.AppendLine("ExpectedValue: " + FormatValue(result.ExpectedValue));
+                builder.AppendLine("CompareType: " + EmptyIfNull(result.CompareType));
+                builder.AppendLine("Target: " + EmptyIfNull(result.Target));
                 builder.AppendLine("Unit: " + EmptyIfNull(result.Unit));
                 builder.AppendLine("LowLimit: " + FormatNullable(result.LowLimit));
                 builder.AppendLine("HighLimit: " + FormatNullable(result.HighLimit));

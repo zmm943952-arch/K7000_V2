@@ -15,6 +15,9 @@ namespace RfpTestStation.App.ViewModels
         private string _statusBackground = "#EEF2F6";
         private string _rowBackground = "#FFFFFF";
         private string _value = string.Empty;
+        private string _expectedValue = string.Empty;
+        private string _compareType = string.Empty;
+        private string _target = string.Empty;
         private string _limits = string.Empty;
         private string _lowLimit = string.Empty;
         private string _highLimit = string.Empty;
@@ -67,6 +70,24 @@ namespace RfpTestStation.App.ViewModels
         {
             get { return _value; }
             set { SetField(ref _value, value); }
+        }
+
+        public string ExpectedValue
+        {
+            get { return _expectedValue; }
+            set { SetField(ref _expectedValue, value); }
+        }
+
+        public string CompareType
+        {
+            get { return _compareType; }
+            set { SetField(ref _compareType, value); }
+        }
+
+        public string Target
+        {
+            get { return _target; }
+            set { SetField(ref _target, value); }
         }
 
         public string Limits
@@ -162,6 +183,9 @@ namespace RfpTestStation.App.ViewModels
             StatusBackground = StatusColor.Background(result.Status);
             RowBackground = "#FFFFFF";
             Value = Convert.ToString(result.Value, CultureInfo.InvariantCulture) ?? string.Empty;
+            ExpectedValue = Convert.ToString(result.ExpectedValue, CultureInfo.InvariantCulture) ?? string.Empty;
+            CompareType = result.CompareType ?? string.Empty;
+            Target = result.Target ?? string.Empty;
             Limits = FormatLimits(result);
             LowLimit = result.LowLimit?.ToString("G", CultureInfo.InvariantCulture) ?? string.Empty;
             HighLimit = result.HighLimit?.ToString("G", CultureInfo.InvariantCulture) ?? string.Empty;

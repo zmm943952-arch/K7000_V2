@@ -40,8 +40,8 @@ namespace RfpTestStation.Tests.Reporting
 
                 Assert.Equal(Path.Combine(temp.Path, "SN001_20260630_083015_Fail.csv"), path);
                 var csv = File.ReadAllText(path);
-                Assert.Contains("StepName,Status,Value,LowLimit,HighLimit,Unit,StartTime,EndTime,Message", csv);
-                Assert.Contains("\"Measure, One\",Passed,12.34,10,15,V", csv);
+                Assert.Contains("StepName,Status,Value,ExpectedValue,CompareType,Target,LowLimit,HighLimit,Unit,StartTime,EndTime,Message", csv);
+                Assert.Contains("\"Measure, One\",Passed,12.34,,,,10,15,V", csv);
                 Assert.Contains("\"contains \"\"quote\"\"\"", csv);
             }
         }
@@ -58,6 +58,9 @@ namespace RfpTestStation.Tests.Reporting
                     StepName = "AC Input 3 High Limit",
                     Status = StepStatus.Failed,
                     Value = 2.9,
+                    ExpectedValue = "3.135..3.465",
+                    CompareType = "Range",
+                    Target = "DAQ CH3",
                     LowLimit = 3.135,
                     HighLimit = 3.465,
                     Unit = "V",
@@ -68,7 +71,7 @@ namespace RfpTestStation.Tests.Reporting
                 var path = writer.Write(temp.Path, report);
 
                 var csv = File.ReadAllText(path);
-                Assert.Contains("Failed,2.9,3.135,3.465,V", csv);
+                Assert.Contains("Failed,2.9,3.135..3.465,Range,DAQ CH3,3.135,3.465,V", csv);
                 Assert.Contains("Mock DAQ voltage outside limits: channel=3; expected=3.135..3.465V; actual=2.900V", csv);
             }
         }
@@ -102,6 +105,9 @@ namespace RfpTestStation.Tests.Reporting
                     StepName = "TCON Flash",
                     Status = StepStatus.Error,
                     Value = "HX6330.bin",
+                    ExpectedValue = "ExitCode=0",
+                    CompareType = "ProcessExit",
+                    Target = @"Runtime\Flash\RedCase_Auto\Debug\FlashUpdate_Run.bat",
                     ExternalLogPath = @"C:\Logs\SN001_tcon_fail.log",
                     StartTime = DateTimeOffset.Parse("2026-06-30T08:30:20+08:00"),
                     EndTime = DateTimeOffset.Parse("2026-06-30T08:30:25+08:00"),
@@ -128,6 +134,9 @@ namespace RfpTestStation.Tests.Reporting
                 Assert.Contains("\"script\": \"..\\\\Flash\\\\RedCase_Auto\\\\Debug\\\\FlashUpdate_Run.bat\"", text);
                 Assert.Contains("[1] STEP END", text);
                 Assert.Contains("Status: Error", text);
+                Assert.Contains("ExpectedValue: ExitCode=0", text);
+                Assert.Contains("CompareType: ProcessExit", text);
+                Assert.Contains(@"Target: Runtime\Flash\RedCase_Auto\Debug\FlashUpdate_Run.bat", text);
                 Assert.Contains("ExternalLogPath: C:\\Logs\\SN001_tcon_fail.log", text);
                 Assert.Contains("DurationMs: 5000", text);
                 Assert.Contains("Message: FlashUpdate.exe exited with code 4", text);

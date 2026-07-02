@@ -5,7 +5,10 @@
     "safety.fixture-position": {
       "status": "Failed",
       "reason": "Mock fixture safety input mismatch: inputChannel=2; expected=True; actual=False",
-      "value": false
+      "value": false,
+      "expected": true,
+      "compareType": "Equal",
+      "target": "DI2"
     }
   }
 }

@@ -13,7 +13,7 @@ namespace RfpTestStation.Core.Reporting
         {
             var path = ReportFileNames.Build(directory, report, "csv");
             var builder = new StringBuilder();
-            builder.AppendLine("StepName,Status,Value,LowLimit,HighLimit,Unit,StartTime,EndTime,Message");
+            builder.AppendLine("StepName,Status,Value,ExpectedValue,CompareType,Target,LowLimit,HighLimit,Unit,StartTime,EndTime,Message");
 
             foreach (var result in report.StepResults)
             {
@@ -22,6 +22,9 @@ namespace RfpTestStation.Core.Reporting
                     Escape(result.StepName),
                     Escape(result.Status.ToString()),
                     Escape(FormatValue(result.Value)),
+                    Escape(FormatValue(result.ExpectedValue)),
+                    Escape(result.CompareType),
+                    Escape(result.Target),
                     Escape(FormatNullable(result.LowLimit)),
                     Escape(FormatNullable(result.HighLimit)),
                     Escape(result.Unit),

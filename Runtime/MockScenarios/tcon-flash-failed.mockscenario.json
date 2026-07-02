@@ -6,6 +6,9 @@
       "status": "Error",
       "reason": "Mock TCON flash failed: script=Runtime/Flash/RedCase_Auto/Debug/FlashUpdate_Run.bat; exitCode=4; stderr=Firmware file not found",
       "value": "ExitCode=4",
+      "expected": "ExitCode=0",
+      "compareType": "ProcessExit",
+      "target": "Runtime/Flash/RedCase_Auto/Debug/FlashUpdate_Run.bat",
       "externalLogPath": "Reports/Mock/tcon_flash_failed.log"
     }
   }

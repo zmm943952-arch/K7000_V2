@@ -23,7 +23,7 @@ dotnet test .\src\RfpTestStation\RfpTestStation.sln --nologo
 当前基线验证结果：
 
 - 测试项目：`RfpTestStation.Tests`
-- 测试数量：174
+- 测试数量：175
 - 最近验证：全部通过
 
 ## 运行时资产
@@ -91,6 +91,7 @@ Mock 场景文件放在 `Runtime/MockScenarios/*.mockscenario.json`。正式 tes
 
 ## 更新记录
 
+- 2026-07-02：失败明细和报告增加 `ExpectedValue`、`CompareType`、`Target` 诊断字段；Mock 场景和安全检查失败不再只显示实际值，可同时显示期望值、比较方式和对象/通道。
 - 2026-07-02：新增运行页 Mock 场景选择；场景文件放在 `Runtime/MockScenarios`，可按测试项 ID 注入失败、错误、停止或测量值，不再需要手动修改正式 testplan。
 - 2026-07-02：增强 Mock 模式，测试项可通过 `mock.status/reason/value/low/high/unit` 注入失败、错误或停止结果；无硬件时可验证失败原因在界面和报告中的完整链路。
 - 2026-07-02：运行页“产品名称”下拉框内容改为居中显示，和语言选择框的对齐方式保持一致。

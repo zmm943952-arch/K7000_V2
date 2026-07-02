@@ -10,6 +10,12 @@ namespace RfpTestStation.Core.Model
 
         public object? Value { get; set; }
 
+        public object? ExpectedValue { get; set; }
+
+        public string? CompareType { get; set; }
+
+        public string? Target { get; set; }
+
         public string? Unit { get; set; }
 
         public double? LowLimit { get; set; }

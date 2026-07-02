@@ -93,6 +93,9 @@ namespace RfpTestStation.Adapters.TestPlans
                 SourceReference = item.SourceReference,
                 Status = stepResult.Status,
                 Value = stepResult.Value,
+                ExpectedValue = stepResult.ExpectedValue,
+                CompareType = stepResult.CompareType,
+                Target = stepResult.Target,
                 Unit = stepResult.Unit,
                 LowLimit = stepResult.LowLimit,
                 HighLimit = stepResult.HighLimit,
@@ -184,6 +187,9 @@ namespace RfpTestStation.Adapters.TestPlans
                 ? TestItemResult.Passed(item, "Safety input matched: channel=" + inputChannel + "; expected=" + expected)
                 : TestItemResult.Failed(item, "Safety input mismatch: channel=" + inputChannel + "; expected=" + expected + "; actual=" + actual);
             result.Value = actual;
+            result.ExpectedValue = expected;
+            result.CompareType = "Equal";
+            result.Target = "DI" + inputChannel.ToString(CultureInfo.InvariantCulture);
             return result;
         }
 
@@ -1002,8 +1008,22 @@ namespace RfpTestStation.Adapters.TestPlans
 
             var value = mock["value"];
             result.Value = value == null || value.Type == JTokenType.Null ? null : value.ToObject<object>();
+            var expected = mock["expected"] ?? mock["expectedValue"];
+            result.ExpectedValue = expected == null || expected.Type == JTokenType.Null ? null : expected.ToObject<object>();
+            result.CompareType = ReadString(mock, "compareType");
+            result.Target = ReadString(mock, "target");
             result.LowLimit = ReadNullableDouble(mock, "low") ?? ReadNullableDoubleParameter(item, "low");
             result.HighLimit = ReadNullableDouble(mock, "high") ?? ReadNullableDoubleParameter(item, "high");
+            if (result.ExpectedValue == null && (result.LowLimit != null || result.HighLimit != null))
+            {
+                result.ExpectedValue = LimitText(result.LowLimit) + ".." + LimitText(result.HighLimit);
+            }
+
+            if (string.IsNullOrWhiteSpace(result.CompareType) && (result.LowLimit != null || result.HighLimit != null))
+            {
+                result.CompareType = "Range";
+            }
+
             result.Unit = ReadString(mock, "unit") ?? ReadStringParameter(item, "unit");
             result.ExternalLogPath = ReadString(mock, "externalLogPath");
 
@@ -1098,6 +1118,9 @@ namespace RfpTestStation.Adapters.TestPlans
                 SourceReference = groupItem.SourceReference,
                 Status = childResult.Status,
                 Value = childResult.Value,
+                ExpectedValue = childResult.ExpectedValue,
+                CompareType = childResult.CompareType,
+                Target = childResult.Target,
                 Unit = childResult.Unit,
                 LowLimit = childResult.LowLimit,
                 HighLimit = childResult.HighLimit,

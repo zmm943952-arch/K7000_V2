@@ -407,10 +407,10 @@
               </DataGridTemplateColumn>
               <DataGridTextColumn x:Name="DetailReasonColumn" Header="Reason" Binding="{Binding Message, Mode=OneWay}" Width="2.5*" />
               <DataGridTextColumn x:Name="DetailMeasurementColumn" Header="Measurement" Binding="{Binding Value, Mode=OneWay}" Width="120" />
+              <DataGridTextColumn x:Name="DetailExpectedValueColumn" Header="Expected" Binding="{Binding ExpectedValue, Mode=OneWay}" Width="130" />
               <DataGridTextColumn x:Name="DetailUnitsColumn" Header="Units" Binding="{Binding Unit, Mode=OneWay}" Width="72" />
-              <DataGridTextColumn x:Name="DetailLowLimitColumn" Header="Low Limit" Binding="{Binding LowLimit, Mode=OneWay}" Width="110" />
-              <DataGridTextColumn x:Name="DetailHighLimitColumn" Header="High Limit" Binding="{Binding HighLimit, Mode=OneWay}" Width="110" />
-              <DataGridTextColumn x:Name="DetailComparisonTypeColumn" Header="Comparison Type" Binding="{Binding Limits, Mode=OneWay}" Width="140" />
+              <DataGridTextColumn x:Name="DetailTargetColumn" Header="Target" Binding="{Binding Target, Mode=OneWay}" Width="130" />
+              <DataGridTextColumn x:Name="DetailComparisonTypeColumn" Header="Comparison Type" Binding="{Binding CompareType, Mode=OneWay}" Width="140" />
             </DataGrid.Columns>
           </DataGrid>
         </Grid>

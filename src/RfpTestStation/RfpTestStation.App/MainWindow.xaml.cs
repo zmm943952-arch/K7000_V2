@@ -70,6 +70,8 @@ namespace RfpTestStation.App
                 || e.PropertyName == nameof(MainViewModel.DescriptionHeaderText)
                 || e.PropertyName == nameof(MainViewModel.StatusHeaderText)
                 || e.PropertyName == nameof(MainViewModel.MeasurementHeaderText)
+                || e.PropertyName == nameof(MainViewModel.ExpectedValueHeaderText)
+                || e.PropertyName == nameof(MainViewModel.TargetHeaderText)
                 || e.PropertyName == nameof(MainViewModel.UnitsHeaderText)
                 || e.PropertyName == nameof(MainViewModel.LowLimitHeaderText)
                 || e.PropertyName == nameof(MainViewModel.HighLimitHeaderText)
@@ -88,9 +90,9 @@ namespace RfpTestStation.App
             DetailStepColumn.Header = viewModel.StepHeaderText;
             DetailStatusColumn.Header = viewModel.StatusHeaderText;
             DetailMeasurementColumn.Header = viewModel.MeasurementHeaderText;
+            DetailExpectedValueColumn.Header = viewModel.ExpectedValueHeaderText;
             DetailUnitsColumn.Header = viewModel.UnitsHeaderText;
-            DetailLowLimitColumn.Header = viewModel.LowLimitHeaderText;
-            DetailHighLimitColumn.Header = viewModel.HighLimitHeaderText;
+            DetailTargetColumn.Header = viewModel.TargetHeaderText;
             DetailComparisonTypeColumn.Header = viewModel.ComparisonTypeHeaderText;
 
             PlanEnabledColumn.Header = viewModel.EnabledHeaderText;
