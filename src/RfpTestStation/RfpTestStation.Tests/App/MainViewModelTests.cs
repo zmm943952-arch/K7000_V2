@@ -562,6 +562,104 @@ namespace RfpTestStation.Tests.App
         }
 
         [Fact]
+        public void TestPlanEditorShowsFunctionalGroupSummaryAndDetails()
+        {
+            var repoRoot = CreateTempRepoRoot();
+            try
+            {
+                File.WriteAllText(
+                    Path.Combine(repoRoot, "Runtime", "TestPlans", "Rfp7000V2.testplan.json"),
+                    @"{
+  ""name"": ""Grouped Plan"",
+  ""version"": ""1.0"",
+  ""product"": ""K7000"",
+  ""items"": [
+    {
+      ""id"": ""fct.hvac-sw.group"",
+      ""name"": ""HVAC Switch Group"",
+      ""kind"": ""FunctionalCheck"",
+      ""required"": true,
+      ""stopOnFailure"": true,
+      ""timeoutSeconds"": 150,
+      ""parameters"": {
+        ""template"": ""I2cFunctionalGroup"",
+        ""address"": ""0x12"",
+        ""readRegister"": ""0xD4"",
+        ""powerOnBefore"": [ { ""channel"": 1, ""voltage"": 12.2 } ],
+        ""items"": [
+          { ""id"": ""fct.hvac-sw.def-frt"", ""name"": ""DEF_FRT_SW"", ""template"": ""I2cByteSequence"", ""relayOutputChannel"": 31, ""checks"": [ { ""name"": ""LO"", ""expectedBytes"": ""88 88 08"" } ] },
+          { ""id"": ""fct.hvac-sw.dfg-rr"", ""name"": ""DFG_RR_SW"", ""template"": ""I2cByteSequence"", ""relayOutputChannel"": 32, ""checks"": [ { ""name"": ""LO"", ""expectedBytes"": ""88 88 08"" } ] }
+        ]
+      }
+    }
+  ]
+}");
+
+                var viewModel = new MainViewModel(repoRoot);
+                var group = Assert.Single(viewModel.TestPlanItems);
+                viewModel.SelectedTestPlanItem = group;
+
+                Assert.True(group.IsFunctionalGroup);
+                Assert.Contains("2 child", group.SummaryText);
+                Assert.Contains("CH1 12.2V", group.SummaryText);
+                Assert.Contains("DEF_FRT_SW", group.GroupChildrenText);
+                Assert.Contains("DFG_RR_SW", group.GroupChildrenText);
+                Assert.Contains("HVAC Switch Group", viewModel.SelectedTestPlanDetailText);
+                Assert.Contains("DEF_FRT_SW", viewModel.SelectedTestPlanDetailText);
+                Assert.Contains("0x12", viewModel.SelectedTestPlanDetailText);
+            }
+            finally
+            {
+                Directory.Delete(repoRoot, true);
+            }
+        }
+
+        [Fact]
+        public void SaveTestPlanCommandReportsConcreteValidationReasons()
+        {
+            var repoRoot = CreateTempRepoRoot();
+            try
+            {
+                var viewModel = new MainViewModel(repoRoot);
+                var item = viewModel.TestPlanItems.Single();
+                item.TimeoutSeconds = 0;
+                item.LowLimit = "5";
+                item.HighLimit = "3";
+                viewModel.TestPlanItems.Add(new TestPlanItemEditorViewModel
+                {
+                    Id = "fixture.prepare",
+                    Name = "Duplicate",
+                    KindText = "Flash",
+                    TimeoutSeconds = 30,
+                    Script = "Runtime/Flash/Missing.bat",
+                    ParametersJson = "{}"
+                });
+                viewModel.TestPlanItems.Add(new TestPlanItemEditorViewModel
+                {
+                    Id = "fct.empty.group",
+                    Name = "Empty Group",
+                    KindText = "FunctionalCheck",
+                    TimeoutSeconds = 30,
+                    ParametersJson = @"{""template"":""I2cFunctionalGroup"",""items"":[]}"
+                });
+
+                viewModel.SaveTestPlanCommand.Execute(null);
+
+                Assert.True(viewModel.HasTestPlanValidationIssues);
+                Assert.Contains(viewModel.TestPlanValidationIssues, x => x.Contains("fixture.prepare") && x.Contains("timeoutSeconds"));
+                Assert.Contains(viewModel.TestPlanValidationIssues, x => x.Contains("Duplicate item ID"));
+                Assert.Contains(viewModel.TestPlanValidationIssues, x => x.Contains("low") && x.Contains("high"));
+                Assert.Contains(viewModel.TestPlanValidationIssues, x => x.Contains("Script file does not exist"));
+                Assert.Contains(viewModel.TestPlanValidationIssues, x => x.Contains("Functional group has no child items"));
+                Assert.Contains("validation failed", viewModel.TestPlanEditorStatusText, StringComparison.OrdinalIgnoreCase);
+            }
+            finally
+            {
+                Directory.Delete(repoRoot, true);
+            }
+        }
+
+        [Fact]
         public void ResetClearsRunCollections()
         {
             var viewModel = new MainViewModel();

@@ -6,11 +6,14 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RfpTestStation.Adapters.Config;
 using RfpTestStation.Adapters.Hardware;
 using RfpTestStation.Adapters.Mock;
@@ -71,6 +74,8 @@ namespace RfpTestStation.App.ViewModels
         private string _editableTestPlanName = string.Empty;
         private string _editableTestPlanVersion = string.Empty;
         private string _editableTestPlanProduct = string.Empty;
+        private TestPlanItemEditorViewModel? _selectedTestPlanItem;
+        private bool _hasTestPlanValidationIssues;
         private string _rfpFlashScriptPath = string.Empty;
         private string _tconFlashScriptPath = string.Empty;
         private string _tconBinFilePath = string.Empty;
@@ -424,6 +429,54 @@ namespace RfpTestStation.App.ViewModels
             set { SetField(ref _editableTestPlanProduct, value); }
         }
 
+        public TestPlanItemEditorViewModel? SelectedTestPlanItem
+        {
+            get { return _selectedTestPlanItem; }
+            set
+            {
+                if (_selectedTestPlanItem != null)
+                {
+                    _selectedTestPlanItem.PropertyChanged -= SelectedTestPlanItemPropertyChanged;
+                }
+
+                if (SetField(ref _selectedTestPlanItem, value))
+                {
+                    if (_selectedTestPlanItem != null)
+                    {
+                        _selectedTestPlanItem.PropertyChanged += SelectedTestPlanItemPropertyChanged;
+                    }
+
+                    OnPropertyChanged(nameof(SelectedTestPlanDetailText));
+                }
+                else if (_selectedTestPlanItem != null)
+                {
+                    _selectedTestPlanItem.PropertyChanged += SelectedTestPlanItemPropertyChanged;
+                }
+            }
+        }
+
+        public string SelectedTestPlanDetailText
+        {
+            get { return BuildSelectedTestPlanDetailText(); }
+        }
+
+        public bool HasTestPlanValidationIssues
+        {
+            get { return _hasTestPlanValidationIssues; }
+            private set
+            {
+                if (SetField(ref _hasTestPlanValidationIssues, value))
+                {
+                    OnPropertyChanged(nameof(TestPlanValidationVisibility));
+                }
+            }
+        }
+
+        public Visibility TestPlanValidationVisibility
+        {
+            get { return HasTestPlanValidationIssues ? Visibility.Visible : Visibility.Collapsed; }
+        }
+
         public string RfpFlashScriptPath
         {
             get { return _rfpFlashScriptPath; }
@@ -614,6 +667,8 @@ namespace RfpTestStation.App.ViewModels
 
         public ObservableCollection<TestPlanItemEditorViewModel> TestPlanItems { get; } = new ObservableCollection<TestPlanItemEditorViewModel>();
 
+        public ObservableCollection<string> TestPlanValidationIssues { get; } = new ObservableCollection<string>();
+
         public ObservableCollection<string> TestItemKindOptions { get; } = new ObservableCollection<string>(Enum.GetNames(typeof(TestItemKind)));
 
         public string WindowTitleText { get { return "RFP Test Station"; } }
@@ -784,6 +839,8 @@ namespace RfpTestStation.App.ViewModels
         public string OperationHeaderText { get { return T("操作", "Operation"); } }
 
         public string NoteHeaderText { get { return T("备注", "Note"); } }
+
+        public string SummaryHeaderText { get { return T("摘要", "Summary"); } }
 
         public string DescriptionHeaderText { get { return T("DESCRIPTION", "DESCRIPTION"); } }
 
@@ -1137,6 +1194,9 @@ namespace RfpTestStation.App.ViewModels
                     TestPlanItems.Add(TestPlanItemEditorViewModel.FromDefinition(item));
                 }
 
+                SelectedTestPlanItem = TestPlanItems.FirstOrDefault();
+                TestPlanValidationIssues.Clear();
+                HasTestPlanValidationIssues = false;
                 TestPlanEditorStatusText = T("测试计划已加载", "Test plan loaded");
                 if (!_isInitializing)
                 {
@@ -1155,6 +1215,13 @@ namespace RfpTestStation.App.ViewModels
             try
             {
                 var testPlanPath = ResolveConfiguredPath(TestPlanPath);
+                if (!ValidateTestPlanEditor(testPlanPath))
+                {
+                    TestPlanEditorStatusText = "Test plan validation failed: " + TestPlanValidationIssues.Count.ToString(CultureInfo.InvariantCulture) + " issue(s)";
+                    Logs.Add(TestPlanEditorStatusText);
+                    return;
+                }
+
                 var plan = new TestPlanDefinition
                 {
                     Name = EditableTestPlanName,
@@ -1168,6 +1235,8 @@ namespace RfpTestStation.App.ViewModels
 
                 TestPlanRepository.Save(plan, testPlanPath);
                 TestPlanName = plan.Name;
+                TestPlanValidationIssues.Clear();
+                HasTestPlanValidationIssues = false;
                 TestPlanEditorStatusText = T("测试计划已保存", "Test plan saved");
                 Logs.Add("Saved test plan: " + testPlanPath);
                 RunAutomaticHardwareSelfCheck();
@@ -1176,6 +1245,209 @@ namespace RfpTestStation.App.ViewModels
             {
                 TestPlanEditorStatusText = ex.Message;
                 Logs.Add(ex.Message);
+            }
+        }
+
+        private bool ValidateTestPlanEditor(string testPlanPath)
+        {
+            TestPlanValidationIssues.Clear();
+            var ids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var item in TestPlanItems)
+            {
+                var itemId = string.IsNullOrWhiteSpace(item.Id) ? "<missing id>" : item.Id;
+                if (string.IsNullOrWhiteSpace(item.Id))
+                {
+                    TestPlanValidationIssues.Add("Item ID is required.");
+                }
+                else if (!ids.Add(item.Id))
+                {
+                    TestPlanValidationIssues.Add("Duplicate item ID: " + item.Id);
+                }
+
+                if (string.IsNullOrWhiteSpace(item.Name))
+                {
+                    TestPlanValidationIssues.Add(itemId + ": name is required.");
+                }
+
+                if (!Enum.TryParse(item.KindText, true, out TestItemKind kind))
+                {
+                    TestPlanValidationIssues.Add(itemId + ": kind is invalid: " + item.KindText);
+                }
+
+                if (item.TimeoutSeconds <= 0)
+                {
+                    TestPlanValidationIssues.Add(itemId + ": timeoutSeconds must be greater than zero.");
+                }
+
+                AddLimitValidationIssue(item);
+                AddScriptValidationIssue(item, testPlanPath);
+                AddParameterValidationIssues(item, itemId);
+            }
+
+            HasTestPlanValidationIssues = TestPlanValidationIssues.Count > 0;
+            return !HasTestPlanValidationIssues;
+        }
+
+        private void AddLimitValidationIssue(TestPlanItemEditorViewModel item)
+        {
+            if (double.TryParse(item.LowLimit, NumberStyles.Float, CultureInfo.InvariantCulture, out var low)
+                && double.TryParse(item.HighLimit, NumberStyles.Float, CultureInfo.InvariantCulture, out var high)
+                && low > high)
+            {
+                TestPlanValidationIssues.Add(item.Id + ": low limit must not be greater than high limit.");
+            }
+        }
+
+        private void AddScriptValidationIssue(TestPlanItemEditorViewModel item, string testPlanPath)
+        {
+            if (!string.Equals(item.KindText, TestItemKind.Flash.ToString(), StringComparison.OrdinalIgnoreCase)
+                || string.IsNullOrWhiteSpace(item.Script))
+            {
+                return;
+            }
+
+            var scriptPath = ResolveEditorAssetPath(item.Script, testPlanPath);
+            if (!File.Exists(scriptPath))
+            {
+                TestPlanValidationIssues.Add(item.Id + ": Script file does not exist: " + item.Script);
+            }
+        }
+
+        private void AddParameterValidationIssues(TestPlanItemEditorViewModel item, string itemId)
+        {
+            JObject parameters;
+            try
+            {
+                parameters = string.IsNullOrWhiteSpace(item.ParametersJson)
+                    ? new JObject()
+                    : JObject.Parse(item.ParametersJson);
+            }
+            catch (JsonException ex)
+            {
+                TestPlanValidationIssues.Add(itemId + ": parameters JSON is invalid: " + ex.Message);
+                return;
+            }
+
+            var template = parameters["template"] == null ? string.Empty : parameters["template"]!.ToString();
+            if (!string.Equals(template, "I2cFunctionalGroup", StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            var children = parameters["items"] as JArray;
+            if (children == null || children.Count == 0)
+            {
+                TestPlanValidationIssues.Add(itemId + ": Functional group has no child items.");
+                return;
+            }
+
+            for (var index = 0; index < children.Count; index++)
+            {
+                var child = children[index] as JObject;
+                if (child == null)
+                {
+                    TestPlanValidationIssues.Add(itemId + ": child " + index.ToString(CultureInfo.InvariantCulture) + " must be an object.");
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(ReadJsonString(child, "name")))
+                {
+                    TestPlanValidationIssues.Add(itemId + ": child " + index.ToString(CultureInfo.InvariantCulture) + " name is required.");
+                }
+
+                if (string.IsNullOrWhiteSpace(ReadJsonString(child, "template")))
+                {
+                    TestPlanValidationIssues.Add(itemId + ": child " + index.ToString(CultureInfo.InvariantCulture) + " template is required.");
+                }
+            }
+        }
+
+        private static string ReadJsonString(JObject value, string name)
+        {
+            var token = value[name];
+            return token == null ? string.Empty : token.ToString();
+        }
+
+        private string ResolveEditorAssetPath(string path, string testPlanPath)
+        {
+            if (Path.IsPathRooted(path))
+            {
+                return path;
+            }
+
+            var repoRelative = Path.Combine(_repoRoot, path);
+            if (File.Exists(repoRelative))
+            {
+                return repoRelative;
+            }
+
+            var planDirectory = Path.GetDirectoryName(testPlanPath) ?? _repoRoot;
+            return Path.Combine(planDirectory, path);
+        }
+
+        private string BuildSelectedTestPlanDetailText()
+        {
+            var item = SelectedTestPlanItem;
+            if (item == null)
+            {
+                return T("选择一个测试项查看详情", "Select a test item to view details");
+            }
+
+            var builder = new StringBuilder();
+            builder.AppendLine(item.Name);
+            builder.AppendLine("ID: " + item.Id);
+            builder.AppendLine("Kind: " + item.KindText);
+            builder.AppendLine("Timeout: " + item.TimeoutSeconds.ToString(CultureInfo.InvariantCulture) + "s");
+            if (!string.IsNullOrWhiteSpace(item.SummaryText))
+            {
+                builder.AppendLine("Summary: " + item.SummaryText);
+            }
+
+            AddDetailLine(builder, "Script", item.Script);
+            AddDetailLine(builder, "Adapter", item.Adapter);
+            AddDetailLine(builder, "Operation", item.Operation);
+            if (!string.IsNullOrWhiteSpace(item.LowLimit) || !string.IsNullOrWhiteSpace(item.HighLimit))
+            {
+                builder.AppendLine("Limit: " + item.LowLimit + " .. " + item.HighLimit + (string.IsNullOrWhiteSpace(item.Unit) ? string.Empty : " " + item.Unit));
+            }
+
+            if (!string.IsNullOrWhiteSpace(item.GroupChildrenText))
+            {
+                builder.AppendLine();
+                builder.AppendLine("Children:");
+                builder.AppendLine(item.GroupChildrenText);
+            }
+
+            builder.AppendLine();
+            builder.AppendLine("Parameters:");
+            builder.AppendLine(item.ParametersJson);
+            return builder.ToString().TrimEnd();
+        }
+
+        private static void AddDetailLine(StringBuilder builder, string label, string value)
+        {
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                builder.AppendLine(label + ": " + value);
+            }
+        }
+
+        private void SelectedTestPlanItemPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(TestPlanItemEditorViewModel.Name)
+                || e.PropertyName == nameof(TestPlanItemEditorViewModel.KindText)
+                || e.PropertyName == nameof(TestPlanItemEditorViewModel.TimeoutSeconds)
+                || e.PropertyName == nameof(TestPlanItemEditorViewModel.Script)
+                || e.PropertyName == nameof(TestPlanItemEditorViewModel.Adapter)
+                || e.PropertyName == nameof(TestPlanItemEditorViewModel.Operation)
+                || e.PropertyName == nameof(TestPlanItemEditorViewModel.LowLimit)
+                || e.PropertyName == nameof(TestPlanItemEditorViewModel.HighLimit)
+                || e.PropertyName == nameof(TestPlanItemEditorViewModel.Unit)
+                || e.PropertyName == nameof(TestPlanItemEditorViewModel.ParametersJson)
+                || e.PropertyName == nameof(TestPlanItemEditorViewModel.SummaryText)
+                || e.PropertyName == nameof(TestPlanItemEditorViewModel.GroupChildrenText))
+            {
+                OnPropertyChanged(nameof(SelectedTestPlanDetailText));
             }
         }
 
@@ -1902,6 +2174,7 @@ namespace RfpTestStation.App.ViewModels
             OnPropertyChanged(nameof(AdapterHeaderText));
             OnPropertyChanged(nameof(OperationHeaderText));
             OnPropertyChanged(nameof(NoteHeaderText));
+            OnPropertyChanged(nameof(SummaryHeaderText));
             OnPropertyChanged(nameof(DescriptionHeaderText));
             OnPropertyChanged(nameof(StatusHeaderText));
             OnPropertyChanged(nameof(MeasurementHeaderText));

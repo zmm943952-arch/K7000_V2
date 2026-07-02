@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RfpTestStation.Core.TestPlans;
@@ -137,7 +140,60 @@ namespace RfpTestStation.App.ViewModels
         public string ParametersJson
         {
             get { return _parametersJson; }
-            set { SetField(ref _parametersJson, value); }
+            set
+            {
+                if (SetField(ref _parametersJson, value))
+                {
+                    OnDisplayPropertiesChanged();
+                }
+            }
+        }
+
+        public bool IsFunctionalGroup
+        {
+            get { return string.Equals(ReadDisplayParameter("template"), "I2cFunctionalGroup", StringComparison.OrdinalIgnoreCase); }
+        }
+
+        public string SummaryText
+        {
+            get
+            {
+                if (IsFunctionalGroup)
+                {
+                    var childCount = ReadGroupChildren().Count;
+                    var powerText = ReadSharedPowerText();
+                    return childCount.ToString(CultureInfo.InvariantCulture) + " child items"
+                        + (string.IsNullOrWhiteSpace(powerText) ? string.Empty : "; shared power: " + powerText);
+                }
+
+                if (!string.IsNullOrWhiteSpace(Script))
+                {
+                    return "Script: " + System.IO.Path.GetFileName(Script);
+                }
+
+                if (!string.IsNullOrWhiteSpace(Adapter) || !string.IsNullOrWhiteSpace(Operation))
+                {
+                    return string.Join(" / ", new[] { Adapter, Operation }.Where(x => !string.IsNullOrWhiteSpace(x)));
+                }
+
+                if (!string.IsNullOrWhiteSpace(LowLimit) || !string.IsNullOrWhiteSpace(HighLimit))
+                {
+                    return "Limit: " + LowLimit + " .. " + HighLimit + (string.IsNullOrWhiteSpace(Unit) ? string.Empty : " " + Unit);
+                }
+
+                return string.Empty;
+            }
+        }
+
+        public string GroupChildrenText
+        {
+            get
+            {
+                var names = ReadGroupChildren()
+                    .Select(x => ReadObjectString(x, "name"))
+                    .Where(x => !string.IsNullOrWhiteSpace(x));
+                return string.Join(Environment.NewLine, names);
+            }
         }
 
         public static TestPlanItemEditorViewModel FromDefinition(TestPlanItemDefinition definition)
@@ -235,6 +291,74 @@ namespace RfpTestStation.App.ViewModels
                 : token.ToString(Formatting.None);
         }
 
+        private string ReadDisplayParameter(string name)
+        {
+            var parameters = TryParseParameters();
+            return parameters == null ? string.Empty : ReadParameter(parameters, name);
+        }
+
+        private string ReadSharedPowerText()
+        {
+            var parameters = TryParseParameters();
+            var powerItems = parameters?["powerOnBefore"] as JArray;
+            if (powerItems == null || powerItems.Count == 0)
+            {
+                return string.Empty;
+            }
+
+            var parts = new List<string>();
+            foreach (var token in powerItems.OfType<JObject>())
+            {
+                var channel = ReadObjectString(token, "channel");
+                var voltage = ReadObjectString(token, "voltage");
+                if (!string.IsNullOrWhiteSpace(channel))
+                {
+                    parts.Add("CH" + channel + (string.IsNullOrWhiteSpace(voltage) ? string.Empty : " " + voltage + "V"));
+                }
+            }
+
+            return string.Join(", ", parts);
+        }
+
+        private IList<JObject> ReadGroupChildren()
+        {
+            var parameters = TryParseParameters();
+            var children = parameters?["items"] as JArray;
+            return children == null
+                ? new List<JObject>()
+                : children.OfType<JObject>().ToList();
+        }
+
+        private JObject? TryParseParameters()
+        {
+            if (string.IsNullOrWhiteSpace(ParametersJson))
+            {
+                return new JObject();
+            }
+
+            try
+            {
+                return JObject.Parse(ParametersJson);
+            }
+            catch (JsonException)
+            {
+                return null;
+            }
+        }
+
+        private static string ReadObjectString(JObject item, string name)
+        {
+            var token = item[name];
+            return token == null ? string.Empty : token.ToString();
+        }
+
+        private void OnDisplayPropertiesChanged()
+        {
+            OnPropertyChanged(nameof(IsFunctionalGroup));
+            OnPropertyChanged(nameof(SummaryText));
+            OnPropertyChanged(nameof(GroupChildrenText));
+        }
+
         private static void SetStringParameter(JObject parameters, string name, string value)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -271,8 +395,27 @@ namespace RfpTestStation.App.ViewModels
             }
 
             field = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName ?? string.Empty));
+            OnPropertyChanged(propertyName ?? string.Empty);
+            if (propertyName == nameof(Name)
+                || propertyName == nameof(KindText)
+                || propertyName == nameof(TimeoutSeconds)
+                || propertyName == nameof(Script)
+                || propertyName == nameof(Adapter)
+                || propertyName == nameof(Operation)
+                || propertyName == nameof(LowLimit)
+                || propertyName == nameof(HighLimit)
+                || propertyName == nameof(Unit)
+                || propertyName == nameof(ParametersJson))
+            {
+                OnDisplayPropertiesChanged();
+            }
+
             return true;
+        }
+
+        private void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

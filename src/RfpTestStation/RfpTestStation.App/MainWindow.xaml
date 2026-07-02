@@ -524,34 +524,74 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto" />
               <RowDefinition Height="560" />
+              <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <TextBlock Grid.Row="0" Text="{Binding TestPlanItemsTitleText}" Foreground="{StaticResource TextBlue}" FontSize="20" FontWeight="Bold" Margin="0,0,0,10" />
-            <DataGrid Grid.Row="1"
-                      ItemsSource="{Binding TestPlanItems}"
-                      IsReadOnly="False"
-                      CanUserAddRows="False"
-                      CanUserDeleteRows="False"
-                      SelectionMode="Single"
-                      FrozenColumnCount="3"
-                      Margin="0">
-              <DataGrid.Columns>
-                <DataGridCheckBoxColumn x:Name="PlanEnabledColumn" Header="Enabled" Binding="{Binding IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="70" />
-                <DataGridTextColumn x:Name="PlanIdColumn" Header="ID" Binding="{Binding Id, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="170" />
-                <DataGridTextColumn x:Name="PlanNameColumn" Header="Name" Binding="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="190" />
-                <DataGridTextColumn x:Name="PlanKindColumn" Header="Kind" Binding="{Binding KindText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="130" />
-                <DataGridCheckBoxColumn x:Name="PlanRequiredColumn" Header="Required" Binding="{Binding IsRequired, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="82" />
-                <DataGridCheckBoxColumn x:Name="PlanStopOnFailureColumn" Header="Stop On Failure" Binding="{Binding StopOnFailure, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="120" />
-                <DataGridTextColumn x:Name="PlanTimeoutColumn" Header="Timeout" Binding="{Binding TimeoutSeconds, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="86" />
-                <DataGridTextColumn x:Name="PlanScriptColumn" Header="Script" Binding="{Binding Script, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="240" />
-                <DataGridTextColumn x:Name="PlanAdapterColumn" Header="Adapter" Binding="{Binding Adapter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="130" />
-                <DataGridTextColumn x:Name="PlanOperationColumn" Header="Operation" Binding="{Binding Operation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="180" />
-                <DataGridTextColumn x:Name="PlanLowLimitColumn" Header="Low" Binding="{Binding LowLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="90" />
-                <DataGridTextColumn x:Name="PlanHighLimitColumn" Header="High" Binding="{Binding HighLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="90" />
-                <DataGridTextColumn x:Name="PlanUnitColumn" Header="Unit" Binding="{Binding Unit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="80" />
-                <DataGridTextColumn x:Name="PlanComparisonTypeColumn" Header="Comparison" Binding="{Binding ComparisonType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="120" />
-                <DataGridTextColumn x:Name="PlanNoteColumn" Header="Note" Binding="{Binding Note, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="220" />
-              </DataGrid.Columns>
-            </DataGrid>
+            <Grid Grid.Row="1">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="18" />
+                <ColumnDefinition Width="1.35*" />
+              </Grid.ColumnDefinitions>
+              <DataGrid Grid.Column="0"
+                        ItemsSource="{Binding TestPlanItems}"
+                        SelectedItem="{Binding SelectedTestPlanItem, Mode=TwoWay}"
+                        IsReadOnly="False"
+                        CanUserAddRows="False"
+                        CanUserDeleteRows="False"
+                        SelectionMode="Single"
+                        FrozenColumnCount="3"
+                        Margin="0">
+                <DataGrid.Columns>
+                  <DataGridCheckBoxColumn x:Name="PlanEnabledColumn" Header="Enabled" Binding="{Binding IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="64" />
+                  <DataGridTextColumn x:Name="PlanIdColumn" Header="ID" Binding="{Binding Id, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="190" />
+                  <DataGridTextColumn x:Name="PlanNameColumn" Header="Name" Binding="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="190" />
+                  <DataGridTextColumn x:Name="PlanKindColumn" Header="Kind" Binding="{Binding KindText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="130" />
+                  <DataGridCheckBoxColumn x:Name="PlanRequiredColumn" Header="Required" Binding="{Binding IsRequired, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="78" />
+                  <DataGridCheckBoxColumn x:Name="PlanStopOnFailureColumn" Header="Stop On Failure" Binding="{Binding StopOnFailure, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="110" />
+                  <DataGridTextColumn x:Name="PlanTimeoutColumn" Header="Timeout" Binding="{Binding TimeoutSeconds, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="80" />
+                  <DataGridTextColumn x:Name="PlanSummaryColumn" Header="Summary" Binding="{Binding SummaryText}" IsReadOnly="True" Width="260" />
+                  <DataGridTextColumn x:Name="PlanScriptColumn" Header="Script" Binding="{Binding Script, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="240" Visibility="Collapsed" />
+                  <DataGridTextColumn x:Name="PlanAdapterColumn" Header="Adapter" Binding="{Binding Adapter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="130" Visibility="Collapsed" />
+                  <DataGridTextColumn x:Name="PlanOperationColumn" Header="Operation" Binding="{Binding Operation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="180" Visibility="Collapsed" />
+                  <DataGridTextColumn x:Name="PlanLowLimitColumn" Header="Low" Binding="{Binding LowLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="90" Visibility="Collapsed" />
+                  <DataGridTextColumn x:Name="PlanHighLimitColumn" Header="High" Binding="{Binding HighLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="90" Visibility="Collapsed" />
+                  <DataGridTextColumn x:Name="PlanUnitColumn" Header="Unit" Binding="{Binding Unit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="80" Visibility="Collapsed" />
+                  <DataGridTextColumn x:Name="PlanComparisonTypeColumn" Header="Comparison" Binding="{Binding ComparisonType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="120" Visibility="Collapsed" />
+                  <DataGridTextColumn x:Name="PlanNoteColumn" Header="Note" Binding="{Binding Note, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="220" Visibility="Collapsed" />
+                </DataGrid.Columns>
+              </DataGrid>
+
+              <Border Grid.Column="2" BorderBrush="{StaticResource LineBlue}" BorderThickness="1.5" Background="{StaticResource SoftPanel}" Padding="14">
+                <Grid>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                  </Grid.RowDefinitions>
+                  <TextBlock Text="测试项详情" Foreground="{StaticResource TextBlue}" FontSize="18" FontWeight="Bold" Margin="0,0,0,10" />
+                  <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <TextBox Text="{Binding SelectedTestPlanDetailText}" IsReadOnly="True" TextWrapping="Wrap" BorderThickness="0" Background="Transparent" FontSize="13" FontFamily="Consolas" />
+                  </ScrollViewer>
+                </Grid>
+              </Border>
+            </Grid>
+
+            <Border Grid.Row="2" Visibility="{Binding TestPlanValidationVisibility}" BorderBrush="#C85050" BorderThickness="1.5" Background="#FFF4F4" Padding="12" Margin="0,14,0,0">
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto" />
+                  <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock Text="校验原因" Foreground="#A02020" FontSize="16" FontWeight="Bold" Margin="0,0,0,8" />
+                <ItemsControl Grid.Row="1" ItemsSource="{Binding TestPlanValidationIssues}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <TextBlock Text="{Binding}" Foreground="#A02020" FontSize="13" Margin="0,2,0,2" TextWrapping="Wrap" />
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </Grid>
+            </Border>
           </Grid>
 
           <TextBlock Grid.Row="3" Text="{Binding TestPlanEditorStatusText}" Foreground="{StaticResource TextBlue}" FontSize="13" FontWeight="Bold" Margin="0,14,0,0" />

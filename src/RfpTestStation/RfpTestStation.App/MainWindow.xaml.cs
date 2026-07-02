@@ -50,6 +50,7 @@ namespace RfpTestStation.App
                 || e.PropertyName == nameof(MainViewModel.AdapterHeaderText)
                 || e.PropertyName == nameof(MainViewModel.OperationHeaderText)
                 || e.PropertyName == nameof(MainViewModel.NoteHeaderText)
+                || e.PropertyName == nameof(MainViewModel.SummaryHeaderText)
                 || e.PropertyName == nameof(MainViewModel.DescriptionHeaderText)
                 || e.PropertyName == nameof(MainViewModel.StatusHeaderText)
                 || e.PropertyName == nameof(MainViewModel.MeasurementHeaderText)
@@ -83,6 +84,7 @@ namespace RfpTestStation.App
             PlanRequiredColumn.Header = viewModel.RequiredHeaderText;
             PlanStopOnFailureColumn.Header = viewModel.StopOnFailureHeaderText;
             PlanTimeoutColumn.Header = viewModel.TimeoutHeaderText;
+            PlanSummaryColumn.Header = viewModel.SummaryHeaderText;
             PlanScriptColumn.Header = viewModel.ScriptHeaderText;
             PlanAdapterColumn.Header = viewModel.AdapterHeaderText;
             PlanOperationColumn.Header = viewModel.OperationHeaderText;
