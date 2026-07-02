@@ -1,0 +1,198 @@
+{
+  "Burn1": {
+    "Name": "RFP烧录",
+    "Enabled": true,
+    "Params": {
+      "FilePath": "..\\Flash\\RFP_Auto\\Scripts\\Flash_once.bat",
+      "Porject1_Name": "k7000_1.rpj",
+      "Porject2_Name": "k7000_2.rpj",
+      "RfpProjects": [
+        {
+          "ProjectName": "k7000_1.rpj",
+          "MesFirmwarePath": "\\\\10.11.1.145\\04.PublicData\\01.PE\\03. Tai lieu IATF\\10. SHARP\\Chương trình ROM-SAP\\SAP006-RUNTK7000TPZZV\\MCU\\簡易用",
+          "LocalFirmwarePath": "..\\Flash\\RFP_Auto\\Firmware\\k7000_1",
+          "FirmwareFiles": []
+        },
+        {
+          "ProjectName": "k7000_2.rpj",
+          "MesFirmwarePath": "\\\\10.11.1.145\\04.PublicData\\01.PE\\03. Tai lieu IATF\\10. SHARP\\Chương trình ROM-SAP\\SAP006-RUNTK7000TPZZV\\MCU\\出荷用",
+          "LocalFirmwarePath": "..\\Flash\\RFP_Auto\\Firmware\\k7000_2",
+          "FirmwareFiles": []
+        }
+      ]
+    }
+  },
+  "Burn2": {
+    "Name": "TCON烧录",
+    "Enabled": true,
+    "Params": {
+      "FilePath": "..\\Flash\\RedCase_Auto\\Debug\\FlashUpdate_Run.bat",
+      "BinFilePath": "..\\Flash\\RedCase_Auto\\Debug\\Firmware_Local\\HX6330B03_C_Sharp_GM_Mobis_2992x1299_16.3_Falcon_20251223_S1C7A404_Test_Ver4-0.bin",
+      "MesFirmwarePath": "\\\\10.11.1.145\\04.PublicData\\01.PE\\03. Tai lieu IATF\\10. SHARP\\Chương trình ROM-SAP\\SAP006-RUNTK7000TPZZV\\TCON",
+      "LocalFirmwarePath": "..\\Flash\\RedCase_Auto\\Debug\\Firmware_Local",
+      "FirmwareFiles": []
+    }
+  },
+  "Burn3": {
+    "Name": "TDDI烧录",
+    "Enabled": true,
+    "Params": {
+      "FilePath": "..\\Flash\\TDDI_Auto\\Test\\Test\\bin\\Debug\\flash_run.bat",
+      "Serial": {
+        "PortName": "COM14",
+        "SlaveId": 1,
+        "AddressBase": 0
+      },
+      "MesFirmwarePath": "\\\\10.11.1.145\\04.PublicData\\01.PE\\03. Tai lieu IATF\\10. SHARP\\Chương trình ROM-SAP\\SAP006-RUNTK7000TPZZV\\TDDI"
+    }
+  },
+  "Burn4": {
+    "Name": "RFP烧录2",
+    "Enabled": true,
+    "Params": {
+      "FilePath": ""
+    }
+  },
+  "FctTest": {
+    "Enabled": true,
+    "Items": [
+      {
+        "Name": "测试项1",
+        "Enabled": true,
+        "LowLimit": 0,
+        "HighLimit": 0,
+        "Unit": "",
+        "Tolerance": "",
+        "UseHighLowLimit": true,
+        "LowerIsBetter": false,
+        "SampleCount": 1,
+        "TimeoutMs": 5000,
+        "Retries": 0,
+        "RetryDelayMs": 200,
+        "FailPolicy": "Stop",
+        "DataType": "Number",
+        "ExpectedValue": "",
+        "ReadBack": false,
+        "RecordRaw": false,
+        "Comment": ""
+      },
+      {
+        "Name": "测试项2",
+        "Enabled": true,
+        "LowLimit": 0,
+        "HighLimit": 0,
+        "Unit": "",
+        "Tolerance": "",
+        "UseHighLowLimit": true,
+        "LowerIsBetter": false,
+        "SampleCount": 1,
+        "TimeoutMs": 5000,
+        "Retries": 0,
+        "RetryDelayMs": 200,
+        "FailPolicy": "Stop",
+        "DataType": "Number",
+        "ExpectedValue": "",
+        "ReadBack": false,
+        "RecordRaw": false,
+        "Comment": ""
+      }
+    ],
+    "Global": {
+      "TimeoutMs": 30000,
+      "Retries": 0,
+      "RetryDelayMs": 200,
+      "FailPolicy": "Stop",
+      "RecordAll": true,
+      "SaveReport": true,
+      "ReportPath": "",
+      "Operator": "",
+      "Station": "",
+      "Product": "",
+      "LotNumber": "",
+      "SnRequired": true,
+      "SnPattern": "",
+      "AutoStart": false
+    }
+  },
+  "Instruments": [
+    {
+      "Name": "IO DAQ",
+      "Enabled": true,
+      "Type": "",
+      "Protocol": "Modbus",
+      "Com": "COM4",
+      "Port": 0,
+      "TimeoutMs": 3000,
+      "Retries": 0,
+      "RetryDelayMs": 200,
+      "InitCommand": "",
+      "ResetOnStart": false
+    },
+    {
+      "Name": "Scanner",
+      "Enabled": true,
+      "Type": "",
+      "Protocol": "Modbus",
+      "Com": "COM1",
+      "Port": 0,
+      "TimeoutMs": 3000,
+      "Retries": 0,
+      "RetryDelayMs": 200,
+      "InitCommand": "",
+      "ResetOnStart": false
+    },
+    {
+      "Name": "Oscil",
+      "Enabled": true,
+      "Type": "",
+      "Protocol": "TCP",
+      "Host": "192.168.1.13",
+      "Port": 0,
+      "TimeoutMs": 3000,
+      "Retries": 0,
+      "RetryDelayMs": 200,
+      "InitCommand": "",
+      "ResetOnStart": false
+    },
+    {
+      "Name": "仪器3",
+      "Enabled": true,
+      "Type": "",
+      "Protocol": "TCP",
+      "Host": "",
+      "Port": 0,
+      "TimeoutMs": 3000,
+      "Retries": 0,
+      "RetryDelayMs": 200,
+      "InitCommand": "",
+      "ResetOnStart": false
+    }
+  ],
+  "Safety": {
+    "Enabled": true,
+    "PollIntervalMs": 50,
+    "Inputs": {
+      "EmergencyStop": {
+        "Channel": 4,
+        "TriggeredValue": true
+      },
+      "LightCurtain": {
+        "Channel": 5,
+        "TriggeredValue": false
+      }
+    },
+    "ReleaseFixture": {
+      "DownOutputChannel": 2,
+      "DownSafeValue": false,
+      "UpOutputChannel": 1,
+      "UpPreValue": false,
+      "UpDelayMs": 1000,
+      "UpSafeValue": true
+    },
+    "OnTrigger": {
+      "CancelRun": true,
+      "KillExternalProcessTree": true,
+      "LatchUntilManualReset": true
+    }
+  }
+}

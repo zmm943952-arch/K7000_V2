@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RfpTestStation.Core\RfpTestStation.Core.csproj" />
+    <Reference Include="Fct.ModbusRtu">
+      <HintPath>..\StationRuntime\Lib\Hardware\Fct.ModbusRtu.dll</HintPath>
+    </Reference>
+    <Reference Include="YK_DAQ20081">
+      <HintPath>..\StationRuntime\Lib\Hardware\YK_DAQ20081.dll</HintPath>
+    </Reference>
+    <Reference Include="USB2IICDll">
+      <HintPath>..\StationRuntime\Lib\Hardware\USB2IICDll.dll</HintPath>
+    </Reference>
+    <Reference Include="Oscil">
+      <HintPath>..\StationRuntime\Lib\Hardware\Oscil.dll</HintPath>
+    </Reference>
+    <Reference Include="SG">
+      <HintPath>..\StationRuntime\Lib\Hardware\SG.dll</HintPath>
+    </Reference>
+    <Reference Include="ReadConfigLib">
+      <HintPath>..\StationRuntime\Lib\Hardware\ReadConfigLib.dll</HintPath>
+    </Reference>
+    <Reference Include="PreparedArtifactPaths">
+      <HintPath>..\StationRuntime\Lib\Hardware\PreparedArtifactPaths.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\StationRuntime\Lib\Hardware\*.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\StationRuntime\Lib\Hardware\*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

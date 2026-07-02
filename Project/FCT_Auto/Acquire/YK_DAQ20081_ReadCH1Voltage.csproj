@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <AssemblyName>YK_DAQ20081</AssemblyName>
+    <TargetFramework>net48</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>10.0</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="NModbus4" Version="2.1.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="NModbus4">
+      <HintPath>$(NuGetPackageRoot)nmodbus4\2.1.0\lib\net40\NModbus4.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,735 @@
+{
+  "name": "RFP 7000 V2",
+  "version": "0.1.0",
+  "product": "RFP7000V2",
+  "items": [
+    {
+      "id": "fixture.prepare",
+      "name": "Fixture Prepare",
+      "kind": "FixturePrepare",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 60,
+      "parameters": {
+        "clearOutputStartChannel": 10,
+        "clearOutputEndChannel": 43,
+        "fixtureUpOutputChannel": 1,
+        "fixtureDownOutputChannel": 2,
+        "note": "Initialize station IO and instruments."
+      }
+    },
+    {
+      "id": "safety.fixture-position",
+      "name": "Fixture Position Safety Wait",
+      "kind": "SafetyCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "inputChannel": 2,
+        "expected": true
+      }
+    },
+    {
+      "id": "flash.mcu.simple",
+      "name": "MCU Simple Flash",
+      "kind": "Flash",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 600,
+      "parameters": {
+        "flashKind": "RfpMcuSimple",
+        "script": "Runtime/Flash/RFP_Auto/Scripts/Flash_once.bat"
+      }
+    },
+    {
+      "id": "flash.tcon",
+      "name": "TCON Flash",
+      "kind": "Flash",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 600,
+      "parameters": {
+        "flashKind": "RedCase",
+        "script": "Runtime/Flash/RedCase_Auto/Debug/FlashUpdate_Run.bat"
+      }
+    },
+    {
+      "id": "flash.tddi",
+      "name": "TDDI Flash",
+      "kind": "Flash",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 600,
+      "parameters": {
+        "flashKind": "Tddi",
+        "script": "Runtime/Flash/TDDI_Auto/Test/Test/bin/Debug/flash_run.bat"
+      }
+    },
+    {
+      "id": "flash.mcu.shipping",
+      "name": "MCU Shipping Flash",
+      "kind": "Flash",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 600,
+      "parameters": {
+        "flashKind": "RfpMcuShipping",
+        "script": "Runtime/Flash/RFP_Auto/Scripts/Flash_once.bat"
+      }
+    },
+    {
+      "id": "fct.i2c.debug-mode",
+      "name": "I2C Debug Mode Check",
+      "kind": "Measurement",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "adapter": "UsbI2c",
+        "address": "0x12",
+        "operation": "EnterAndCheckDebugMode"
+      }
+    },
+    {
+      "id": "fct.hvac-position.tmp1-phsa",
+      "name": "TMP1_PHSA",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "template": "I2cWriteReadWordRange",
+        "relayOutputChannel": 27,
+        "powerOffBefore": [ { "channel": 3, "voltage": 3.3 } ],
+        "settleMs": 0,
+        "address": "0x12",
+        "readLength": 7,
+        "wordHighIndex": 5,
+        "wordLowIndex": 4,
+        "checks": [
+          { "name": "0V", "writeData": "FF 10 20 D1", "settleMs": 2000, "low": "0x0000", "high": "0x00BA" },
+          { "name": "3.3V", "powerOn": [ { "channel": 3, "voltage": 3.3 } ], "writeData": "FF 10 20 D1", "settleMs": 2000, "low": "0x0D16", "high": "0x0FFF" }
+        ]
+      }
+    },
+    {
+      "id": "fct.hvac-position.tmp1-phsb",
+      "name": "TMP1_PHSB",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "template": "I2cWriteReadWordRange",
+        "relayOutputChannel": 28,
+        "powerOffBefore": [ { "channel": 3, "voltage": 3.3 } ],
+        "settleMs": 0,
+        "address": "0x12",
+        "readLength": 7,
+        "wordHighIndex": 5,
+        "wordLowIndex": 4,
+        "checks": [
+          { "name": "0V", "writeData": "FF 10 21 D0", "settleMs": 2000, "low": "0x0000", "high": "0x00BA" },
+          { "name": "3.3V", "powerOn": [ { "channel": 3, "voltage": 3.3 } ], "writeData": "FF 10 21 D0", "settleMs": 2000, "low": "0x0D16", "high": "0x0FFF" }
+        ]
+      }
+    },
+    {
+      "id": "fct.hvac-position.tmp2-phsa",
+      "name": "TMP2_PHSA",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "template": "I2cWriteReadWordRange",
+        "relayOutputChannel": 29,
+        "powerOffBefore": [ { "channel": 3, "voltage": 3.3 } ],
+        "settleMs": 0,
+        "address": "0x12",
+        "readLength": 7,
+        "wordHighIndex": 5,
+        "wordLowIndex": 4,
+        "checks": [
+          { "name": "0V", "writeData": "FF 10 22 CF", "settleMs": 2000, "low": "0x0000", "high": "0x00BA" },
+          { "name": "3.3V", "powerOn": [ { "channel": 3, "voltage": 3.3 } ], "writeData": "FF 10 22 CF", "settleMs": 2000, "low": "0x0D16", "high": "0x0FFF" }
+        ]
+      }
+    },
+    {
+      "id": "fct.hvac-position.tmp2-phsb",
+      "name": "TMP2_PHSB",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "template": "I2cWriteReadWordRange",
+        "relayOutputChannel": 30,
+        "powerOffBefore": [ { "channel": 3, "voltage": 3.3 } ],
+        "settleMs": 0,
+        "address": "0x12",
+        "readLength": 7,
+        "wordHighIndex": 5,
+        "wordLowIndex": 4,
+        "checks": [
+          { "name": "0V", "writeData": "FF 10 23 CE", "settleMs": 2000, "low": "0x0000", "high": "0x00BA" },
+          { "name": "3.3V", "powerOn": [ { "channel": 3, "voltage": 3.3 } ], "writeData": "FF 10 23 CE", "settleMs": 2000, "low": "0x0D16", "high": "0x0FFF" }
+        ]
+      }
+    },
+    {
+      "id": "fct.hvac-position.fan-up-sw",
+      "name": "FAN_UP_SW",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "template": "I2cWriteReadWordRange",
+        "relayOutputChannel": 33,
+        "powerOffBefore": [ { "channel": 3, "voltage": 3.3 } ],
+        "settleMs": 0,
+        "address": "0x12",
+        "readLength": 7,
+        "wordHighIndex": 5,
+        "wordLowIndex": 4,
+        "checks": [
+          { "name": "0V", "writeData": "FF 10 26 CB", "settleMs": 2000, "low": "0x0000", "high": "0x00BA" },
+          { "name": "3.3V", "powerOn": [ { "channel": 3, "voltage": 3.3 } ], "writeData": "FF 10 26 CB", "settleMs": 2000, "low": "0x0D16", "high": "0x0FFF" }
+        ]
+      }
+    },
+    {
+      "id": "fct.hvac-position.fan-dn-sw",
+      "name": "FAN_DN_SW",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "template": "I2cWriteReadWordRange",
+        "relayOutputChannel": 34,
+        "powerOffBefore": [ { "channel": 3, "voltage": 3.3 } ],
+        "settleMs": 0,
+        "address": "0x12",
+        "readLength": 7,
+        "wordHighIndex": 5,
+        "wordLowIndex": 4,
+        "checks": [
+          { "name": "0V", "writeData": "FF 10 27 CA", "settleMs": 2000, "low": "0x0000", "high": "0x00BA" },
+          { "name": "3.3V", "powerOn": [ { "channel": 3, "voltage": 3.3 } ], "writeData": "FF 10 27 CA", "settleMs": 2000, "low": "0x0D16", "high": "0x0FFF" }
+        ]
+      }
+    },
+    {
+      "id": "fct.hvac-sw.def-frt",
+      "name": "DEF_FRT_SW",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "template": "I2cByteSequence",
+        "relayOutputChannel": 31,
+        "powerOnBefore": [ { "channel": 1, "voltage": 12.2 } ],
+        "powerOffBefore": [ { "channel": 3, "voltage": 3.3 } ],
+        "settleMs": 2000,
+        "address": "0x12",
+        "readRegister": "0xD4",
+        "readLength": 5,
+        "checks": [
+          { "name": "LO", "expectedBytes": "88 88 08" },
+          { "name": "HI", "powerOn": [ { "channel": 3, "voltage": 3.3 } ], "settleMs": 2000, "expectedBytes": "88 8A 08" }
+        ]
+      }
+    },
+    {
+      "id": "fct.hvac-sw.dfg-rr",
+      "name": "DFG_RR_SW",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "template": "I2cByteSequence",
+        "relayOutputChannel": 32,
+        "powerOnBefore": [ { "channel": 1, "voltage": 12.2 } ],
+        "powerOffBefore": [ { "channel": 3, "voltage": 3.3 } ],
+        "settleMs": 2000,
+        "address": "0x12",
+        "readRegister": "0xD4",
+        "readLength": 5,
+        "checks": [
+          { "name": "LO", "expectedBytes": "88 88 08" },
+          { "name": "HI", "powerOn": [ { "channel": 3, "voltage": 3.3 } ], "settleMs": 2000, "expectedBytes": "A8 88 08" }
+        ]
+      }
+    },
+    {
+      "id": "fct.hvac-sw.auto",
+      "name": "AUTO_SW",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "template": "I2cByteSequence",
+        "relayOutputChannel": 35,
+        "powerOnBefore": [ { "channel": 1, "voltage": 12.2 } ],
+        "powerOffBefore": [ { "channel": 3, "voltage": 3.3 } ],
+        "settleMs": 2000,
+        "address": "0x12",
+        "readRegister": "0xD4",
+        "readLength": 5,
+        "checks": [
+          { "name": "LO", "expectedBytes": "88 88 08" },
+          { "name": "HI", "powerOn": [ { "channel": 3, "voltage": 3.3 } ], "settleMs": 2000, "expectedBytes": "8A 88 08" }
+        ]
+      }
+    },
+    {
+      "id": "fct.hvac-sw.ac-req",
+      "name": "AC_REQ_SW",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "template": "I2cByteSequence",
+        "relayOutputChannel": 36,
+        "powerOnBefore": [ { "channel": 1, "voltage": 12.2 } ],
+        "powerOffBefore": [ { "channel": 3, "voltage": 3.3 } ],
+        "settleMs": 2000,
+        "address": "0x12",
+        "readRegister": "0xD4",
+        "readLength": 5,
+        "checks": [
+          { "name": "LO", "expectedBytes": "88 88 08" },
+          { "name": "HI", "powerOn": [ { "channel": 3, "voltage": 3.3 } ], "settleMs": 2000, "expectedBytes": "88 88 0A" }
+        ]
+      }
+    },
+    {
+      "id": "fct.hvac-sw.recir",
+      "name": "RECIR_SW",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "template": "I2cByteSequence",
+        "relayOutputChannel": 37,
+        "powerOnBefore": [ { "channel": 1, "voltage": 12.2 } ],
+        "powerOffBefore": [ { "channel": 3, "voltage": 3.3 } ],
+        "settleMs": 2000,
+        "address": "0x12",
+        "readRegister": "0xD4",
+        "readLength": 5,
+        "checks": [
+          { "name": "LO", "expectedBytes": "88 88 08" },
+          { "name": "HI", "powerOn": [ { "channel": 3, "voltage": 3.3 } ], "settleMs": 2000, "expectedBytes": "88 A8 08" }
+        ]
+      }
+    },
+    {
+      "id": "fct.hvac-ind.auto",
+      "name": "AUTO_IND",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "template": "I2cWriteDaqVoltage",
+        "powerOnBefore": [ { "channel": 1, "voltage": 12.2 } ],
+        "address": "0x12",
+        "register": "0x15",
+        "daqChannel": 4,
+        "settleMs": 2000,
+        "checks": [
+          { "name": "HI", "writeData": "01", "low": 3.135, "high": 3.465 },
+          { "name": "LO", "writeData": "00", "low": -1.0, "high": 1.0 }
+        ]
+      }
+    },
+    {
+      "id": "fct.hvac-ind.hvac-en",
+      "name": "HVAC_EN_IND",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "template": "I2cWriteDaqVoltage",
+        "powerOnBefore": [ { "channel": 1, "voltage": 12.2 } ],
+        "address": "0x12",
+        "register": "0x15",
+        "daqChannel": 4,
+        "settleMs": 2000,
+        "checks": [
+          { "name": "HI", "writeData": "02", "low": 3.135, "high": 3.465 },
+          { "name": "LO", "writeData": "00", "low": -1.0, "high": 1.0 }
+        ]
+      }
+    },
+    {
+      "id": "fct.hvac-ind.def-frt",
+      "name": "DEF_FRT_IND",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "template": "I2cWriteDaqVoltage",
+        "powerOnBefore": [ { "channel": 1, "voltage": 12.2 } ],
+        "address": "0x12",
+        "register": "0x15",
+        "daqChannel": 4,
+        "settleMs": 2000,
+        "checks": [
+          { "name": "HI", "writeData": "04", "low": 3.135, "high": 3.465 },
+          { "name": "LO", "writeData": "00", "low": -1.0, "high": 1.0 }
+        ]
+      }
+    },
+    {
+      "id": "fct.hvac-ind.dfg-rr",
+      "name": "DFG_RR_IND",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "template": "I2cWriteDaqVoltage",
+        "powerOnBefore": [ { "channel": 1, "voltage": 12.2 } ],
+        "address": "0x12",
+        "register": "0x15",
+        "daqChannel": 4,
+        "settleMs": 2000,
+        "checks": [
+          { "name": "HI", "writeData": "08", "low": 3.135, "high": 3.465 },
+          { "name": "LO", "writeData": "00", "low": -1.0, "high": 1.0 }
+        ]
+      }
+    },
+    {
+      "id": "fct.hvac-ind.ac-req",
+      "name": "AC_REQ_IND",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "template": "I2cWriteDaqVoltage",
+        "powerOnBefore": [ { "channel": 1, "voltage": 12.2 } ],
+        "address": "0x12",
+        "register": "0x15",
+        "daqChannel": 4,
+        "settleMs": 2000,
+        "checks": [
+          { "name": "HI", "writeData": "10", "low": 3.135, "high": 3.465 },
+          { "name": "LO", "writeData": "00", "low": -1.0, "high": 1.0 }
+        ]
+      }
+    },
+    {
+      "id": "fct.hvac-ind.recir-sw",
+      "name": "RECIR_SW_IND",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "template": "I2cWriteDaqVoltage",
+        "powerOnBefore": [ { "channel": 1, "voltage": 12.2 } ],
+        "address": "0x12",
+        "register": "0x15",
+        "daqChannel": 4,
+        "settleMs": 2000,
+        "checks": [
+          { "name": "HI", "writeData": "40", "low": 3.135, "high": 3.465 },
+          { "name": "LO", "writeData": "00", "low": -1.0, "high": 1.0 }
+        ]
+      }
+    },
+    {
+      "id": "fct.button.s1",
+      "name": "Button_S1",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "template": "I2cSingleByteSwitch",
+        "relayOutputChannel": 16,
+        "powerOffBefore": [ { "channel": 1, "voltage": 12.2 }, { "channel": 3, "voltage": 3.3 } ],
+        "settleMs": 0,
+        "address": "0x12",
+        "readRegister": "0x0A",
+        "checks": [
+          { "name": "Open", "settleMs": 1000, "expected": "00" },
+          { "name": "HiToLow", "powerOn": [ { "channel": 1, "voltage": 12.2 }, { "channel": 3, "voltage": 3.3 } ], "powerOff": [ { "channel": 3, "voltage": 3.3 } ], "settleMs": 2000, "expected": "01" }
+        ]
+      }
+    },
+    {
+      "id": "fct.button.s2",
+      "name": "Button_S2",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "template": "I2cSingleByteSwitch",
+        "relayOutputChannel": 17,
+        "powerOffBefore": [ { "channel": 1, "voltage": 12.2 }, { "channel": 3, "voltage": 3.3 } ],
+        "settleMs": 0,
+        "address": "0x12",
+        "readRegister": "0x0A",
+        "checks": [
+          { "name": "Open", "settleMs": 1000, "expected": "00" },
+          { "name": "HiToLow", "powerOn": [ { "channel": 1, "voltage": 12.2 }, { "channel": 3, "voltage": 3.3 } ], "powerOff": [ { "channel": 3, "voltage": 3.3 } ], "settleMs": 1000, "expected": "02" }
+        ]
+      }
+    },
+    {
+      "id": "fct.button.s3",
+      "name": "Button_S3",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "template": "I2cSingleByteSwitch",
+        "relayOutputChannel": 18,
+        "powerOffBefore": [ { "channel": 1, "voltage": 12.2 }, { "channel": 3, "voltage": 3.3 } ],
+        "settleMs": 0,
+        "address": "0x12",
+        "readRegister": "0x0A",
+        "checks": [
+          { "name": "Open", "settleMs": 1000, "expected": "00" },
+          { "name": "HiToLow", "powerOn": [ { "channel": 1, "voltage": 12.2 }, { "channel": 3, "voltage": 3.3 } ], "powerOff": [ { "channel": 3, "voltage": 3.3 } ], "settleMs": 3000, "expected": "04" }
+        ]
+      }
+    },
+    {
+      "id": "fct.button.s4",
+      "name": "Button_S4",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "template": "I2cSingleByteSwitch",
+        "relayOutputChannel": 19,
+        "powerOffBefore": [ { "channel": 1, "voltage": 12.2 }, { "channel": 3, "voltage": 3.3 } ],
+        "settleMs": 0,
+        "address": "0x12",
+        "readRegister": "0x0A",
+        "checks": [
+          { "name": "Open", "settleMs": 1000, "expected": "00" },
+          { "name": "HiToLow", "powerOn": [ { "channel": 1, "voltage": 12.2 }, { "channel": 3, "voltage": 3.3 } ], "powerOff": [ { "channel": 3, "voltage": 3.3 } ], "settleMs": 1000, "expected": "08" }
+        ]
+      }
+    },
+    {
+      "id": "fct.button.s5",
+      "name": "Button_S5",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "template": "I2cSingleByteSwitch",
+        "relayOutputChannel": 20,
+        "powerOffBefore": [ { "channel": 1, "voltage": 12.2 }, { "channel": 3, "voltage": 3.3 } ],
+        "settleMs": 0,
+        "address": "0x12",
+        "readRegister": "0x0A",
+        "checks": [
+          { "name": "Open", "settleMs": 1000, "expected": "00" },
+          { "name": "HiToLow", "powerOn": [ { "channel": 1, "voltage": 12.2 }, { "channel": 3, "voltage": 3.3 } ], "powerOff": [ { "channel": 3, "voltage": 3.3 } ], "settleMs": 1000, "expected": "10" }
+        ]
+      }
+    },
+    {
+      "id": "fct.button.s6",
+      "name": "Button_S6",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "template": "I2cSingleByteSwitch",
+        "relayOutputChannel": 21,
+        "powerOffBefore": [ { "channel": 1, "voltage": 12.2 }, { "channel": 3, "voltage": 3.3 } ],
+        "settleMs": 0,
+        "address": "0x12",
+        "readRegister": "0x0A",
+        "checks": [
+          { "name": "Open", "powerOn": [ { "channel": 1, "voltage": 12.2 }, { "channel": 3, "voltage": 3.3 } ], "settleMs": 1000, "expected": "00" },
+          { "name": "HiToLow", "powerOff": [ { "channel": 3, "voltage": 3.3 } ], "settleMs": 3000, "expected": "20" }
+        ]
+      }
+    },
+    {
+      "id": "fct.wakesp",
+      "name": "WakeSP",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "template": "I2cSingleByteSwitch",
+        "relayOutputChannel": 15,
+        "powerOffBefore": [ { "channel": 1, "voltage": 12.2 }, { "channel": 3, "voltage": 3.3 } ],
+        "settleMs": 0,
+        "address": "0x12",
+        "readRegister": "0x0B",
+        "checks": [
+          { "name": "Open", "settleMs": 500, "expected": "00" },
+          { "name": "HiToLow", "powerOn": [ { "channel": 1, "voltage": 12.2 }, { "channel": 3, "voltage": 3.3 } ], "powerOff": [ { "channel": 3, "voltage": 3.3 } ], "settleMs": 2000, "expected": "01" }
+        ]
+      }
+    },
+    {
+      "id": "fct.swpack-pwm.pwm1",
+      "name": "SW-Pack PWM1",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": { "template": "I2cWriteOscilloscopeVavg", "relayOutputChannel": 22, "powerOnBefore": [ { "channel": 1, "voltage": 12.2 } ], "powerOffBefore": [ { "channel": 3, "voltage": 3.3 } ], "settleMs": 0, "address": "0x12", "register": "0x25", "scopeChannel": 3, "checks": [ { "name": "HI", "writeData": "FF FF", "settleMs": 5000, "low": 1.0, "high": 4.5 }, { "name": "LO", "writeData": "00 00", "settleMs": 2000, "low": -1.0, "high": 1.0 } ] }
+    },
+    {
+      "id": "fct.swpack-pwm.pwm2",
+      "name": "SW-Pack PWM2",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": { "template": "I2cWriteOscilloscopeVavg", "relayOutputChannel": 23, "powerOnBefore": [ { "channel": 1, "voltage": 12.2 } ], "powerOffBefore": [ { "channel": 3, "voltage": 3.3 } ], "settleMs": 0, "address": "0x12", "register": "0x27", "scopeChannel": 3, "checks": [ { "name": "HI", "writeData": "FF FF", "settleMs": 5000, "low": 1.0, "high": 4.5 }, { "name": "LO", "writeData": "00 00", "settleMs": 2000, "low": -1.0, "high": 1.0 } ] }
+    },
+    {
+      "id": "fct.swpack-pwm.pwm3",
+      "name": "SW-Pack PWM3",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": { "template": "I2cWriteOscilloscopeVavg", "relayOutputChannel": 24, "powerOnBefore": [ { "channel": 1, "voltage": 12.2 } ], "powerOffBefore": [ { "channel": 3, "voltage": 3.3 } ], "settleMs": 0, "address": "0x12", "register": "0x29", "scopeChannel": 3, "checks": [ { "name": "HI", "writeData": "FF FF", "settleMs": 5000, "low": 1.0, "high": 4.5 }, { "name": "LO", "writeData": "00 00", "settleMs": 2000, "low": -1.0, "high": 1.0 } ] }
+    },
+    {
+      "id": "fct.swpack-pwm.pwm4",
+      "name": "SW-Pack PWM4",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": { "template": "I2cWriteOscilloscopeVavg", "relayOutputChannel": 25, "powerOnBefore": [ { "channel": 1, "voltage": 12.2 } ], "powerOffBefore": [ { "channel": 3, "voltage": 3.3 } ], "settleMs": 0, "address": "0x12", "register": "0x2B", "scopeChannel": 3, "checks": [ { "name": "HI", "writeData": "FF FF", "settleMs": 5000, "low": 1.0, "high": 4.5 }, { "name": "LO", "writeData": "00 00", "settleMs": 2000, "low": -1.0, "high": 1.0 } ] }
+    },
+    {
+      "id": "fct.hvac-bklt.wh",
+      "name": "WH_BKLT",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": { "template": "I2cWriteOscilloscopeVavg", "relayOutputChannel": 39, "powerOnBefore": [ { "channel": 1, "voltage": 12.2 } ], "settleMs": 2000, "address": "0x12", "register": "0x0C", "scopeChannel": 3, "checks": [ { "name": "HI", "writeData": "FF FF", "settleMs": 5000, "low": 3.5, "high": 5.3 }, { "name": "LO", "writeData": "00 00", "settleMs": 2000, "low": -1.0, "high": 1.0 } ] }
+    },
+    {
+      "id": "fct.hvac-bklt.rd",
+      "name": "RD_BKLT",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": { "template": "I2cWriteOscilloscopeVavg", "relayOutputChannel": 40, "powerOnBefore": [ { "channel": 1, "voltage": 12.2 } ], "settleMs": 2000, "address": "0x12", "register": "0x0E", "scopeChannel": 3, "checks": [ { "name": "HI", "writeData": "FF FF", "settleMs": 5000, "low": 3.5, "high": 5.3 }, { "name": "LO", "writeData": "00 00", "settleMs": 2000, "low": -1.0, "high": 1.0 } ] }
+    },
+    {
+      "id": "fct.hvac-bklt.bu",
+      "name": "BU_BKLT",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": { "template": "I2cWriteOscilloscopeVavg", "relayOutputChannel": 41, "powerOnBefore": [ { "channel": 1, "voltage": 12.2 } ], "settleMs": 2000, "address": "0x12", "register": "0x10", "scopeChannel": 3, "checks": [ { "name": "HI", "writeData": "FF FF", "settleMs": 5000, "low": 3.5, "high": 5.3 }, { "name": "LO", "writeData": "00 00", "settleMs": 2000, "low": -1.0, "high": 1.0 } ] }
+    },
+    {
+      "id": "fct.hvac-bklt.amb",
+      "name": "AMB_BKLT",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": { "template": "I2cWriteOscilloscopeVavg", "relayOutputChannel": 42, "powerOnBefore": [ { "channel": 1, "voltage": 12.2 } ], "settleMs": 2000, "address": "0x12", "register": "0x12", "scopeChannel": 3, "checks": [ { "name": "HI", "writeData": "FF FF", "settleMs": 5000, "low": 3.5, "high": 5.3 }, { "name": "LO", "writeData": "00 00", "settleMs": 2000, "low": -1.0, "high": 1.0 } ] }
+    },
+    {
+      "id": "fct.hvac-bklt.wh-fan",
+      "name": "WH_FAN_BKLT",
+      "kind": "FunctionalCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": { "template": "I2cWriteOscilloscopeVavg", "relayOutputChannel": 43, "powerOnBefore": [ { "channel": 1, "voltage": 12.2 } ], "settleMs": 2000, "address": "0x12", "register": "0x25", "scopeChannel": 3, "checks": [ { "name": "HI", "writeData": "FF FF", "settleMs": 5000, "low": 3.5, "high": 5.3 }, { "name": "LO", "writeData": "00 00", "settleMs": 2000, "low": -1.0, "high": 1.0 } ] }
+    },
+    {
+      "id": "fct.oscilloscope.vavg",
+      "name": "Oscilloscope Vavg Check",
+      "kind": "Measurement",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "adapter": "Oscilloscope",
+        "operation": "ReadVavg",
+        "channel": 3,
+        "low": 1.0,
+        "high": 4.5,
+        "unit": "V"
+      }
+    },
+    {
+      "id": "fct.ac-input.3.hi",
+      "name": "AC Input 3 High Limit",
+      "kind": "LimitCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "adapter": "DaqVoltage",
+        "channel": 3,
+        "low": 3.135,
+        "high": 3.465,
+        "unit": "V"
+      }
+    },
+    {
+      "id": "result.output",
+      "name": "Result Output",
+      "kind": "ResultOutput",
+      "required": true,
+      "stopOnFailure": false,
+      "timeoutSeconds": 10,
+      "parameters": {
+        "okOutputChannel": 3,
+        "ngOutputChannel": 4
+      }
+    },
+    {
+      "id": "cleanup.fixture",
+      "name": "Fixture Cleanup",
+      "kind": "Cleanup",
+      "required": true,
+      "stopOnFailure": false,
+      "timeoutSeconds": 60,
+      "parameters": {
+        "fixtureUpOutputChannel": 1,
+        "fixtureDownOutputChannel": 2,
+        "fixtureUpDelayMs": 1000,
+        "note": "Power off and release fixture outputs."
+      }
+    }
+  ]
+}

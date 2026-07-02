@@ -1,0 +1,150 @@
+{
+  "name": "RFP 7000 V2",
+  "version": "0.1.0",
+  "product": "RFP7000V2",
+  "items": [
+    {
+      "id": "fixture.prepare",
+      "name": "Fixture Prepare",
+      "kind": "FixturePrepare",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 60,
+      "parameters": {
+        "fixtureUpOutputChannel": 1,
+        "fixtureDownOutputChannel": 2,
+        "note": "Initialize station IO and instruments."
+      }
+    },
+    {
+      "id": "flash.mcu.simple",
+      "name": "MCU Simple Flash",
+      "kind": "Flash",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 600,
+      "parameters": {
+        "flashKind": "RfpMcuSimple",
+        "script": "Runtime/Flash/RFP_Auto/Scripts/Flash_once.bat"
+      }
+    },
+    {
+      "id": "flash.tcon",
+      "name": "TCON Flash",
+      "kind": "Flash",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 600,
+      "parameters": {
+        "flashKind": "RedCase",
+        "script": "Runtime/Flash/RedCase_Auto/Debug/FlashUpdate_Run.bat"
+      }
+    },
+    {
+      "id": "flash.tddi",
+      "name": "TDDI Flash",
+      "kind": "Flash",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 600,
+      "parameters": {
+        "flashKind": "Tddi",
+        "script": "Runtime/Flash/TDDI_Auto/Test/Test/bin/Debug/flash_run.bat"
+      }
+    },
+    {
+      "id": "flash.mcu.shipping",
+      "name": "MCU Shipping Flash",
+      "kind": "Flash",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 600,
+      "parameters": {
+        "flashKind": "RfpMcuShipping",
+        "script": "Runtime/Flash/RFP_Auto/Scripts/Flash_once.bat"
+      }
+    },
+    {
+      "id": "safety.fixture-position",
+      "name": "Fixture Position Safety Wait",
+      "kind": "SafetyCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "inputChannel": 2,
+        "expected": true
+      }
+    },
+    {
+      "id": "fct.i2c.debug-mode",
+      "name": "I2C Debug Mode Check",
+      "kind": "Measurement",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "adapter": "UsbI2c",
+        "address": "0x12",
+        "operation": "EnterAndCheckDebugMode"
+      }
+    },
+    {
+      "id": "fct.oscilloscope.vavg",
+      "name": "Oscilloscope Vavg Check",
+      "kind": "Measurement",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "adapter": "Oscilloscope",
+        "operation": "ReadVavg",
+        "channel": 3,
+        "low": 1.0,
+        "high": 4.5,
+        "unit": "V"
+      }
+    },
+    {
+      "id": "fct.ac-input.3.hi",
+      "name": "AC Input 3 High Limit",
+      "kind": "LimitCheck",
+      "required": true,
+      "stopOnFailure": true,
+      "timeoutSeconds": 30,
+      "parameters": {
+        "adapter": "DaqVoltage",
+        "channel": 3,
+        "low": 3.135,
+        "high": 3.465,
+        "unit": "V"
+      }
+    },
+    {
+      "id": "result.output",
+      "name": "Result Output",
+      "kind": "ResultOutput",
+      "required": true,
+      "stopOnFailure": false,
+      "timeoutSeconds": 10,
+      "parameters": {
+        "okOutputChannel": 3,
+        "ngOutputChannel": 4
+      }
+    },
+    {
+      "id": "cleanup.fixture",
+      "name": "Fixture Cleanup",
+      "kind": "Cleanup",
+      "required": true,
+      "stopOnFailure": false,
+      "timeoutSeconds": 60,
+      "parameters": {
+        "fixtureUpOutputChannel": 1,
+        "fixtureDownOutputChannel": 2,
+        "fixtureUpDelayMs": 1000,
+        "note": "Power off and release fixture outputs."
+      }
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "PortName": "COM10",
+  "BaudRate": 9600,
+  "Parity": "None",
+  "DataBits": 8,
+  "StopBits": "One",
+  "ReadTimeoutMs": 1000,
+  "WriteTimeoutMs": 1000,
+  "Retries": 2,
+  "RetryDelayMs": 200,
+  "SlaveId": 1,
+  "AddressBase": 0
+}

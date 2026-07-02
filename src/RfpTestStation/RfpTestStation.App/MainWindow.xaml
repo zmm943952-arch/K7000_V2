@@ -1,0 +1,859 @@
+<Window x:Class="RfpTestStation.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="{Binding WindowTitleText}"
+        Width="1600"
+        Height="920"
+        MinWidth="1280"
+        MinHeight="760"
+        FontFamily="Microsoft YaHei UI, Segoe UI"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        Background="#FFFFFF">
+  <Window.Resources>
+    <SolidColorBrush x:Key="Blue" Color="#005AA0" />
+    <SolidColorBrush x:Key="LineBlue" Color="#0068B7" />
+    <SolidColorBrush x:Key="PaleBlue" Color="#EAF5FF" />
+    <SolidColorBrush x:Key="SoftPanel" Color="#F8FBFE" />
+    <SolidColorBrush x:Key="TextBlue" Color="#005AA0" />
+    <SolidColorBrush x:Key="GridHeader" Color="#F2F6FA" />
+
+    <Style x:Key="LabelText" TargetType="TextBlock">
+      <Setter Property="Foreground" Value="{StaticResource TextBlue}" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="FontSize" Value="16" />
+      <Setter Property="Margin" Value="0,12,0,5" />
+    </Style>
+
+    <Style x:Key="ValueBox" TargetType="TextBox">
+      <Setter Property="Height" Value="34" />
+      <Setter Property="BorderBrush" Value="{StaticResource LineBlue}" />
+      <Setter Property="BorderThickness" Value="1.5" />
+      <Setter Property="Foreground" Value="{StaticResource TextBlue}" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="FontSize" Value="15" />
+      <Setter Property="Padding" Value="8,4" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="OperationButton" TargetType="Button">
+      <Setter Property="Height" Value="44" />
+      <Setter Property="Margin" Value="0,9,0,0" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Background" Value="{StaticResource Blue}" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+      <Setter Property="FontSize" Value="17" />
+      <Setter Property="FontWeight" Value="Bold" />
+    </Style>
+
+    <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource OperationButton}">
+      <Setter Property="Background" Value="#9EC4DF" />
+    </Style>
+
+    <SolidColorBrush x:Key="SettingsPageBackground" Color="#F5F7FA" />
+    <SolidColorBrush x:Key="SettingsCardBackground" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="SettingsBorder" Color="#D8E0E8" />
+    <SolidColorBrush x:Key="SettingsPrimaryText" Color="#1F2933" />
+    <SolidColorBrush x:Key="SettingsSecondaryText" Color="#5E6B78" />
+    <SolidColorBrush x:Key="SettingsErrorText" Color="#B42318" />
+
+    <Style x:Key="SettingsNavButton" TargetType="Button">
+      <Setter Property="Height" Value="42" />
+      <Setter Property="Margin" Value="0,0,0,6" />
+      <Setter Property="Padding" Value="14,0" />
+      <Setter Property="HorizontalContentAlignment" Value="Left" />
+      <Setter Property="BorderBrush" Value="{StaticResource SettingsBorder}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Background" Value="#FFFFFF" />
+      <Setter Property="Foreground" Value="{StaticResource SettingsPrimaryText}" />
+      <Setter Property="FontSize" Value="14" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <Style x:Key="SettingsCard" TargetType="Border">
+      <Setter Property="Background" Value="{StaticResource SettingsCardBackground}" />
+      <Setter Property="BorderBrush" Value="{StaticResource SettingsBorder}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="Padding" Value="20" />
+      <Setter Property="Margin" Value="0,0,0,14" />
+    </Style>
+
+    <Style x:Key="SettingsSectionTitle" TargetType="TextBlock">
+      <Setter Property="Foreground" Value="{StaticResource SettingsPrimaryText}" />
+      <Setter Property="FontSize" Value="18" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Margin" Value="0,0,0,14" />
+    </Style>
+
+    <Style x:Key="SettingsFieldLabel" TargetType="TextBlock">
+      <Setter Property="Foreground" Value="{StaticResource SettingsSecondaryText}" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Margin" Value="0,0,12,0" />
+    </Style>
+
+    <Style x:Key="SettingsInput" TargetType="TextBox">
+      <Setter Property="Height" Value="36" />
+      <Setter Property="BorderBrush" Value="{StaticResource SettingsBorder}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Foreground" Value="{StaticResource SettingsPrimaryText}" />
+      <Setter Property="FontWeight" Value="Normal" />
+      <Setter Property="FontSize" Value="14" />
+      <Setter Property="Padding" Value="9,4" />
+      <Setter Property="HorizontalContentAlignment" Value="Left" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="SettingsSecondaryButton" TargetType="Button">
+      <Setter Property="Height" Value="40" />
+      <Setter Property="BorderBrush" Value="{StaticResource SettingsBorder}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Background" Value="#FFFFFF" />
+      <Setter Property="Foreground" Value="{StaticResource SettingsPrimaryText}" />
+      <Setter Property="FontSize" Value="14" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Padding" Value="18,0" />
+    </Style>
+
+    <Style x:Key="SettingsPrimaryButton" TargetType="Button" BasedOn="{StaticResource SettingsSecondaryButton}">
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Background" Value="{StaticResource Blue}" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+    </Style>
+
+    <Style x:Key="IconText" TargetType="TextBlock">
+      <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
+      <Setter Property="FontSize" Value="18" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style TargetType="DataGrid">
+      <Setter Property="AutoGenerateColumns" Value="False" />
+      <Setter Property="CanUserAddRows" Value="False" />
+      <Setter Property="IsReadOnly" Value="True" />
+      <Setter Property="HeadersVisibility" Value="Column" />
+      <Setter Property="GridLinesVisibility" Value="All" />
+      <Setter Property="RowHeaderWidth" Value="0" />
+      <Setter Property="BorderBrush" Value="#A8B7C6" />
+      <Setter Property="HorizontalGridLinesBrush" Value="#C8D1DA" />
+      <Setter Property="VerticalGridLinesBrush" Value="#C8D1DA" />
+      <Setter Property="FontSize" Value="12.5" />
+      <Setter Property="RowHeight" Value="28" />
+    </Style>
+
+    <Style TargetType="DataGridColumnHeader">
+      <Setter Property="Background" Value="{StaticResource GridHeader}" />
+      <Setter Property="Foreground" Value="{StaticResource TextBlue}" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="BorderBrush" Value="#C8D1DA" />
+      <Setter Property="BorderThickness" Value="0,0,1,1" />
+      <Setter Property="Padding" Value="7,5" />
+    </Style>
+  </Window.Resources>
+
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="42" />
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+
+    <Border Grid.Column="0" Background="{StaticResource Blue}">
+      <StackPanel>
+        <Border Height="42" Background="#00508E">
+          <TextBlock Style="{StaticResource IconText}" Text="&#xE700;" />
+        </Border>
+        <Button Height="44" Background="#0078D4" BorderThickness="0" Command="{Binding ShowRunPageCommand}">
+          <TextBlock Style="{StaticResource IconText}" Text="&#xE80F;" />
+        </Button>
+        <Button Height="44" Background="#8BB8D8" BorderThickness="0" Command="{Binding ShowTestPlanPageCommand}">
+          <TextBlock Style="{StaticResource IconText}" Text="&#xE8FD;" />
+        </Button>
+        <Button Height="44" Background="#8BB8D8" BorderThickness="0" Command="{Binding ShowSettingsPageCommand}">
+          <TextBlock Style="{StaticResource IconText}" Text="&#xE713;" />
+        </Button>
+        <Border Height="44" Background="#8BB8D8">
+          <TextBlock Style="{StaticResource IconText}" Text="&#xE90F;" />
+        </Border>
+        <Border Height="44" Background="#8BB8D8">
+          <TextBlock Style="{StaticResource IconText}" Text="&#xE946;" />
+        </Border>
+      </StackPanel>
+    </Border>
+
+      <Grid Grid.Column="1">
+        <Grid.RowDefinitions>
+        <RowDefinition Height="124" />
+        <RowDefinition Height="*" />
+        <RowDefinition Height="68" />
+      </Grid.RowDefinitions>
+
+      <Border Grid.Row="0" Background="#FFFFFF" BorderBrush="{StaticResource LineBlue}" BorderThickness="0,0,0,2">
+        <Grid Margin="24,0,24,0">
+          <TextBlock Text="{Binding TitleText}"
+                     Foreground="{StaticResource TextBlue}"
+                     FontSize="32"
+                     FontWeight="Bold"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center"
+                     TextAlignment="Center"
+                     TextTrimming="CharacterEllipsis" />
+          <TextBlock
+                     Text="{Binding CurrentTimeText}"
+                     Foreground="#000000"
+                     FontSize="20"
+                     HorizontalAlignment="Right"
+                     VerticalAlignment="Center" />
+        </Grid>
+      </Border>
+
+      <Grid Grid.Row="1" Visibility="{Binding RunPageVisibility}">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="360" />
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="360" />
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" BorderBrush="{StaticResource LineBlue}" BorderThickness="0,0,2,0" Background="#FFFFFF">
+          <Grid Margin="38,30,32,22">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0">
+              <TextBlock Text="{Binding CurrentUserLabel}" Style="{StaticResource LabelText}" />
+              <TextBox Text="{Binding CurrentUser}" Style="{StaticResource ValueBox}" />
+
+              <TextBlock Text="{Binding ProductNameLabel}" Style="{StaticResource LabelText}" />
+              <TextBox Text="{Binding ProductName}" Style="{StaticResource ValueBox}" />
+
+              <TextBlock Text="{Binding LanguageLabel}" Style="{StaticResource LabelText}" />
+              <ComboBox Height="34"
+                        ItemsSource="{Binding LanguageOptions}"
+                        SelectedItem="{Binding SelectedLanguage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        BorderBrush="{StaticResource LineBlue}"
+                        Foreground="{StaticResource TextBlue}"
+                        FontSize="14"
+                        FontWeight="Bold"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center" />
+
+              <TextBlock Text="{Binding ExecutionModeLabel}" Style="{StaticResource LabelText}" />
+              <TextBox Text="{Binding ExecutionModeStatusText, Mode=OneWay}" IsReadOnly="True" Style="{StaticResource ValueBox}" />
+              <Border Visibility="{Binding HardwareModeWarningVisibility}"
+                      Margin="0,10,0,0"
+                      Padding="10"
+                      Background="#FFF4E5"
+                      BorderBrush="#F79009"
+                      BorderThickness="1"
+                      CornerRadius="4">
+                <TextBlock Text="{Binding HardwareModeWarningText}"
+                           Foreground="#B54708"
+                           FontSize="13"
+                           FontWeight="Bold"
+                           TextWrapping="Wrap" />
+              </Border>
+
+            </StackPanel>
+
+            <StackPanel Grid.Row="1" VerticalAlignment="Bottom">
+              <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="118" />
+                  <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Height="2" Background="{StaticResource LineBlue}" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{Binding OperationsLabel}" Foreground="{StaticResource TextBlue}" FontSize="17" FontWeight="Bold" HorizontalAlignment="Center" TextAlignment="Center" />
+                <Border Grid.Column="2" Height="2" Background="{StaticResource LineBlue}" VerticalAlignment="Center" />
+              </Grid>
+              <Button Content="{Binding LogoutButtonText}" Style="{StaticResource OperationButton}" />
+              <Button Content="{Binding StartButtonText}" Command="{Binding StartCommand}" Style="{StaticResource OperationButton}" />
+              <Button Content="{Binding PauseButtonText}" Command="{Binding StopCommand}" Style="{StaticResource SecondaryButton}" />
+              <Button Content="{Binding EndButtonText}" Command="{Binding ResetCommand}" Style="{StaticResource SecondaryButton}" />
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <Grid Grid.Column="1" Background="#FFFFFF" Margin="8,0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="72" />
+            <RowDefinition Height="2.05*" />
+            <RowDefinition Height="96" />
+            <RowDefinition Height="0.9*" />
+          </Grid.RowDefinitions>
+
+          <TextBlock Grid.Row="0"
+                     Text="{Binding OverallStatusText}"
+                     Foreground="{StaticResource TextBlue}"
+                     FontSize="26"
+                     FontWeight="Bold"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center" />
+
+          <DataGrid Grid.Row="1" ItemsSource="{Binding Results}" Margin="10,0">
+            <DataGrid.RowStyle>
+              <Style TargetType="DataGridRow">
+                <Setter Property="Background" Value="{Binding RowBackground}" />
+              </Style>
+            </DataGrid.RowStyle>
+            <DataGrid.Columns>
+              <DataGridTextColumn x:Name="MainStepColumn" Header="STEP" Binding="{Binding StepName, Mode=OneWay}" Width="2*" />
+              <DataGridTextColumn x:Name="MainDescriptionColumn" Header="DESCRIPTION" Binding="{Binding Message, Mode=OneWay}" Width="2.3*" />
+              <DataGridTemplateColumn x:Name="MainStatusColumn" Header="STATUS" Width="1.2*">
+                <DataGridTemplateColumn.CellStyle>
+                  <Style TargetType="DataGridCell">
+                    <Setter Property="Background" Value="{Binding StatusBackground}" />
+                    <Setter Property="BorderBrush" Value="#C8D1DA" />
+                    <Setter Property="BorderThickness" Value="0,0,1,1" />
+                    <Setter Property="Padding" Value="0" />
+                  </Style>
+                </DataGridTemplateColumn.CellStyle>
+                <DataGridTemplateColumn.CellTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding Status}" Foreground="{Binding StatusForeground}" FontWeight="Bold" TextAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Center" Padding="8,0" />
+                  </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+              </DataGridTemplateColumn>
+            </DataGrid.Columns>
+          </DataGrid>
+
+          <Grid Grid.Row="2" Margin="10,8,10,2">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="26" />
+              <RowDefinition Height="26" />
+              <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+              <TextBlock Text="{Binding ProgressLabel}" Foreground="{StaticResource TextBlue}" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" />
+              <Border Width="72" Height="24" HorizontalAlignment="Right" BorderBrush="#A8B7C6" BorderThickness="1" Background="#EDF2F7">
+                <TextBlock Text="{Binding ProgressText}" Foreground="{StaticResource TextBlue}" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+              </Border>
+            </Grid>
+            <ProgressBar Grid.Row="1" Minimum="0" Maximum="100" Value="{Binding ProgressPercent, Mode=OneWay}" Height="18" Foreground="#46C91B" Background="#F0F3F6" BorderBrush="{StaticResource LineBlue}" BorderThickness="1" />
+            <Grid Grid.Row="2">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <TextBlock Grid.Column="0" Text="0%" Foreground="{StaticResource TextBlue}" FontWeight="Bold" />
+              <TextBlock Grid.Column="1" Text="20%" Foreground="{StaticResource TextBlue}" FontWeight="Bold" HorizontalAlignment="Center" />
+              <TextBlock Grid.Column="2" Text="40%" Foreground="{StaticResource TextBlue}" FontWeight="Bold" HorizontalAlignment="Center" />
+              <TextBlock Grid.Column="3" Text="60%" Foreground="{StaticResource TextBlue}" FontWeight="Bold" HorizontalAlignment="Center" />
+              <TextBlock Grid.Column="4" Text="80%" Foreground="{StaticResource TextBlue}" FontWeight="Bold" HorizontalAlignment="Center" />
+              <TextBlock Grid.Column="5" Text="100%" Foreground="{StaticResource TextBlue}" FontWeight="Bold" HorizontalAlignment="Right" />
+            </Grid>
+          </Grid>
+
+          <DataGrid Grid.Row="3" ItemsSource="{Binding FailureResults}" Margin="10,0,10,12">
+            <DataGrid.RowStyle>
+              <Style TargetType="DataGridRow">
+                <Setter Property="Background" Value="{Binding RowBackground}" />
+              </Style>
+            </DataGrid.RowStyle>
+            <DataGrid.Columns>
+              <DataGridTextColumn x:Name="DetailStepColumn" Header="Step" Binding="{Binding StepName, Mode=OneWay}" Width="2*" />
+              <DataGridTemplateColumn x:Name="DetailStatusColumn" Header="Status" Width="104">
+                <DataGridTemplateColumn.CellStyle>
+                  <Style TargetType="DataGridCell">
+                    <Setter Property="Background" Value="{Binding StatusBackground}" />
+                    <Setter Property="BorderBrush" Value="#C8D1DA" />
+                    <Setter Property="BorderThickness" Value="0,0,1,1" />
+                    <Setter Property="Padding" Value="0" />
+                  </Style>
+                </DataGridTemplateColumn.CellStyle>
+                <DataGridTemplateColumn.CellTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding Status}" Foreground="{Binding StatusForeground}" FontWeight="Bold" TextAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Center" Padding="8,0" />
+                  </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+              </DataGridTemplateColumn>
+              <DataGridTextColumn x:Name="DetailMeasurementColumn" Header="Measurement" Binding="{Binding Value, Mode=OneWay}" Width="120" />
+              <DataGridTextColumn x:Name="DetailUnitsColumn" Header="Units" Binding="{Binding Unit, Mode=OneWay}" Width="72" />
+              <DataGridTextColumn x:Name="DetailLowLimitColumn" Header="Low Limit" Binding="{Binding LowLimit, Mode=OneWay}" Width="110" />
+              <DataGridTextColumn x:Name="DetailHighLimitColumn" Header="High Limit" Binding="{Binding HighLimit, Mode=OneWay}" Width="110" />
+              <DataGridTextColumn x:Name="DetailComparisonTypeColumn" Header="Comparison Type" Binding="{Binding Limits, Mode=OneWay}" Width="140" />
+            </DataGrid.Columns>
+          </DataGrid>
+        </Grid>
+
+        <Border Grid.Column="2" BorderBrush="{StaticResource LineBlue}" BorderThickness="2,0,0,0" Background="#FFFFFF">
+          <Grid Margin="28,116,26,22">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="*" />
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0">
+              <TextBlock Text="{Binding ElapsedTimeLabel}" Style="{StaticResource LabelText}" />
+              <TextBox Text="{Binding RunElapsedSecondsText, Mode=OneWay}" IsReadOnly="True" Style="{StaticResource ValueBox}" />
+              <TextBlock Text="{Binding SerialNumberLabel}" Style="{StaticResource LabelText}" Margin="0,24,0,5" />
+              <TextBox Text="{Binding SerialNumber, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ValueBox}" HorizontalContentAlignment="Left" />
+            </StackPanel>
+
+            <Grid Grid.Row="2" VerticalAlignment="Bottom" Margin="0,0,0,24">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="32" />
+                <RowDefinition Height="58" />
+                <RowDefinition Height="58" />
+                <RowDefinition Height="58" />
+                <RowDefinition Height="52" />
+              </Grid.RowDefinitions>
+              <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="118" />
+                  <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Height="2" Background="{StaticResource LineBlue}" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{Binding StatisticsLabel}" Foreground="{StaticResource TextBlue}" FontSize="17" FontWeight="Bold" HorizontalAlignment="Center" TextAlignment="Center" />
+                <Border Grid.Column="2" Height="2" Background="{StaticResource LineBlue}" VerticalAlignment="Center" />
+              </Grid>
+
+              <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="16" />
+                  <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                  <TextBlock Text="{Binding GoodLabel}" Foreground="{StaticResource TextBlue}" FontWeight="Bold" />
+                  <TextBox Text="{Binding GoodCount, Mode=OneWay}" IsReadOnly="True" Style="{StaticResource ValueBox}" />
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                  <TextBlock Text="{Binding FailLabel}" Foreground="{StaticResource TextBlue}" FontWeight="Bold" />
+                  <TextBox Text="{Binding FailCount, Mode=OneWay}" IsReadOnly="True" Style="{StaticResource ValueBox}" />
+                </StackPanel>
+              </Grid>
+
+              <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="16" />
+                  <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                  <TextBlock Text="{Binding ErrorLabel}" Foreground="{StaticResource TextBlue}" FontWeight="Bold" />
+                  <TextBox Text="{Binding ErrorCount, Mode=OneWay}" IsReadOnly="True" Style="{StaticResource ValueBox}" />
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                  <TextBlock Text="{Binding TotalLabel}" Foreground="{StaticResource TextBlue}" FontWeight="Bold" />
+                  <TextBox Text="{Binding TotalCount, Mode=OneWay}" IsReadOnly="True" Style="{StaticResource ValueBox}" />
+                </StackPanel>
+              </Grid>
+
+              <Grid Grid.Row="3">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="24" />
+                  <RowDefinition Height="24" />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="{Binding YieldLabel}" Foreground="{StaticResource TextBlue}" FontWeight="Bold" />
+                <Grid Grid.Row="1">
+                  <ProgressBar Minimum="0" Maximum="100" Value="{Binding YieldRatePercent, Mode=OneWay}" Height="18" Foreground="#46C91B" Background="#F0F3F6" BorderBrush="{StaticResource LineBlue}" BorderThickness="1" />
+                  <Border Width="72" Height="24" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-28,0,0" BorderBrush="#A8B7C6" BorderThickness="1" Background="#EDF2F7">
+                    <TextBlock Text="{Binding YieldRateText}" Foreground="{StaticResource TextBlue}" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                  </Border>
+                </Grid>
+              </Grid>
+
+              <Button Grid.Row="4" Content="{Binding ResetStatisticsText}" Command="{Binding ResetStatisticsCommand}" Style="{StaticResource OperationButton}" />
+            </Grid>
+          </Grid>
+        </Border>
+      </Grid>
+
+      <ScrollViewer Grid.Row="1" Visibility="{Binding TestPlanPageVisibility}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Background="#FFFFFF">
+        <Grid Margin="34,28,34,28">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+
+          <Grid Grid.Row="0" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="150" />
+              <ColumnDefinition Width="150" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{Binding TestPlanEditorPageTitleText}" Foreground="{StaticResource TextBlue}" FontSize="28" FontWeight="Bold" VerticalAlignment="Center" />
+            <Button Grid.Column="1" Content="{Binding ReloadTestPlanButtonText}" Command="{Binding ReloadTestPlanCommand}" Style="{StaticResource SecondaryButton}" Margin="0,0,10,0" />
+            <Button Grid.Column="2" Content="{Binding SaveTestPlanButtonText}" Command="{Binding SaveTestPlanCommand}" Style="{StaticResource OperationButton}" Margin="0" />
+          </Grid>
+
+          <Border Grid.Row="1" BorderBrush="{StaticResource LineBlue}" BorderThickness="1.5" Background="{StaticResource SoftPanel}" Padding="18" Margin="0,0,0,18">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="120" />
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="28" />
+                <ColumnDefinition Width="82" />
+                <ColumnDefinition Width="160" />
+                <ColumnDefinition Width="28" />
+                <ColumnDefinition Width="82" />
+                <ColumnDefinition Width="180" />
+              </Grid.ColumnDefinitions>
+
+              <TextBlock Grid.Column="0" Text="{Binding EditableTestPlanNameLabel}" Style="{StaticResource LabelText}" Margin="0,0,0,0" VerticalAlignment="Center" />
+              <TextBox Grid.Column="1" Text="{Binding EditableTestPlanName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ValueBox}" HorizontalContentAlignment="Left" />
+              <TextBlock Grid.Column="3" Text="{Binding EditableTestPlanVersionLabel}" Style="{StaticResource LabelText}" Margin="0,0,0,0" VerticalAlignment="Center" />
+              <TextBox Grid.Column="4" Text="{Binding EditableTestPlanVersion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ValueBox}" HorizontalContentAlignment="Left" />
+              <TextBlock Grid.Column="6" Text="{Binding EditableTestPlanProductLabel}" Style="{StaticResource LabelText}" Margin="0,0,0,0" VerticalAlignment="Center" />
+              <TextBox Grid.Column="7" Text="{Binding EditableTestPlanProduct, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ValueBox}" HorizontalContentAlignment="Left" />
+            </Grid>
+          </Border>
+
+          <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="560" />
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="{Binding TestPlanItemsTitleText}" Foreground="{StaticResource TextBlue}" FontSize="20" FontWeight="Bold" Margin="0,0,0,10" />
+            <DataGrid Grid.Row="1"
+                      ItemsSource="{Binding TestPlanItems}"
+                      IsReadOnly="False"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      SelectionMode="Single"
+                      FrozenColumnCount="3"
+                      Margin="0">
+              <DataGrid.Columns>
+                <DataGridCheckBoxColumn x:Name="PlanEnabledColumn" Header="Enabled" Binding="{Binding IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="70" />
+                <DataGridTextColumn x:Name="PlanIdColumn" Header="ID" Binding="{Binding Id, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="170" />
+                <DataGridTextColumn x:Name="PlanNameColumn" Header="Name" Binding="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="190" />
+                <DataGridTextColumn x:Name="PlanKindColumn" Header="Kind" Binding="{Binding KindText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="130" />
+                <DataGridCheckBoxColumn x:Name="PlanRequiredColumn" Header="Required" Binding="{Binding IsRequired, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="82" />
+                <DataGridCheckBoxColumn x:Name="PlanStopOnFailureColumn" Header="Stop On Failure" Binding="{Binding StopOnFailure, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="120" />
+                <DataGridTextColumn x:Name="PlanTimeoutColumn" Header="Timeout" Binding="{Binding TimeoutSeconds, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="86" />
+                <DataGridTextColumn x:Name="PlanScriptColumn" Header="Script" Binding="{Binding Script, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="240" />
+                <DataGridTextColumn x:Name="PlanAdapterColumn" Header="Adapter" Binding="{Binding Adapter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="130" />
+                <DataGridTextColumn x:Name="PlanOperationColumn" Header="Operation" Binding="{Binding Operation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="180" />
+                <DataGridTextColumn x:Name="PlanLowLimitColumn" Header="Low" Binding="{Binding LowLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="90" />
+                <DataGridTextColumn x:Name="PlanHighLimitColumn" Header="High" Binding="{Binding HighLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="90" />
+                <DataGridTextColumn x:Name="PlanUnitColumn" Header="Unit" Binding="{Binding Unit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="80" />
+                <DataGridTextColumn x:Name="PlanComparisonTypeColumn" Header="Comparison" Binding="{Binding ComparisonType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="120" />
+                <DataGridTextColumn x:Name="PlanNoteColumn" Header="Note" Binding="{Binding Note, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="220" />
+              </DataGrid.Columns>
+            </DataGrid>
+          </Grid>
+
+          <TextBlock Grid.Row="3" Text="{Binding TestPlanEditorStatusText}" Foreground="{StaticResource TextBlue}" FontSize="13" FontWeight="Bold" Margin="0,14,0,0" />
+        </Grid>
+      </ScrollViewer>
+
+      <Grid Grid.Row="1" Visibility="{Binding SettingsPageVisibility}" Background="{StaticResource SettingsPageBackground}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="72" />
+          <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="#FFFFFF" BorderBrush="{StaticResource SettingsBorder}" BorderThickness="0,0,0,1">
+          <Grid Margin="28,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="140" />
+              <ColumnDefinition Width="166" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{Binding SettingsPageTitleText}" Foreground="{StaticResource SettingsPrimaryText}" FontSize="26" FontWeight="Bold" VerticalAlignment="Center" />
+            <TextBlock Grid.Column="1" Text="{Binding StationConfigStatusText}" Foreground="{StaticResource SettingsSecondaryText}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,18,0" TextTrimming="CharacterEllipsis" />
+            <Button Grid.Column="2" Content="{Binding ReloadStationConfigButtonText}" Command="{Binding ReloadStationConfigCommand}" Style="{StaticResource SettingsSecondaryButton}" Margin="0,0,10,0" />
+            <Button Grid.Column="3" Content="{Binding SaveAllStationConfigButtonText}" Command="{Binding SaveStationConfigCommand}" Style="{StaticResource SettingsPrimaryButton}" />
+          </Grid>
+        </Border>
+
+        <Grid Grid.Row="1" Margin="24">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="204" />
+            <ColumnDefinition Width="20" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+
+          <Border Grid.Column="0" Style="{StaticResource SettingsCard}" Padding="14">
+            <StackPanel>
+              <Button Content="{Binding CommonSettingsSectionText}" Command="{Binding SelectSettingsSectionCommand}" CommandParameter="Common" Style="{StaticResource SettingsNavButton}" />
+              <Button Content="{Binding StartupSettingsSectionText}" Command="{Binding SelectSettingsSectionCommand}" CommandParameter="Startup" Style="{StaticResource SettingsNavButton}" />
+              <Button Content="{Binding FlashingSettingsSectionText}" Command="{Binding SelectSettingsSectionCommand}" CommandParameter="Flashing" Style="{StaticResource SettingsNavButton}" />
+              <Button Content="{Binding InstrumentSettingsSectionText}" Command="{Binding SelectSettingsSectionCommand}" CommandParameter="Instruments" Style="{StaticResource SettingsNavButton}" />
+              <Button Content="{Binding FctSettingsSectionText}" Command="{Binding SelectSettingsSectionCommand}" CommandParameter="FCT" Style="{StaticResource SettingsNavButton}" />
+              <Button Content="{Binding SafetySettingsSectionText}" Command="{Binding SelectSettingsSectionCommand}" CommandParameter="Safety" Style="{StaticResource SettingsNavButton}" />
+              <Button Content="{Binding AdvancedSettingsSectionText}" Command="{Binding SelectSettingsSectionCommand}" CommandParameter="Advanced" Style="{StaticResource SettingsNavButton}" />
+            </StackPanel>
+          </Border>
+
+          <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel>
+              <Border Style="{StaticResource SettingsCard}" Visibility="{Binding StationConfigValidationVisibility}" BorderBrush="{StaticResource SettingsErrorText}">
+                <TextBlock Text="{Binding StationConfigValidationText}" Foreground="{StaticResource SettingsErrorText}" FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap" />
+              </Border>
+
+              <StackPanel Visibility="{Binding CommonSettingsSectionVisibility}">
+                <Border Style="{StaticResource SettingsCard}">
+                  <Grid>
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="Auto" />
+                      <RowDefinition Height="44" />
+                      <RowDefinition Height="44" />
+                      <RowDefinition Height="44" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="150" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="{Binding StartupConfigTitleText}" Style="{StaticResource SettingsSectionTitle}" />
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding TestPlanLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding TestPlanPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsInput}" />
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding ConfigLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding ConfigJsonPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsInput}" />
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="{Binding ExecutionModeLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <ComboBox Grid.Row="3" Grid.Column="1"
+                              Height="36"
+                              SelectedValue="{Binding ExecutionMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              SelectedValuePath="Content"
+                              FontSize="15"
+                              FontWeight="SemiBold"
+                              Foreground="{StaticResource SettingsPrimaryText}"
+                              BorderBrush="{StaticResource SettingsBorder}"
+                              BorderThickness="1">
+                      <ComboBoxItem Content="Mock" />
+                      <ComboBoxItem Content="Hardware" />
+                    </ComboBox>
+                  </Grid>
+                </Border>
+
+                <Border Style="{StaticResource SettingsCard}">
+                  <Grid>
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="Auto" />
+                      <RowDefinition Height="44" />
+                      <RowDefinition Height="44" />
+                      <RowDefinition Height="44" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="150" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="{Binding FlashConfigTitleText}" Style="{StaticResource SettingsSectionTitle}" />
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding RfpFlashScriptLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding RfpFlashScriptPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsInput}" />
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding TconFlashScriptLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding TconFlashScriptPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsInput}" />
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="{Binding TddiFlashScriptLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding TddiFlashScriptPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsInput}" />
+                  </Grid>
+                </Border>
+
+                <Border Style="{StaticResource SettingsCard}">
+                  <Grid>
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="Auto" />
+                      <RowDefinition Height="44" />
+                      <RowDefinition Height="44" />
+                      <RowDefinition Height="44" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="150" />
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="28" />
+                      <ColumnDefinition Width="150" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Grid.ColumnSpan="5" Text="{Binding InstrumentConfigTitleText}" Style="{StaticResource SettingsSectionTitle}" />
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding TddiSerialPortLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding TddiSerialPort, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsInput}" />
+                    <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding IoDaqComLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <TextBox Grid.Row="1" Grid.Column="4" Text="{Binding IoDaqCom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsInput}" />
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding ScannerComLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding ScannerCom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsInput}" />
+                    <TextBlock Grid.Row="2" Grid.Column="3" Text="{Binding OscilloscopeHostLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <TextBox Grid.Row="2" Grid.Column="4" Text="{Binding OscilloscopeHost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsInput}" />
+                  </Grid>
+                </Border>
+              </StackPanel>
+
+              <StackPanel Visibility="{Binding StartupSettingsSectionVisibility}">
+                <Border Style="{StaticResource SettingsCard}">
+                  <Grid>
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="Auto" />
+                      <RowDefinition Height="44" />
+                      <RowDefinition Height="44" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="150" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="{Binding StartupConfigTitleText}" Style="{StaticResource SettingsSectionTitle}" />
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding TestPlanLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding TestPlanPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsInput}" />
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding ConfigLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding ConfigJsonPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsInput}" />
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="{Binding ExecutionModeLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <ComboBox Grid.Row="3" Grid.Column="1"
+                              Height="36"
+                              SelectedValue="{Binding ExecutionMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              SelectedValuePath="Content"
+                              FontSize="15"
+                              FontWeight="SemiBold"
+                              Foreground="{StaticResource SettingsPrimaryText}"
+                              BorderBrush="{StaticResource SettingsBorder}"
+                              BorderThickness="1">
+                      <ComboBoxItem Content="Mock" />
+                      <ComboBoxItem Content="Hardware" />
+                    </ComboBox>
+                  </Grid>
+                </Border>
+              </StackPanel>
+
+              <StackPanel Visibility="{Binding FlashingSettingsSectionVisibility}">
+                <Border Style="{StaticResource SettingsCard}">
+                  <Grid>
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="Auto" />
+                      <RowDefinition Height="44" />
+                      <RowDefinition Height="44" />
+                      <RowDefinition Height="44" />
+                      <RowDefinition Height="44" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="150" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="{Binding FlashConfigTitleText}" Style="{StaticResource SettingsSectionTitle}" />
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding RfpFlashScriptLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding RfpFlashScriptPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsInput}" />
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding TconFlashScriptLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding TconFlashScriptPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsInput}" />
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="{Binding TconBinFileLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding TconBinFilePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsInput}" />
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="{Binding TddiFlashScriptLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding TddiFlashScriptPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsInput}" />
+                  </Grid>
+                </Border>
+              </StackPanel>
+
+              <StackPanel Visibility="{Binding InstrumentSettingsSectionVisibility}">
+                <Border Style="{StaticResource SettingsCard}">
+                  <Grid>
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="Auto" />
+                      <RowDefinition Height="44" />
+                      <RowDefinition Height="44" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="150" />
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="28" />
+                      <ColumnDefinition Width="150" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Grid.ColumnSpan="5" Text="{Binding InstrumentConfigTitleText}" Style="{StaticResource SettingsSectionTitle}" />
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding TddiSerialPortLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding TddiSerialPort, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsInput}" />
+                    <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding IoDaqComLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <TextBox Grid.Row="1" Grid.Column="4" Text="{Binding IoDaqCom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsInput}" />
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding ScannerComLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding ScannerCom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsInput}" />
+                    <TextBlock Grid.Row="2" Grid.Column="3" Text="{Binding OscilloscopeHostLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <TextBox Grid.Row="2" Grid.Column="4" Text="{Binding OscilloscopeHost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsInput}" />
+                  </Grid>
+                </Border>
+              </StackPanel>
+
+              <StackPanel Visibility="{Binding FctSettingsSectionVisibility}">
+                <Border Style="{StaticResource SettingsCard}">
+                  <Grid>
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="Auto" />
+                      <RowDefinition Height="44" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="150" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="{Binding FctConfigTitleText}" Style="{StaticResource SettingsSectionTitle}" />
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding FctStationLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding FctStation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsInput}" />
+                  </Grid>
+                </Border>
+              </StackPanel>
+
+              <StackPanel Visibility="{Binding SafetySettingsSectionVisibility}">
+                <Border Style="{StaticResource SettingsCard}">
+                  <Grid>
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="Auto" />
+                      <RowDefinition Height="44" />
+                      <RowDefinition Height="44" />
+                      <RowDefinition Height="44" />
+                      <RowDefinition Height="44" />
+                      <RowDefinition Height="44" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="190" />
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="28" />
+                      <ColumnDefinition Width="190" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Grid.ColumnSpan="5" Text="{Binding SafetyConfigTitleText}" Style="{StaticResource SettingsSectionTitle}" />
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding SafetyEnabledLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <CheckBox Grid.Row="1" Grid.Column="1" IsChecked="{Binding SafetyEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />
+                    <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding SafetyPollIntervalLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <TextBox Grid.Row="1" Grid.Column="4" Text="{Binding SafetyPollIntervalMs, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsInput}" />
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding EmergencyStopChannelLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding EmergencyStopChannel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsInput}" />
+                    <TextBlock Grid.Row="2" Grid.Column="3" Text="{Binding EmergencyStopTriggeredValueLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <CheckBox Grid.Row="2" Grid.Column="4" IsChecked="{Binding EmergencyStopTriggeredValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="{Binding LightCurtainChannelLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding LightCurtainChannel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsInput}" />
+                    <TextBlock Grid.Row="3" Grid.Column="3" Text="{Binding LightCurtainTriggeredValueLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <CheckBox Grid.Row="3" Grid.Column="4" IsChecked="{Binding LightCurtainTriggeredValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="{Binding FixtureDownOutputChannelLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding FixtureDownOutputChannel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsInput}" />
+                    <TextBlock Grid.Row="4" Grid.Column="3" Text="{Binding FixtureUpOutputChannelLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <TextBox Grid.Row="4" Grid.Column="4" Text="{Binding FixtureUpOutputChannel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsInput}" />
+                    <TextBlock Grid.Row="5" Grid.Column="0" Text="{Binding FixtureUpDelayLabel}" Style="{StaticResource SettingsFieldLabel}" />
+                    <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding FixtureUpDelayMs, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsInput}" />
+                  </Grid>
+                </Border>
+              </StackPanel>
+
+              <StackPanel Visibility="{Binding AdvancedSettingsSectionVisibility}">
+                <Border Style="{StaticResource SettingsCard}">
+                  <StackPanel>
+                    <TextBlock Text="{Binding AdvancedSettingsSectionText}" Style="{StaticResource SettingsSectionTitle}" />
+                    <TextBlock Text="{Binding SettingsStatusText}" Foreground="{StaticResource SettingsSecondaryText}" FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,10" />
+                    <TextBlock Text="{Binding StationConfigStatusText}" Foreground="{StaticResource SettingsSecondaryText}" FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap" />
+                  </StackPanel>
+                </Border>
+              </StackPanel>
+            </StackPanel>
+          </ScrollViewer>
+        </Grid>
+      </Grid>
+
+      <Border Grid.Row="2" Background="#FFFFFF" BorderBrush="{StaticResource LineBlue}" BorderThickness="0,2,0,0">
+        <TextBlock Text="{Binding FooterSloganText}"
+                   Foreground="{StaticResource TextBlue}"
+                   FontSize="30"
+                   FontWeight="Bold"
+                   Margin="30,0,20,0"
+                   VerticalAlignment="Center"
+                   TextTrimming="CharacterEllipsis" />
+      </Border>
+    </Grid>
+  </Grid>
+</Window>

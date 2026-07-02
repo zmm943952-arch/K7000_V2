@@ -1,0 +1,49 @@
+# Visual Studio / .NET build output
+.vs/
+**/obj/
+**/bin/
+
+# Runtime flash tool binaries that are intentionally part of the station assets
+!/Runtime/Flash/TDDI_Auto/Test/Test/bin/
+!/Runtime/Flash/TDDI_Auto/Test/Test/bin/**
+!/src/RfpTestStation/StationRuntime/Flash/TDDI_Auto/Test/Test/bin/
+!/src/RfpTestStation/StationRuntime/Flash/TDDI_Auto/Test/Test/bin/**
+!/Project/TDDI_Auto/Test/Test/bin/
+!/Project/TDDI_Auto/Test/Test/bin/**
+
+# Keep generated logs and reports out of source control
+Reports/
+Deploy/
+**/Reports/
+**/logs/
+**/Logs/
+**/Compare/*_summary_report.csv
+**/Backup/
+**/*backup*/
+**/*Backup*/
+**/*old.*
+**/*副本*
+**/prepared_*.txt
+**/Log.txt
+*.log
+
+# Test and coverage output
+TestResults/
+*.trx
+coverage/
+coverage.*
+
+# User and machine-local files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.rsuser
+*.cache
+*.tmp
+*.temp
+
+# OS metadata
+Thumbs.db
+Desktop.ini
+.DS_Store

@@ -1,0 +1,165 @@
+!BridgeType:03
+>>PID/VID
+>>============
+&Bootloader
+5700,0003
+5700,0004
+5700,0011
+848F,10C4
+>End of Bootloader
+>>============
+&Usercode
+8500,0003
+8500,0103
+8500,0203
+8500,0303
+8500,0403
+8500,0503
+8500,0603
+8529,22C5
+>End of Usercode
+>>-----------------------
+!BridgeType:05
+>>PID/VID
+>>============
+&Bootloader
+5700,0005
+>End of Bootloader
+>>============
+&Usercode
+8500,0105
+8500,0205
+8500,0305
+8500,0405
+8500,0505
+8500,0605
+>End of Usercode
+>>-----------------------
+!BridgeType:06
+>>PID/VID
+>>============
+&Bootloader
+5700,0006
+>End of Bootloader
+>>============
+&Usercode
+8500,0106
+8500,0206
+8500,0306
+8500,0406
+8500,0506
+8500,0606
+>End of Usercode
+>>-----------------------
+!BridgeType:ARM
+>>PID/VID
+>>============
+&Bootloader
+5700,00A1
+>End of Bootloader
+>>============
+&Usercode
+8500,01A1
+8500,02A1
+8500,03A1
+8500,04A1
+8500,05A1
+8500,06A1
+>End of Usercode
+>>-----------------------
+!BridgeType:31
+>>PID/VID
+>>============
+&Bootloader
+6584,0021
+6584,0022
+>End of Bootloader
+>>============
+&Usercode
+5284,0021
+5284,0022
+8300,0021
+8300,0121
+8300,0221
+8300,0321
+8300,0421
+8300,0022
+8300,0122
+8300,0222
+8300,0322
+8300,0422
+>End of Usercode
+>>-----------------------
+!BridgeType:51_LVDS
+>>PID/VID
+>>============
+&Bootloader
+6611,0020
+>End of Bootloader
+>>============
+&Usercode
+5295,0011
+5200,0020
+>End of Usercode
+>>-----------------------
+!BridgeType:51_MIPI
+>>PID/VID
+>>============
+&Bootloader
+5442,0010
+5442,0011
+5442,0020
+>End of Bootloader
+>>============
+&Usercode
+8342,0010
+8342,0110
+8342,0210
+8342,0310
+8342,0410
+8342,0011
+8300,0012
+8300,0020
+9900,0020
+9900,0120
+9900,0220
+9900,0320
+9900,0420
+>End of Usercode
+>>-----------------------
+!BridgeType:51_MIPI_2
+>>PID/VID
+>>============
+&Bootloader
+5464,0032
+5478,0033
+5480,0040
+>End of Bootloader
+>>============
+&Usercode
+9900,0132
+9900,0133
+9900,0140
+>End of Usercode
+>>-----------------------
+!BridgeType:NIOS
+>>PID/VID
+>>============
+&Bootloader
+1A63,04DD
+>End of Bootloader
+>>============
+&Usercode
+1A63,04CC
+>End of Usercode
+>>-----------------------
+!BridgeType:ZYNQ
+>>PID/VID
+>>============
+&Bootloader
+5721,0482
+>End of Bootloader
+>>============
+&Usercode
+5722,0483
+>End of Usercode
