@@ -237,6 +237,8 @@
                         Foreground="{StaticResource TextBlue}"
                         FontSize="14"
                         FontWeight="Bold"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"
                         Margin="0,8,0,16"
                         Padding="8,2" />
 

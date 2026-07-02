@@ -262,6 +262,8 @@ namespace RfpTestStation.Tests.App
 
             Assert.Contains("ItemsSource=\"{Binding ProductNameOptions}\"", xaml);
             Assert.Contains("SelectedItem=\"{Binding ProductName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}\"", xaml);
+            Assert.Contains("HorizontalContentAlignment=\"Center\"", xaml);
+            Assert.Contains("VerticalContentAlignment=\"Center\"", xaml);
             Assert.DoesNotContain("<TextBox Text=\"{Binding ProductName}\"", xaml);
         }
 
