@@ -81,6 +81,14 @@ namespace RfpTestStation.Tests.TestPlans
         }
 
         [Fact]
+        public void RuntimeTestPlanStaysInSyncWithSourceTestPlan()
+        {
+            Assert.Equal(
+                NormalizeJson(File.ReadAllText(ProjectTestPlanPath())),
+                NormalizeJson(File.ReadAllText(RuntimeTestPlanPath())));
+        }
+
+        [Fact]
         public void LoadRejectsMissingRequiredItemId()
         {
             var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".testplan.json");
@@ -250,6 +258,11 @@ namespace RfpTestStation.Tests.TestPlans
         private static string RuntimeTestPlanPath()
         {
             return Path.Combine(TestPaths.RepoRoot(), "Runtime", "TestPlans", "Rfp7000V2.testplan.json");
+        }
+
+        private static string NormalizeJson(string json)
+        {
+            return JToken.Parse(json).ToString(Newtonsoft.Json.Formatting.None);
         }
 
         private static void AssertFunctionalGroup(TestPlanDefinition plan, string id, int childCount)
