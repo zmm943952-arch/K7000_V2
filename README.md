@@ -23,7 +23,7 @@ dotnet test .\src\RfpTestStation\RfpTestStation.sln --nologo
 当前基线验证结果：
 
 - 测试项目：`RfpTestStation.Tests`
-- 测试数量：186
+- 测试数量：187
 - 最近验证：全部通过
 
 ## 运行时资产
@@ -122,6 +122,12 @@ settleMs 审核表可用下面命令生成：
 .\Tools\generate-settle-time-review.ps1
 ```
 
+I2C 重复读审核表可用下面命令生成：
+
+```powershell
+.\Tools\generate-i2c-reuse-review.ps1
+```
+
 ## 报告格式
 
 CSV 报告文件名使用生产格式：
@@ -134,6 +140,7 @@ CSV 报告文件名使用生产格式：
 
 ## 更新记录
 
+- 2026-07-03：新增 I2C 重复读审核表生成脚本 `Tools/generate-i2c-reuse-review.ps1` 和 `docs/validation/i2c-reuse-review.md`，列出 12 类重复 I2C 签名和合并确认字段。
 - 2026-07-03：新增 settleMs 审核表生成脚本 `Tools/generate-settle-time-review.ps1` 和 `docs/validation/settle-time-review.md`，列出 49 处显式等待和硬件确认字段。
 - 2026-07-03：新增 Flash timeout 审核表生成脚本 `Tools/generate-flash-timeout-review.ps1` 和 `docs/validation/flash-timeout-review.md`；新增静态测试校验 Flash 步骤的 script、timeout、stopOnFailure 和脚本存在性。
 - 2026-07-03：新增 testplan 同步防回归测试，确保 `src/RfpTestStation/Rfp7000V2.testplan.json` 与 `Runtime/TestPlans/Rfp7000V2.testplan.json` 内容保持一致。

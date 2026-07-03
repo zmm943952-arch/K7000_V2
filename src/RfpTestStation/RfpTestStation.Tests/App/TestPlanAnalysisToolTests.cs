@@ -115,6 +115,37 @@ namespace RfpTestStation.Tests.App
             }
         }
 
+        [Fact]
+        public void I2cReuseReviewScriptGeneratesActionableMarkdown()
+        {
+            var repoRoot = TestPaths.RepoRoot();
+            var scriptPath = Path.Combine(repoRoot, "Tools", "generate-i2c-reuse-review.ps1");
+            var reportPath = Path.Combine(Path.GetTempPath(), "RfpTestStation_I2cReuseReview_" + Guid.NewGuid().ToString("N") + ".md");
+
+            try
+            {
+                var result = RunPowerShell(
+                    repoRoot,
+                    "-NoProfile -ExecutionPolicy Bypass -File \"" + scriptPath + "\" -OutputPath \"" + reportPath + "\"");
+
+                Assert.Equal(0, result.ExitCode);
+                Assert.Contains("I2C REUSE REVIEW", result.Output);
+
+                var report = File.ReadAllText(reportPath, Encoding.UTF8);
+                Assert.Contains("# I2C Reuse Review", report);
+                Assert.Contains("Repeated signature count", report);
+                Assert.Contains("Hardware Confirmed", report);
+                Assert.Contains("Merge Candidate", report);
+            }
+            finally
+            {
+                if (File.Exists(reportPath))
+                {
+                    File.Delete(reportPath);
+                }
+            }
+        }
+
         private static ProcessResult RunPowerShell(string workingDirectory, string arguments)
         {
             var startInfo = new ProcessStartInfo
