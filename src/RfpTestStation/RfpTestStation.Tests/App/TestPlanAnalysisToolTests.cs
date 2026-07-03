@@ -50,6 +50,40 @@ namespace RfpTestStation.Tests.App
             }
         }
 
+        [Fact]
+        public void FlashTimeoutReviewScriptGeneratesActionableMarkdown()
+        {
+            var repoRoot = TestPaths.RepoRoot();
+            var scriptPath = Path.Combine(repoRoot, "Tools", "generate-flash-timeout-review.ps1");
+            var reportPath = Path.Combine(Path.GetTempPath(), "RfpTestStation_FlashTimeoutReview_" + Guid.NewGuid().ToString("N") + ".md");
+
+            try
+            {
+                var result = RunPowerShell(
+                    repoRoot,
+                    "-NoProfile -ExecutionPolicy Bypass -File \"" + scriptPath + "\" -OutputPath \"" + reportPath + "\"");
+
+                Assert.Equal(0, result.ExitCode);
+                Assert.Contains("FLASH TIMEOUT REVIEW", result.Output);
+
+                var report = File.ReadAllText(reportPath, Encoding.UTF8);
+                Assert.Contains("# Flash Timeout Review", report);
+                Assert.Contains("flash.mcu.simple", report);
+                Assert.Contains("flash.tcon", report);
+                Assert.Contains("flash.tddi", report);
+                Assert.Contains("flash.mcu.shipping", report);
+                Assert.Contains("Actual Duration", report);
+                Assert.Contains("Hardware Confirmed", report);
+            }
+            finally
+            {
+                if (File.Exists(reportPath))
+                {
+                    File.Delete(reportPath);
+                }
+            }
+        }
+
         private static ProcessResult RunPowerShell(string workingDirectory, string arguments)
         {
             var startInfo = new ProcessStartInfo

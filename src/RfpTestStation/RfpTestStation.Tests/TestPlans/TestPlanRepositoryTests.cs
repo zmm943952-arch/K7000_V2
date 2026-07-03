@@ -89,6 +89,40 @@ namespace RfpTestStation.Tests.TestPlans
         }
 
         [Fact]
+        public void FlashItemsHaveTimeoutStopPolicyAndExistingScripts()
+        {
+            var violations = new List<string>();
+            var plan = TestPlanRepository.Load(RuntimeTestPlanPath());
+            foreach (var item in plan.Items.Where(x => x.Kind == TestItemKind.Flash))
+            {
+                if (item.TimeoutSeconds <= 0)
+                {
+                    violations.Add(item.Id + ": timeoutSeconds must be positive");
+                }
+
+                if (!item.StopOnFailure)
+                {
+                    violations.Add(item.Id + ": stopOnFailure must be true");
+                }
+
+                var script = (string?)item.Parameters["script"];
+                if (string.IsNullOrWhiteSpace(script))
+                {
+                    violations.Add(item.Id + ": parameters.script is required");
+                    continue;
+                }
+
+                var scriptPath = Path.Combine(TestPaths.RepoRoot(), script);
+                if (!File.Exists(scriptPath))
+                {
+                    violations.Add(item.Id + ": script not found: " + script);
+                }
+            }
+
+            Assert.Empty(violations);
+        }
+
+        [Fact]
         public void LoadRejectsMissingRequiredItemId()
         {
             var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".testplan.json");

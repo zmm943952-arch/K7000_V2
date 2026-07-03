@@ -23,7 +23,7 @@ dotnet test .\src\RfpTestStation\RfpTestStation.sln --nologo
 当前基线验证结果：
 
 - 测试项目：`RfpTestStation.Tests`
-- 测试数量：183
+- 测试数量：185
 - 最近验证：全部通过
 
 ## 运行时资产
@@ -110,6 +110,12 @@ Mock 场景文件放在 `Runtime/MockScenarios/*.mockscenario.json`。正式 tes
 .\Tools\analyze-testplan.ps1 -MarkdownPath docs\validation\testplan-optimization-report.md
 ```
 
+Flash timeout 审核表可用下面命令生成：
+
+```powershell
+.\Tools\generate-flash-timeout-review.ps1
+```
+
 ## 报告格式
 
 CSV 报告文件名使用生产格式：
@@ -122,6 +128,7 @@ CSV 报告文件名使用生产格式：
 
 ## 更新记录
 
+- 2026-07-03：新增 Flash timeout 审核表生成脚本 `Tools/generate-flash-timeout-review.ps1` 和 `docs/validation/flash-timeout-review.md`；新增静态测试校验 Flash 步骤的 script、timeout、stopOnFailure 和脚本存在性。
 - 2026-07-03：新增 testplan 同步防回归测试，确保 `src/RfpTestStation/Rfp7000V2.testplan.json` 与 `Runtime/TestPlans/Rfp7000V2.testplan.json` 内容保持一致。
 - 2026-07-03：新增 testplan 防回归测试，校验 Functional Group 子项和子检查不重新引入 `powerOnBefore`，守住组级共享上电优化。
 - 2026-07-03：testplan 优化报告新增 `Optimization Priority Review` 分级表，将优化点标为“可立即改 / 需硬件确认 / 暂不改”，避免无硬件阶段误改真实时序。
