@@ -360,7 +360,7 @@ if (-not [string]::IsNullOrWhiteSpace($MarkdownPath)) {
     $markdown.Add("| 5000 ms settle checks | $statusHardwareConfirm | Explicit settleMs total is $settleTotal ms; review table is tracked in ``docs/validation/settle-time-review.md``. | Use oscilloscope or device response data to fill suggested settleMs before reducing or moving waits to group level. |")
     $markdown.Add("| Repeated I2C read signatures | $statusHardwareConfirm | Repeated I2C signatures are tracked in ``docs/validation/i2c-reuse-review.md``, including button and HVAC switch groups. | Confirm product state does not change between reads before merging reads in the executor. |")
     $markdown.Add("| Shared power-on groups | $statusImmediate | CH1 12.2 V and CH3 3.3 V reuse is visible at group level. | Keep new group-level power structure; avoid reintroducing child-level repeated power toggles. |")
-    $markdown.Add("| result.output and cleanup.fixture stopOnFailure=false | $statusKeep | These are terminal/reporting and cleanup steps. | Keep running result output and cleanup even when the test has failed. |")
+    $markdown.Add("| result.output and cleanup.fixture stopOnFailure=false | $statusKeep | These are terminal/reporting and cleanup steps; policy table is tracked in ``docs/validation/stop-policy-review.md``. | Keep running result output and cleanup even when the test has failed. |")
     $markdown.Add("")
 
     $markdown.Add("## Optimization Suggestions")

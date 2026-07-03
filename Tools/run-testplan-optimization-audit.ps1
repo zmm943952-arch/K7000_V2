@@ -50,6 +50,11 @@ try {
             -OutputPath (Join-Path $OutputDirectory "i2c-reuse-review.md")
     }
 
+    Invoke-Step "Stop policy review" {
+        & (Join-Path $scriptRoot "generate-stop-policy-review.ps1") `
+            -OutputPath (Join-Path $OutputDirectory "stop-policy-review.md")
+    }
+
     Invoke-Step "Mock validation" {
         & (Join-Path $scriptRoot "run-mock-validation.ps1") `
             -Configuration $Configuration

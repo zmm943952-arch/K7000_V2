@@ -42,6 +42,7 @@ namespace RfpTestStation.Tests.App
                 Assert.Contains("docs/validation/flash-timeout-review.md", report);
                 Assert.Contains("docs/validation/settle-time-review.md", report);
                 Assert.Contains("docs/validation/i2c-reuse-review.md", report);
+                Assert.Contains("docs/validation/stop-policy-review.md", report);
                 Assert.Contains("## Optimization Suggestions", report);
             }
             finally
@@ -150,6 +151,38 @@ namespace RfpTestStation.Tests.App
         }
 
         [Fact]
+        public void StopOnFailureReviewScriptGeneratesActionableMarkdown()
+        {
+            var repoRoot = TestPaths.RepoRoot();
+            var scriptPath = Path.Combine(repoRoot, "Tools", "generate-stop-policy-review.ps1");
+            var reportPath = Path.Combine(Path.GetTempPath(), "RfpTestStation_StopPolicyReview_" + Guid.NewGuid().ToString("N") + ".md");
+
+            try
+            {
+                var result = RunPowerShell(
+                    repoRoot,
+                    "-NoProfile -ExecutionPolicy Bypass -File \"" + scriptPath + "\" -OutputPath \"" + reportPath + "\"");
+
+                Assert.Equal(0, result.ExitCode);
+                Assert.Contains("STOP POLICY REVIEW", result.Output);
+
+                var report = File.ReadAllText(reportPath, Encoding.UTF8);
+                Assert.Contains("# Stop Policy Review", report);
+                Assert.Contains("result.output", report);
+                Assert.Contains("cleanup.fixture", report);
+                Assert.Contains("Allowed To Continue", report);
+                Assert.Contains("Reason", report);
+            }
+            finally
+            {
+                if (File.Exists(reportPath))
+                {
+                    File.Delete(reportPath);
+                }
+            }
+        }
+
+        [Fact]
         public void OptimizationAuditScriptRegeneratesReportsAndRunsMockValidation()
         {
             var repoRoot = TestPaths.RepoRoot();
@@ -168,12 +201,14 @@ namespace RfpTestStation.Tests.App
                 Assert.Contains("FLASH TIMEOUT REVIEW", result.Output);
                 Assert.Contains("SETTLE TIME REVIEW", result.Output);
                 Assert.Contains("I2C REUSE REVIEW", result.Output);
+                Assert.Contains("STOP POLICY REVIEW", result.Output);
                 Assert.Contains("Mock validation completed.", result.Output);
 
                 Assert.True(File.Exists(Path.Combine(outputDirectory, "testplan-optimization-report.md")));
                 Assert.True(File.Exists(Path.Combine(outputDirectory, "flash-timeout-review.md")));
                 Assert.True(File.Exists(Path.Combine(outputDirectory, "settle-time-review.md")));
                 Assert.True(File.Exists(Path.Combine(outputDirectory, "i2c-reuse-review.md")));
+                Assert.True(File.Exists(Path.Combine(outputDirectory, "stop-policy-review.md")));
             }
             finally
             {
