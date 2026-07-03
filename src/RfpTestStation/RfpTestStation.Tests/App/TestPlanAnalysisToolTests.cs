@@ -84,6 +84,37 @@ namespace RfpTestStation.Tests.App
             }
         }
 
+        [Fact]
+        public void SettleTimeReviewScriptGeneratesActionableMarkdown()
+        {
+            var repoRoot = TestPaths.RepoRoot();
+            var scriptPath = Path.Combine(repoRoot, "Tools", "generate-settle-time-review.ps1");
+            var reportPath = Path.Combine(Path.GetTempPath(), "RfpTestStation_SettleTimeReview_" + Guid.NewGuid().ToString("N") + ".md");
+
+            try
+            {
+                var result = RunPowerShell(
+                    repoRoot,
+                    "-NoProfile -ExecutionPolicy Bypass -File \"" + scriptPath + "\" -OutputPath \"" + reportPath + "\"");
+
+                Assert.Equal(0, result.ExitCode);
+                Assert.Contains("SETTLE TIME REVIEW", result.Output);
+
+                var report = File.ReadAllText(reportPath, Encoding.UTF8);
+                Assert.Contains("# Settle Time Review", report);
+                Assert.Contains("Explicit settleMs total", report);
+                Assert.Contains("Scope", report);
+                Assert.Contains("Hardware Confirmed", report);
+            }
+            finally
+            {
+                if (File.Exists(reportPath))
+                {
+                    File.Delete(reportPath);
+                }
+            }
+        }
+
         private static ProcessResult RunPowerShell(string workingDirectory, string arguments)
         {
             var startInfo = new ProcessStartInfo
