@@ -39,6 +39,9 @@ namespace RfpTestStation.Tests.App
                 Assert.Contains("\u53ef\u7acb\u5373\u6539", report);
                 Assert.Contains("\u9700\u786c\u4ef6\u786e\u8ba4", report);
                 Assert.Contains("\u6682\u4e0d\u6539", report);
+                Assert.Contains("docs/validation/flash-timeout-review.md", report);
+                Assert.Contains("docs/validation/settle-time-review.md", report);
+                Assert.Contains("docs/validation/i2c-reuse-review.md", report);
                 Assert.Contains("## Optimization Suggestions", report);
             }
             finally
@@ -142,6 +145,41 @@ namespace RfpTestStation.Tests.App
                 if (File.Exists(reportPath))
                 {
                     File.Delete(reportPath);
+                }
+            }
+        }
+
+        [Fact]
+        public void OptimizationAuditScriptRegeneratesReportsAndRunsMockValidation()
+        {
+            var repoRoot = TestPaths.RepoRoot();
+            var scriptPath = Path.Combine(repoRoot, "Tools", "run-testplan-optimization-audit.ps1");
+            var outputDirectory = Path.Combine(Path.GetTempPath(), "RfpTestStation_OptimizationAudit_" + Guid.NewGuid().ToString("N"));
+
+            try
+            {
+                var result = RunPowerShell(
+                    repoRoot,
+                    "-NoProfile -ExecutionPolicy Bypass -File \"" + scriptPath + "\" -OutputDirectory \"" + outputDirectory + "\"");
+
+                Assert.Equal(0, result.ExitCode);
+                Assert.Contains("TESTPLAN OPTIMIZATION AUDIT", result.Output);
+                Assert.Contains("TESTPLAN ANALYSIS", result.Output);
+                Assert.Contains("FLASH TIMEOUT REVIEW", result.Output);
+                Assert.Contains("SETTLE TIME REVIEW", result.Output);
+                Assert.Contains("I2C REUSE REVIEW", result.Output);
+                Assert.Contains("Mock validation completed.", result.Output);
+
+                Assert.True(File.Exists(Path.Combine(outputDirectory, "testplan-optimization-report.md")));
+                Assert.True(File.Exists(Path.Combine(outputDirectory, "flash-timeout-review.md")));
+                Assert.True(File.Exists(Path.Combine(outputDirectory, "settle-time-review.md")));
+                Assert.True(File.Exists(Path.Combine(outputDirectory, "i2c-reuse-review.md")));
+            }
+            finally
+            {
+                if (Directory.Exists(outputDirectory))
+                {
+                    Directory.Delete(outputDirectory, true);
                 }
             }
         }
