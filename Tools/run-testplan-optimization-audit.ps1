@@ -55,6 +55,11 @@ try {
             -OutputPath (Join-Path $OutputDirectory "stop-policy-review.md")
     }
 
+    Invoke-Step "Hardware confirmation checklist" {
+        & (Join-Path $scriptRoot "generate-hardware-confirmation-checklist.ps1") `
+            -OutputPath (Join-Path $OutputDirectory "testplan-hardware-confirmation-checklist.md")
+    }
+
     Invoke-Step "Mock validation" {
         & (Join-Path $scriptRoot "run-mock-validation.ps1") `
             -Configuration $Configuration

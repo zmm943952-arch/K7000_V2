@@ -183,6 +183,40 @@ namespace RfpTestStation.Tests.App
         }
 
         [Fact]
+        public void HardwareConfirmationChecklistScriptGeneratesActionableMarkdown()
+        {
+            var repoRoot = TestPaths.RepoRoot();
+            var scriptPath = Path.Combine(repoRoot, "Tools", "generate-hardware-confirmation-checklist.ps1");
+            var reportPath = Path.Combine(Path.GetTempPath(), "RfpTestStation_HardwareChecklist_" + Guid.NewGuid().ToString("N") + ".md");
+
+            try
+            {
+                var result = RunPowerShell(
+                    repoRoot,
+                    "-NoProfile -ExecutionPolicy Bypass -File \"" + scriptPath + "\" -OutputPath \"" + reportPath + "\"");
+
+                Assert.Equal(0, result.ExitCode);
+                Assert.Contains("HARDWARE CONFIRMATION CHECKLIST", result.Output);
+
+                var report = File.ReadAllText(reportPath, Encoding.UTF8);
+                Assert.Contains("# Testplan Hardware Confirmation Checklist", report);
+                Assert.Contains("No-Hardware Completed", report);
+                Assert.Contains("Hardware Required", report);
+                Assert.Contains("Flash Timeout", report);
+                Assert.Contains("Settle Time", report);
+                Assert.Contains("I2C Reuse", report);
+                Assert.Contains("Stop Policy", report);
+            }
+            finally
+            {
+                if (File.Exists(reportPath))
+                {
+                    File.Delete(reportPath);
+                }
+            }
+        }
+
+        [Fact]
         public void OptimizationAuditScriptRegeneratesReportsAndRunsMockValidation()
         {
             var repoRoot = TestPaths.RepoRoot();
@@ -202,6 +236,7 @@ namespace RfpTestStation.Tests.App
                 Assert.Contains("SETTLE TIME REVIEW", result.Output);
                 Assert.Contains("I2C REUSE REVIEW", result.Output);
                 Assert.Contains("STOP POLICY REVIEW", result.Output);
+                Assert.Contains("HARDWARE CONFIRMATION CHECKLIST", result.Output);
                 Assert.Contains("Mock validation completed.", result.Output);
 
                 Assert.True(File.Exists(Path.Combine(outputDirectory, "testplan-optimization-report.md")));
@@ -209,6 +244,7 @@ namespace RfpTestStation.Tests.App
                 Assert.True(File.Exists(Path.Combine(outputDirectory, "settle-time-review.md")));
                 Assert.True(File.Exists(Path.Combine(outputDirectory, "i2c-reuse-review.md")));
                 Assert.True(File.Exists(Path.Combine(outputDirectory, "stop-policy-review.md")));
+                Assert.True(File.Exists(Path.Combine(outputDirectory, "testplan-hardware-confirmation-checklist.md")));
             }
             finally
             {

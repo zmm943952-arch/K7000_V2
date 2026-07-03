@@ -23,7 +23,7 @@ dotnet test .\src\RfpTestStation\RfpTestStation.sln --nologo
 当前基线验证结果：
 
 - 测试项目：`RfpTestStation.Tests`
-- 测试数量：189
+- 测试数量：190
 - 最近验证：全部通过
 
 ## 运行时资产
@@ -134,13 +134,19 @@ I2C 重复读审核表可用下面命令生成：
 .\Tools\generate-stop-policy-review.ps1
 ```
 
+硬件到位后的确认清单可用下面命令生成：
+
+```powershell
+.\Tools\generate-hardware-confirmation-checklist.ps1
+```
+
 完整 testplan 优化审计可用下面命令一次性执行：
 
 ```powershell
 .\Tools\run-testplan-optimization-audit.ps1
 ```
 
-该脚本会重新生成 testplan 优化报告、Flash timeout 审核表、settleMs 审核表、I2C 重复读审核表、失败中断策略审核表，并运行 Mock 验收。
+该脚本会重新生成 testplan 优化报告、Flash timeout 审核表、settleMs 审核表、I2C 重复读审核表、失败中断策略审核表、硬件确认清单，并运行 Mock 验收。
 
 ## 报告格式
 
@@ -157,6 +163,7 @@ CSV 报告文件名使用生产格式：
 - 2026-07-03：新增 I2C 重复读审核表生成脚本 `Tools/generate-i2c-reuse-review.ps1` 和 `docs/validation/i2c-reuse-review.md`，列出 12 类重复 I2C 签名和合并确认字段。
 - 2026-07-03：新增一键 testplan 优化审计脚本 `Tools/run-testplan-optimization-audit.ps1`，可一次生成全部优化报告并运行 Mock 验收。
 - 2026-07-03：新增失败中断策略审核脚本 `Tools/generate-stop-policy-review.ps1` 和 `docs/validation/stop-policy-review.md`，明确只有 `result.output` 与 `cleanup.fixture` 可失败后继续。
+- 2026-07-03：新增硬件确认清单生成脚本 `Tools/generate-hardware-confirmation-checklist.ps1` 和 `docs/validation/testplan-hardware-confirmation-checklist.md`，汇总无硬件已完成项和硬件到位后必须确认的优化项。
 - 2026-07-03：新增 settleMs 审核表生成脚本 `Tools/generate-settle-time-review.ps1` 和 `docs/validation/settle-time-review.md`，列出 49 处显式等待和硬件确认字段。
 - 2026-07-03：新增 Flash timeout 审核表生成脚本 `Tools/generate-flash-timeout-review.ps1` 和 `docs/validation/flash-timeout-review.md`；新增静态测试校验 Flash 步骤的 script、timeout、stopOnFailure 和脚本存在性。
 - 2026-07-03：新增 testplan 同步防回归测试，确保 `src/RfpTestStation/Rfp7000V2.testplan.json` 与 `Runtime/TestPlans/Rfp7000V2.testplan.json` 内容保持一致。
