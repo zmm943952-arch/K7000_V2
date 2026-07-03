@@ -107,6 +107,17 @@ Generated from `Runtime/TestPlans/Rfp7000V2.testplan.json`.
 - result.output: stopOnFailure is not true
 - cleanup.fixture: stopOnFailure is not true
 
+## Optimization Priority Review
+
+| Item | Status | Evidence | Next Action |
+| --- | --- | --- | --- |
+| Keep this report as the baseline | 可立即改 | Current report captures timeout, power, settle, and I2C reuse signals. | Re-run this script after every testplan change and compare the generated report. |
+| Flash timeout audit | 需硬件确认 | Flash kind timeout total is 2400 seconds across 4 steps. | Measure real script duration on hardware or collect historical station logs before reducing timeout values. |
+| 5000 ms settle checks | 需硬件确认 | Explicit settleMs total is 116500 ms; longest checks are 5000 ms. | Use oscilloscope or device response data to decide whether any wait can be reduced or moved to group level. |
+| Repeated I2C read signatures | 需硬件确认 | Repeated I2C signatures are listed above, including button and HVAC switch groups. | Confirm product state does not change between reads before merging reads in the executor. |
+| Shared power-on groups | 可立即改 | CH1 12.2 V and CH3 3.3 V reuse is visible at group level. | Keep new group-level power structure; avoid reintroducing child-level repeated power toggles. |
+| result.output and cleanup.fixture stopOnFailure=false | 暂不改 | These are terminal/reporting and cleanup steps. | Keep running result output and cleanup even when the test has failed. |
+
 ## Optimization Suggestions
 
 - Review flash item timeouts first; they dominate worst-case station time.

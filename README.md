@@ -122,6 +122,7 @@ CSV 报告文件名使用生产格式：
 
 ## 更新记录
 
+- 2026-07-03：testplan 优化报告新增 `Optimization Priority Review` 分级表，将优化点标为“可立即改 / 需硬件确认 / 暂不改”，避免无硬件阶段误改真实时序。
 - 2026-07-02：`Tools/analyze-testplan.ps1` 支持 `-MarkdownPath`，已生成 `docs/validation/testplan-optimization-report.md`，用于保存当前 testplan 时间与重复动作分析基线。
 - 2026-07-02：新增 testplan 静态分析脚本 `Tools/analyze-testplan.ps1`，无硬件时可直接统计 timeout、重复上电、settleMs、I2C 重复签名和 stopOnFailure 风险点，作为测试时间优化清单。
 - 2026-07-02：新增 Mock 自动验收脚本 `Tools/run-mock-validation.ps1` 和对应自动化测试；无硬件时可自动跑完整 Passed 流程、烧录失败、I2C 无回复、电压超限，并审核 CSV 追溯字段。

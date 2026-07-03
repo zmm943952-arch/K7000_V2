@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using Xunit;
 
 namespace RfpTestStation.Tests.App
@@ -30,10 +31,14 @@ namespace RfpTestStation.Tests.App
                 Assert.Contains("I2C REUSE", result.Output);
                 Assert.Contains("OPTIMIZATION SUGGESTIONS", result.Output);
 
-                var report = File.ReadAllText(reportPath);
+                var report = File.ReadAllText(reportPath, Encoding.UTF8);
                 Assert.Contains("# Testplan Optimization Report", report);
                 Assert.Contains("## Summary", report);
                 Assert.Contains("## Kind Summary", report);
+                Assert.Contains("## Optimization Priority Review", report);
+                Assert.Contains("\u53ef\u7acb\u5373\u6539", report);
+                Assert.Contains("\u9700\u786c\u4ef6\u786e\u8ba4", report);
+                Assert.Contains("\u6682\u4e0d\u6539", report);
                 Assert.Contains("## Optimization Suggestions", report);
             }
             finally

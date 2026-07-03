@@ -61,6 +61,10 @@ function Format-Power {
     return "CH$channel $voltage V"
 }
 
+$statusImmediate = -join ([char[]](0x53EF, 0x7ACB, 0x5373, 0x6539))
+$statusHardwareConfirm = -join ([char[]](0x9700, 0x786C, 0x4EF6, 0x786E, 0x8BA4))
+$statusKeep = -join ([char[]](0x6682, 0x4E0D, 0x6539))
+
 $plan = Get-Content -Path $TestPlanPath -Raw | ConvertFrom-Json
 $items = To-Array (Get-PropValue $plan "items")
 $topItems = @()
@@ -345,6 +349,18 @@ if (-not [string]::IsNullOrWhiteSpace($MarkdownPath)) {
             $markdown.Add("- $($risk.Id): $($risk.Reason)")
         }
     }
+    $markdown.Add("")
+
+    $markdown.Add("## Optimization Priority Review")
+    $markdown.Add("")
+    $markdown.Add("| Item | Status | Evidence | Next Action |")
+    $markdown.Add("| --- | --- | --- | --- |")
+    $markdown.Add("| Keep this report as the baseline | $statusImmediate | Current report captures timeout, power, settle, and I2C reuse signals. | Re-run this script after every testplan change and compare the generated report. |")
+    $markdown.Add("| Flash timeout audit | $statusHardwareConfirm | Flash kind timeout total is 2400 seconds across 4 steps. | Measure real script duration on hardware or collect historical station logs before reducing timeout values. |")
+    $markdown.Add("| 5000 ms settle checks | $statusHardwareConfirm | Explicit settleMs total is $settleTotal ms; longest checks are 5000 ms. | Use oscilloscope or device response data to decide whether any wait can be reduced or moved to group level. |")
+    $markdown.Add("| Repeated I2C read signatures | $statusHardwareConfirm | Repeated I2C signatures are listed above, including button and HVAC switch groups. | Confirm product state does not change between reads before merging reads in the executor. |")
+    $markdown.Add("| Shared power-on groups | $statusImmediate | CH1 12.2 V and CH3 3.3 V reuse is visible at group level. | Keep new group-level power structure; avoid reintroducing child-level repeated power toggles. |")
+    $markdown.Add("| result.output and cleanup.fixture stopOnFailure=false | $statusKeep | These are terminal/reporting and cleanup steps. | Keep running result output and cleanup even when the test has failed. |")
     $markdown.Add("")
 
     $markdown.Add("## Optimization Suggestions")
