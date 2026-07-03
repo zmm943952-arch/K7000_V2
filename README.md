@@ -23,7 +23,7 @@ dotnet test .\src\RfpTestStation\RfpTestStation.sln --nologo
 当前基线验证结果：
 
 - 测试项目：`RfpTestStation.Tests`
-- 测试数量：181
+- 测试数量：182
 - 最近验证：全部通过
 
 ## 运行时资产
@@ -122,6 +122,7 @@ CSV 报告文件名使用生产格式：
 
 ## 更新记录
 
+- 2026-07-03：新增 testplan 防回归测试，校验 Functional Group 子项和子检查不重新引入 `powerOnBefore`，守住组级共享上电优化。
 - 2026-07-03：testplan 优化报告新增 `Optimization Priority Review` 分级表，将优化点标为“可立即改 / 需硬件确认 / 暂不改”，避免无硬件阶段误改真实时序。
 - 2026-07-02：`Tools/analyze-testplan.ps1` 支持 `-MarkdownPath`，已生成 `docs/validation/testplan-optimization-report.md`，用于保存当前 testplan 时间与重复动作分析基线。
 - 2026-07-02：新增 testplan 静态分析脚本 `Tools/analyze-testplan.ps1`，无硬件时可直接统计 timeout、重复上电、settleMs、I2C 重复签名和 stopOnFailure 风险点，作为测试时间优化清单。

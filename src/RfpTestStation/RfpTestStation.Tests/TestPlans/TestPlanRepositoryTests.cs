@@ -47,6 +47,40 @@ namespace RfpTestStation.Tests.TestPlans
         }
 
         [Fact]
+        public void FunctionalGroupChildrenDoNotReintroducePowerOnBefore()
+        {
+            var violations = new List<string>();
+            foreach (var path in new[] { ProjectTestPlanPath(), RuntimeTestPlanPath() })
+            {
+                var json = JObject.Parse(File.ReadAllText(path));
+                foreach (var group in ((JArray)json["items"]!).OfType<JObject>()
+                    .Where(x => (string?)x.SelectToken("parameters.template") == "I2cFunctionalGroup"))
+                {
+                    var groupId = (string)group["id"]!;
+                    foreach (var child in ((JArray)group.SelectToken("parameters.items")!).OfType<JObject>())
+                    {
+                        var childId = (string?)child["id"] ?? "child";
+                        if (child["powerOnBefore"] != null)
+                        {
+                            violations.Add(Path.GetFileName(path) + ":" + groupId + "/" + childId);
+                        }
+
+                        foreach (var check in ((JArray?)child["checks"] ?? new JArray()).OfType<JObject>())
+                        {
+                            var checkName = (string?)check["name"] ?? "check";
+                            if (check["powerOnBefore"] != null)
+                            {
+                                violations.Add(Path.GetFileName(path) + ":" + groupId + "/" + childId + "/" + checkName);
+                            }
+                        }
+                    }
+                }
+            }
+
+            Assert.Empty(violations);
+        }
+
+        [Fact]
         public void LoadRejectsMissingRequiredItemId()
         {
             var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".testplan.json");
@@ -211,6 +245,11 @@ namespace RfpTestStation.Tests.TestPlans
         private static string ProjectTestPlanPath()
         {
             return Path.Combine(TestPaths.RepoRoot(), "src", "RfpTestStation", "Rfp7000V2.testplan.json");
+        }
+
+        private static string RuntimeTestPlanPath()
+        {
+            return Path.Combine(TestPaths.RepoRoot(), "Runtime", "TestPlans", "Rfp7000V2.testplan.json");
         }
 
         private static void AssertFunctionalGroup(TestPlanDefinition plan, string id, int childCount)
