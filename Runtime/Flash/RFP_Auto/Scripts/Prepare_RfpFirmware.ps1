@@ -86,6 +86,8 @@ function Copy-FirmwareFile {
     Copy-Item -LiteralPath $sourcePath -Destination $targetPath -Force
 
     $targetInfo = Get-Item -LiteralPath $targetPath
+    $targetInfo.LastWriteTimeUtc = $sourceInfo.LastWriteTimeUtc
+    $targetInfo = Get-Item -LiteralPath $targetPath
     if ($targetInfo.Length -le 0) {
         throw "Copied firmware file is empty: $targetPath"
     }
@@ -93,10 +95,77 @@ function Copy-FirmwareFile {
     return [System.IO.Path]::GetFullPath($targetPath)
 }
 
+function Test-FileCurrent {
+    param(
+        [System.IO.FileInfo]$SourceInfo,
+        [string]$TargetPath
+    )
+
+    if (-not (Test-Path -LiteralPath $TargetPath -PathType Leaf)) {
+        return $false
+    }
+
+    $targetInfo = Get-Item -LiteralPath $TargetPath
+    if ($targetInfo.Length -ne $SourceInfo.Length) {
+        return $false
+    }
+
+    $timeDeltaSeconds = [Math]::Abs(($targetInfo.LastWriteTimeUtc - $SourceInfo.LastWriteTimeUtc).TotalSeconds)
+    return $timeDeltaSeconds -lt 2
+}
+
+function Get-ConfiguredFirmwareFileName {
+    param(
+        [object]$FirmwareFile
+    )
+
+    if ($null -eq $FirmwareFile) {
+        return ""
+    }
+
+    if ($FirmwareFile -is [string]) {
+        return [string]$FirmwareFile
+    }
+
+    if ($null -ne $FirmwareFile.PSObject.Properties["MesFileName"]) {
+        return [string]$FirmwareFile.MesFileName
+    }
+
+    if ($null -ne $FirmwareFile.PSObject.Properties["LocalFileName"]) {
+        return [string]$FirmwareFile.LocalFileName
+    }
+
+    return [string]$FirmwareFile
+}
+
 function Get-RfpFirmwareFiles {
     param(
-        [string]$MesDir
+        [string]$MesDir,
+        [object[]]$ConfiguredFirmwareFiles = @()
     )
+
+    if ($ConfiguredFirmwareFiles.Count -gt 0) {
+        $configuredFiles = New-Object System.Collections.Generic.List[System.IO.FileInfo]
+        foreach ($firmwareFile in $ConfiguredFirmwareFiles) {
+            $fileName = Get-ConfiguredFirmwareFileName -FirmwareFile $firmwareFile
+            if ([string]::IsNullOrWhiteSpace($fileName)) {
+                continue
+            }
+
+            $path = Join-Path $MesDir $fileName.Trim()
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+                throw "Configured RFP firmware file not found: $path"
+            }
+
+            $configuredFiles.Add((Get-Item -LiteralPath $path))
+        }
+
+        if ($configuredFiles.Count -eq 0) {
+            throw "Configured RFP FirmwareFiles is empty after trimming."
+        }
+
+        return @($configuredFiles.ToArray())
+    }
 
     $allowedExtensions = @(".mot", ".srec", ".hex", ".bin")
     $files = @(Get-ChildItem -LiteralPath $MesDir -File |
@@ -117,6 +186,21 @@ function Get-RfpFirmwareFiles {
     }
 
     return $files
+}
+
+function Get-ConfiguredFirmwareFiles {
+    param(
+        [object]$Object
+    )
+
+    if ($null -eq $Object -or $null -eq $Object.PSObject.Properties["FirmwareFiles"]) {
+        return @()
+    }
+
+    return @($Object.FirmwareFiles |
+        Where-Object { -not [string]::IsNullOrWhiteSpace((Get-ConfiguredFirmwareFileName -FirmwareFile $_)) } |
+        ForEach-Object { $_ } |
+        Where-Object { $null -ne $_ })
 }
 
 function Get-RfpFirmwareSortRank {
@@ -178,6 +262,51 @@ function Replace-RfpProgramFiles {
     }
 }
 
+function Test-RfpProgramFilesCurrent {
+    param(
+        [xml]$ProjectXml,
+        [string[]]$LocalPaths
+    )
+
+    $items = @($ProjectXml.SelectNodes("/RfpProject/OperationTab/ProgramFiles/Item"))
+    $currentPaths = @($items |
+        ForEach-Object { [string]$_.InnerText } |
+        Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
+        ForEach-Object { [System.IO.Path]::GetFullPath($_) })
+
+    if ($currentPaths.Count -ne $LocalPaths.Count) {
+        return $false
+    }
+
+    for ($i = 0; $i -lt $LocalPaths.Count; $i++) {
+        if (-not [string]::Equals($currentPaths[$i], [System.IO.Path]::GetFullPath($LocalPaths[$i]), [StringComparison]::OrdinalIgnoreCase)) {
+            return $false
+        }
+    }
+
+    return $true
+}
+
+function Test-RfpPreparationCurrent {
+    param(
+        [xml]$ProjectXml,
+        [System.IO.FileInfo[]]$MesFiles,
+        [string[]]$LocalPaths
+    )
+
+    if (-not (Test-RfpProgramFilesCurrent -ProjectXml $ProjectXml -LocalPaths $LocalPaths)) {
+        return $false
+    }
+
+    for ($i = 0; $i -lt $MesFiles.Count; $i++) {
+        if (-not (Test-FileCurrent -SourceInfo $MesFiles[$i] -TargetPath $LocalPaths[$i])) {
+            return $false
+        }
+    }
+
+    return $true
+}
+
 function Clear-LocalFirmwareDirectory {
     param(
         [string]$LocalDir,
@@ -208,12 +337,67 @@ function Clear-LocalFirmwareDirectory {
         throw "Refusing to clear MES source directory for ${Context}: $fullLocalDir"
     }
 
-    if (-not (Test-Path -LiteralPath $fullLocalDir)) {
-        New-Item -ItemType Directory -Path $fullLocalDir | Out-Null
-        return
+    Get-ChildItem -LiteralPath $fullLocalDir -Force |
+        Where-Object { $_.Name -ne ".rfp-firmware-cache" } |
+        Remove-Item -Recurse -Force
+}
+
+function Assert-NoReparsePoints {
+    param([string]$AllowedRoot, [string]$TargetPath)
+
+    foreach ($path in @($AllowedRoot, $TargetPath)) {
+        if ((Test-Path -LiteralPath $path) -and ((Get-Item -LiteralPath $path -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+            throw "Unsafe firmware cache reparse point: $path"
+        }
     }
 
-    Get-ChildItem -LiteralPath $fullLocalDir -Force | Remove-Item -Recurse -Force
+    $cursor = $TargetPath
+    while (-not [string]::Equals($cursor, $AllowedRoot, [StringComparison]::OrdinalIgnoreCase)) {
+        if ((Test-Path -LiteralPath $cursor) -and ((Get-Item -LiteralPath $cursor -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+            throw "Unsafe firmware cache reparse point: $cursor"
+        }
+        $parent = [IO.Directory]::GetParent($cursor)
+        if ($null -eq $parent) { break }
+        $cursor = $parent.FullName
+    }
+
+    if (Test-Path -LiteralPath $TargetPath -PathType Container) {
+        $linkedEntry = Get-ChildItem -LiteralPath $TargetPath -Force -Recurse |
+            Where-Object { $_.Attributes -band [IO.FileAttributes]::ReparsePoint } |
+            Select-Object -First 1
+        if ($null -ne $linkedEntry) {
+            throw "Unsafe firmware cache reparse point: $($linkedEntry.FullName)"
+        }
+    }
+}
+
+function Initialize-OwnedRfpCache {
+    param([string]$LocalDir, [string]$MesDir, [string]$ConfigDir)
+
+    $fullLocalDir = [IO.Path]::GetFullPath($LocalDir).TrimEnd('\', '/')
+    $allowedRoot = [IO.Path]::GetFullPath((Join-Path (Split-Path -Parent $PSScriptRoot) "Firmware")).TrimEnd('\', '/')
+    $prefix = $allowedRoot + [IO.Path]::DirectorySeparatorChar
+    if (-not $fullLocalDir.StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase)) {
+        throw "Unsafe RFP LocalFirmwarePath outside allowed Firmware cache root: $fullLocalDir"
+    }
+    if ([string]::Equals($fullLocalDir, [IO.Path]::GetFullPath($ConfigDir).TrimEnd('\', '/'), [StringComparison]::OrdinalIgnoreCase) -or
+        [string]::Equals($fullLocalDir, [IO.Path]::GetFullPath($MesDir).TrimEnd('\', '/'), [StringComparison]::OrdinalIgnoreCase)) {
+        throw "Unsafe RFP LocalFirmwarePath overlaps config or MES directory: $fullLocalDir"
+    }
+
+    Assert-NoReparsePoints -AllowedRoot $allowedRoot -TargetPath $fullLocalDir
+    if (-not (Test-Path -LiteralPath $fullLocalDir)) {
+        New-Item -ItemType Directory -Path $fullLocalDir | Out-Null
+    }
+
+    $markerPath = Join-Path $fullLocalDir ".rfp-firmware-cache"
+    $entries = @(Get-ChildItem -LiteralPath $fullLocalDir -Force)
+    if ($entries.Count -gt 0 -and -not (Test-Path -LiteralPath $markerPath -PathType Leaf)) {
+        throw "RFP firmware cache ownership marker is missing: $markerPath"
+    }
+    if (-not (Test-Path -LiteralPath $markerPath -PathType Leaf)) {
+        [IO.File]::WriteAllText($markerPath, "RfpTestStation firmware cache`r`n", [Text.UTF8Encoding]::new($false))
+    }
 }
 
 $configFullPath = [System.IO.Path]::GetFullPath($ConfigPath)
@@ -278,9 +462,24 @@ if (-not $mesDirExists) {
     throw "MES firmware directory not found: $mesDir"
 }
 
+$configuredFirmwareFiles = @(Get-ConfiguredFirmwareFiles -Object $projectConfig)
+$mesFirmwareFiles = @(Get-RfpFirmwareFiles -MesDir $mesDir -ConfiguredFirmwareFiles $configuredFirmwareFiles)
+$expectedLocalPaths = @($mesFirmwareFiles | ForEach-Object { [System.IO.Path]::GetFullPath((Join-Path $localDir $_.Name)) })
+
+Initialize-OwnedRfpCache -LocalDir $localDir -MesDir $mesDir -ConfigDir $configDir
+
+if (Test-RfpPreparationCurrent -ProjectXml $projectXml -MesFiles $mesFirmwareFiles -LocalPaths $expectedLocalPaths) {
+    [System.IO.File]::WriteAllLines($preparedFirmwarePathsFile, $expectedLocalPaths, $utf8NoBom)
+    [System.IO.File]::WriteAllLines($preparedProjectFirmwarePathsFile, $expectedLocalPaths, $utf8NoBom)
+
+    Write-Host "[INFO] Prepared firmware for $projectName already current."
+    Write-Host "[INFO] MES=$mesDir"
+    Write-Host "[INFO] Local=$localDir"
+    return
+}
+
 Clear-LocalFirmwareDirectory -LocalDir $localDir -MesDir $mesDir -ConfigDir $configDir -Context $projectName
 
-$mesFirmwareFiles = @(Get-RfpFirmwareFiles -MesDir $mesDir)
 $localPaths = New-Object System.Collections.Generic.List[string]
 foreach ($firmwareFile in $mesFirmwareFiles) {
     $localPath = Copy-FirmwareFile -MesDir $mesDir -LocalDir $localDir -MesFileName $firmwareFile.Name -LocalFileName $firmwareFile.Name

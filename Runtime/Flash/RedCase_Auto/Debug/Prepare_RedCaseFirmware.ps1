@@ -45,6 +45,20 @@ function Get-RequiredProperty {
     return $Object.$Name
 }
 
+function Write-PreparedBinPathFile {
+    param(
+        [string]$OutputBinPathFile,
+        [string]$LocalBinPath
+    )
+
+    $outputDir = Split-Path -Parent $OutputBinPathFile
+    if ($outputDir -and -not (Test-Path -LiteralPath $outputDir)) {
+        New-Item -ItemType Directory -Path $outputDir | Out-Null
+    }
+
+    Set-Content -LiteralPath $OutputBinPathFile -Value $LocalBinPath -Encoding ASCII
+}
+
 function Convert-ToRelativePath {
     param(
         [string]$BaseDir,
@@ -113,6 +127,8 @@ function Copy-RedCaseBin {
     Copy-Item -LiteralPath $sourcePath -Destination $targetPath -Force
 
     $targetInfo = Get-Item -LiteralPath $targetPath
+    $targetInfo.LastWriteTimeUtc = $sourceInfo.LastWriteTimeUtc
+    $targetInfo = Get-Item -LiteralPath $targetPath
     if ($targetInfo.Length -le 0) {
         throw "Copied RedCase bin is empty: $targetPath"
     }
@@ -120,10 +136,43 @@ function Copy-RedCaseBin {
     return [System.IO.Path]::GetFullPath($targetPath)
 }
 
+function Test-FileCurrent {
+    param(
+        [System.IO.FileInfo]$SourceInfo,
+        [string]$TargetPath
+    )
+
+    if (-not (Test-Path -LiteralPath $TargetPath -PathType Leaf)) {
+        return $false
+    }
+
+    $targetInfo = Get-Item -LiteralPath $TargetPath
+    if ($targetInfo.Length -ne $SourceInfo.Length) {
+        return $false
+    }
+
+    $timeDeltaSeconds = [Math]::Abs(($targetInfo.LastWriteTimeUtc - $SourceInfo.LastWriteTimeUtc).TotalSeconds)
+    return $timeDeltaSeconds -lt 2
+}
+
 function Get-RedCaseBinFile {
     param(
-        [string]$MesDir
+        [string]$MesDir,
+        [string[]]$ConfiguredFirmwareFiles = @()
     )
+
+    if ($ConfiguredFirmwareFiles.Count -gt 0) {
+        if ($ConfiguredFirmwareFiles.Count -gt 1) {
+            throw "RedCase FirmwareFiles must contain exactly one bin file."
+        }
+
+        $path = Join-Path $MesDir $ConfiguredFirmwareFiles[0]
+        if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+            throw "Configured RedCase bin file not found: $path"
+        }
+
+        return Get-Item -LiteralPath $path
+    }
 
     $files = @(Get-ChildItem -LiteralPath $MesDir -File -Filter "*.bin" | Sort-Object Name)
     if ($files.Count -eq 0) {
@@ -135,6 +184,20 @@ function Get-RedCaseBinFile {
     }
 
     return $files[0]
+}
+
+function Get-ConfiguredFirmwareFiles {
+    param(
+        [object]$Object
+    )
+
+    if ($null -eq $Object -or $null -eq $Object.PSObject.Properties["FirmwareFiles"]) {
+        return @()
+    }
+
+    return @($Object.FirmwareFiles |
+        ForEach-Object { [string]$_ } |
+        Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
 }
 
 function Clear-LocalFirmwareDirectory {
@@ -167,12 +230,52 @@ function Clear-LocalFirmwareDirectory {
         throw "Refusing to clear MES source directory for ${Context}: $fullLocalDir"
     }
 
-    if (-not (Test-Path -LiteralPath $fullLocalDir)) {
-        New-Item -ItemType Directory -Path $fullLocalDir | Out-Null
-        return
+    Get-ChildItem -LiteralPath $fullLocalDir -Force |
+        Where-Object { $_.Name -ne ".rfp-firmware-cache" } |
+        Remove-Item -Recurse -Force
+}
+
+function Assert-NoReparsePoints {
+    param([string]$TargetPath)
+
+    if ((Test-Path -LiteralPath $TargetPath) -and ((Get-Item -LiteralPath $TargetPath -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+        throw "Unsafe RedCase firmware cache reparse point: $TargetPath"
+    }
+    if (Test-Path -LiteralPath $TargetPath -PathType Container) {
+        $linkedEntry = Get-ChildItem -LiteralPath $TargetPath -Force -Recurse |
+            Where-Object { $_.Attributes -band [IO.FileAttributes]::ReparsePoint } |
+            Select-Object -First 1
+        if ($null -ne $linkedEntry) {
+            throw "Unsafe RedCase firmware cache reparse point: $($linkedEntry.FullName)"
+        }
+    }
+}
+
+function Initialize-OwnedRedCaseCache {
+    param([string]$LocalDir, [string]$MesDir, [string]$ConfigDir)
+
+    $fullLocalDir = [IO.Path]::GetFullPath($LocalDir).TrimEnd('\', '/')
+    $allowedPath = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot "Firmware_Local")).TrimEnd('\', '/')
+    if (-not [string]::Equals($fullLocalDir, $allowedPath, [StringComparison]::OrdinalIgnoreCase)) {
+        throw "Unsafe RedCase LocalFirmwarePath; expected fixed Firmware_Local cache: $allowedPath"
+    }
+    if ([string]::Equals($fullLocalDir, [IO.Path]::GetFullPath($ConfigDir).TrimEnd('\', '/'), [StringComparison]::OrdinalIgnoreCase) -or
+        [string]::Equals($fullLocalDir, [IO.Path]::GetFullPath($MesDir).TrimEnd('\', '/'), [StringComparison]::OrdinalIgnoreCase)) {
+        throw "Unsafe RedCase LocalFirmwarePath overlaps config or MES directory: $fullLocalDir"
     }
 
-    Get-ChildItem -LiteralPath $fullLocalDir -Force | Remove-Item -Recurse -Force
+    Assert-NoReparsePoints -TargetPath $fullLocalDir
+    if (-not (Test-Path -LiteralPath $fullLocalDir)) {
+        New-Item -ItemType Directory -Path $fullLocalDir | Out-Null
+    }
+    $markerPath = Join-Path $fullLocalDir ".rfp-firmware-cache"
+    $entries = @(Get-ChildItem -LiteralPath $fullLocalDir -Force)
+    if ($entries.Count -gt 0 -and -not (Test-Path -LiteralPath $markerPath -PathType Leaf)) {
+        throw "RedCase firmware cache ownership marker is missing: $markerPath"
+    }
+    if (-not (Test-Path -LiteralPath $markerPath -PathType Leaf)) {
+        [IO.File]::WriteAllText($markerPath, "RfpTestStation firmware cache`r`n", [Text.UTF8Encoding]::new($false))
+    }
 }
 
 $configFullPath = [System.IO.Path]::GetFullPath($ConfigPath)
@@ -198,11 +301,30 @@ if (-not $mesDirExists) {
     throw "MES RedCase directory not found: $mesDir"
 }
 
-Clear-LocalFirmwareDirectory -LocalDir $localDir -MesDir $mesDir -ConfigDir $configDir -Context "RedCase"
-
-$binFile = Get-RedCaseBinFile -MesDir $mesDir
+$configuredFirmwareFiles = @(Get-ConfiguredFirmwareFiles -Object $params)
+$binFile = Get-RedCaseBinFile -MesDir $mesDir -ConfiguredFirmwareFiles $configuredFirmwareFiles
 $mesFileName = $binFile.Name
 $localFileName = $binFile.Name
+$localBinPath = [System.IO.Path]::GetFullPath((Join-Path $localDir $localFileName))
+$configuredBinPath = Convert-ToRelativePath -BaseDir $configDir -PathText $localBinPath
+$currentBinPath = ""
+if ($null -ne $params.PSObject.Properties["BinFilePath"]) {
+    $currentBinPath = [string]$params.BinFilePath
+}
+
+Initialize-OwnedRedCaseCache -LocalDir $localDir -MesDir $mesDir -ConfigDir $configDir
+
+if ((Test-FileCurrent -SourceInfo $binFile -TargetPath $localBinPath) -and
+    [string]::Equals($currentBinPath, $configuredBinPath, [StringComparison]::OrdinalIgnoreCase)) {
+    Write-PreparedBinPathFile -OutputBinPathFile $OutputBinPathFile -LocalBinPath $localBinPath
+
+    Write-Host "[INFO] Prepared RedCase bin already current."
+    Write-Host "[INFO] MES=$mesDir"
+    Write-Host "[INFO] LocalBin=$localBinPath"
+    return
+}
+
+Clear-LocalFirmwareDirectory -LocalDir $localDir -MesDir $mesDir -ConfigDir $configDir -Context "RedCase"
 
 $localBinPath = Copy-RedCaseBin -MesDir $mesDir -LocalDir $localDir -MesFileName $mesFileName -LocalFileName $localFileName
 
@@ -210,11 +332,7 @@ $params.BinFilePath = Convert-ToRelativePath -BaseDir $configDir -PathText $loca
 $configJson = $config | ConvertTo-Json -Depth 20
 [System.IO.File]::WriteAllText($configFullPath, $configJson, [System.Text.UTF8Encoding]::new($true))
 
-$outputDir = Split-Path -Parent $OutputBinPathFile
-if ($outputDir -and -not (Test-Path -LiteralPath $outputDir)) {
-    New-Item -ItemType Directory -Path $outputDir | Out-Null
-}
-Set-Content -LiteralPath $OutputBinPathFile -Value $localBinPath -Encoding ASCII
+Write-PreparedBinPathFile -OutputBinPathFile $OutputBinPathFile -LocalBinPath $localBinPath
 
 Write-Host "[INFO] Prepared RedCase bin"
 Write-Host "[INFO] MES=$mesDir"
