@@ -1,0 +1,22 @@
+--- a/src/RfpTestStation/Rfp7000V2.testplan.json
++++ b/src/RfpTestStation/Rfp7000V2.testplan.json
+@@ -1347,7 +1347,7 @@
+         "ngOutputChannel": 4,
+         "buzzerOutputChannel": 7,
+         "resetInputChannel": 3,
+-        "passPulseOutputChannel": 6,
++        "passPulseOutputChannel": 8,
+         "passPulseMs": 1000,
+         "resetPollMs": 10,
+         "disableTimeout": true
+--- a/Runtime/TestPlans/Rfp7000V2.testplan.json
++++ b/Runtime/TestPlans/Rfp7000V2.testplan.json
+@@ -1347,7 +1347,7 @@
+         "ngOutputChannel": 4,
+         "buzzerOutputChannel": 7,
+         "resetInputChannel": 3,
+-        "passPulseOutputChannel": 6,
++        "passPulseOutputChannel": 8,
+         "passPulseMs": 1000,
+         "resetPollMs": 10,
+         "disableTimeout": true
